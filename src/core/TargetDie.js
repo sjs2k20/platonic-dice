@@ -11,18 +11,9 @@ class TargetDie extends Die {
      * @param {TargetConditions} conditions - The target conditions (array of successful values).
      */
     constructor(type, conditions) {
-        super(type, null); // Force modifier to always be null
+        super(type);
         this._conditions = conditions;
         this._outcomeHistory = [];
-    }
-
-    // Disable the ability to set a modifier later
-    get modifier() {
-        throw new Error("Modifiers are not supported for this die type.");
-    }
-
-    set modifier(_) {
-        throw new Error("Modifiers are not supported for this die type.");
     }
 
     /**
@@ -37,6 +28,7 @@ class TargetDie extends Die {
 
         // Store the modified roll and outcome
         this._result = roll;
+        this._history.push(roll);
         this._outcomeHistory.push(outcome);
         return roll;
     }

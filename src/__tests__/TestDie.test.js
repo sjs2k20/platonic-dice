@@ -1,159 +1,198 @@
-// const { DieType } = require("../core/Types");
-// const { rollDice } = require("../core/DiceUtils");
-// const { TestDie, CriticalState } = require("../core/TestDie");
+const { TestDie } = require("../core/TestDie");
+const { rollTestDie } = require("../core/DiceUtils");
+const { DieType, Outcome } = require("../core/Types");
 
-// // Mock rollDice to return predictable values
-// jest.mock("../core/DiceUtils", () => ({
-//     rollDice: jest.fn(),
-// }));
+// Mock rollTestDie to control test outcomes
+jest.mock("../core/DiceUtils", () => ({
+    rollTestDie: jest.fn(),
+}));
 
-// describe("TestDie Class", () => {
-//     let testDie;
-//     const testConditions = {
-//         target: 4, // Success if roll is 4 or higher
-//         critSuccessThreshold: 6, // Critical success if roll is 6 or higher
-//         critFailThreshold: 1, // Critical failure if roll is 1 or lower
-//     };
+describe("TestDie Class", () => {
+    let testDie;
+    const conditions = {
+        target: 4, // Success on 4+
+        critical_success: 6,
+        critical_failure: 2,
+    };
+    const mockModifier = (n) => n + 1; // Example modifier
 
-//     beforeEach(() => {
-//         testDie = new TestDie(DieType.D6, testConditions);
-//         rollDice.mockClear(); // Reset the mock before each test
-//     });
+    beforeEach(() => {
+        testDie = new TestDie(DieType.D6, conditions, mockModifier);
+        rollTestDie.mockClear(); // Reset mock before each test
+    });
 
-//     describe("Initialization", () => {
-//         it("should initialize with the correct type, conditions, and default success/critical values", () => {
-//             expect(testDie.type).toBe(DieType.D6);
-//             expect(testDie.conditions).toEqual(testConditions);
-//             expect(testDie.success).toBeNull(); // Initial success should be null
-//             expect(testDie.critical).toBe(CriticalState.None); // Initial critical state should be 'none'
-//         });
-//     });
+    // **Initialization Tests**
+    describe("Initialization", () => {
+        it("should initialize with the correct type, conditions, and modifier", () => {
+            expect(testDie.type).toBe("Modified_d6"); // Because of modifier
+            expect(testDie._conditions).toEqual(conditions);
+            expect(testDie._modifier).toBe(mockModifier);
+            expect(testDie._outcomeHistory).toEqual([]);
+        });
+    });
 
-//     describe("Rolling", () => {
-//         it("should roll the die and determine success based on target conditions", () => {
-//             rollDice.mockReturnValue(5); // Mock a roll result of 5
+    // **Rolling Tests**
+    describe("Rolling", () => {
+        it("should roll the die and determine success", () => {
+            rollTestDie.mockReturnValueOnce({
+                baseRoll: 4,
+                modifiedRoll: 5,
+                outcome: Outcome.Success,
+            });
 
-//             const result = testDie.roll();
+            const result = testDie.roll();
 
-//             expect(result).toBe(5); // Check the roll result
-//             expect(testDie.success).toBe(true); // Since 5 >= 4 (target)
-//             expect(testDie.critical).toBe(CriticalState.None); // No critical state for 5
-//         });
+            expect(result).toBe(5);
+            expect(testDie.getLastOutcome()).toBe(Outcome.Success);
+            expect(testDie.history).toEqual([4]); // Base roll
+            expect(testDie.modifiedHistory).toEqual([5]); // Modified roll
+        });
 
-//         it("should determine failure if the roll is below the target condition", () => {
-//             rollDice.mockReturnValue(3); // Mock a roll result of 3
+        it("should determine failure if roll is below target", () => {
+            rollTestDie.mockReturnValue({
+                baseRoll: 2,
+                modifiedRoll: 3,
+                outcome: Outcome.Failure,
+            });
 
-//             const result = testDie.roll();
+            const result = testDie.roll();
 
-//             expect(result).toBe(3); // Check the roll result
-//             expect(testDie.success).toBe(false); // Since 3 < 4 (target)
-//             expect(testDie.critical).toBe(CriticalState.None); // No critical state for 3
-//         });
+            expect(result).toBe(3); // Adjusted for modifier
+            expect(testDie.getLastOutcome()).toBe(Outcome.Failure);
+            expect(testDie.modifiedHistory).toEqual([3]); // Include modified history
+        });
 
-//         it("should determine critical success if the roll is above the critSuccessThreshold", () => {
-//             rollDice.mockReturnValue(6); // Mock a roll result of 6
+        it("should determine critical success if roll meets critical threshold", () => {
+            rollTestDie.mockReturnValue({
+                baseRoll: 6,
+                modifiedRoll: 7,
+                outcome: Outcome.CriticalSuccess,
+            });
 
-//             const result = testDie.roll();
+            const result = testDie.roll();
 
-//             expect(result).toBe(6); // Check the roll result
-//             expect(testDie.success).toBe(true); // Since 6 >= 4 (target)
-//             expect(testDie.critical).toBe(CriticalState.Success); // Since 6 >= 6 (critSuccessThreshold)
-//         });
+            expect(result).toBe(7);
+            expect(testDie.getLastOutcome()).toBe(Outcome.CriticalSuccess);
+            expect(testDie.history).toEqual([6]);
+            expect(testDie._outcomeHistory).toEqual([Outcome.CriticalSuccess]);
+        });
 
-//         it("should determine critical failure if the roll is below the critFailThreshold", () => {
-//             rollDice.mockReturnValue(1); // Mock a roll result of 1
+        it("should determine critical failure if roll meets critical failure threshold", () => {
+            rollTestDie.mockReturnValue({
+                baseRoll: 1,
+                modifiedRoll: 2,
+                outcome: Outcome.CriticalFailure,
+            });
 
-//             const result = testDie.roll();
+            const result = testDie.roll();
 
-//             expect(result).toBe(1); // Check the roll result
-//             expect(testDie.success).toBe(false); // Since 1 < 4 (target)
-//             expect(testDie.critical).toBe(CriticalState.Failure); // Since 1 <= 1 (critFailThreshold)
-//         });
+            expect(result).toBe(2);
+            expect(testDie.getLastOutcome()).toBe(Outcome.CriticalFailure);
+            expect(testDie.history).toEqual([1]);
+            expect(testDie._outcomeHistory).toEqual([Outcome.CriticalFailure]);
+        });
+    });
 
-//         it("should not be critical if the roll is between critSuccessThreshold and critFailThreshold", () => {
-//             rollDice.mockReturnValue(4); // Mock a roll result of 4
+    // **History Tracking**
+    describe("History Tracking", () => {
+        it("should return full roll history with outcomes", () => {
+            rollTestDie.mockReturnValueOnce({
+                baseRoll: 4,
+                modifiedRoll: 5,
+                outcome: Outcome.Success,
+            });
+            testDie.roll();
+            rollTestDie.mockReturnValueOnce({
+                baseRoll: 2,
+                modifiedRoll: 3,
+                outcome: Outcome.Failure,
+            });
+            testDie.roll();
 
-//             const result = testDie.roll();
+            expect(testDie.getHistory()).toEqual([
+                { roll: 5, outcome: Outcome.Success },
+                { roll: 3, outcome: Outcome.Failure },
+            ]);
+        });
+    });
 
-//             expect(result).toBe(4); // Check the roll result
-//             expect(testDie.success).toBe(true); // Since 4 >= 4 (target)
-//             expect(testDie.critical).toBe(CriticalState.None); // Since 4 is not a critical success or failure
-//         });
-//     });
+    // **Modifier Functionality**
+    describe("Modifier Functionality", () => {
+        it("should apply the modifier correctly", () => {
+            rollTestDie.mockReturnValue({
+                baseRoll: 3,
+                modifiedRoll: 4,
+                outcome: Outcome.Success,
+            });
 
-//     describe("checkCritical", () => {
-//         it("should return 'success' for a roll greater than or equal to the critSuccessThreshold", () => {
-//             expect(testDie.checkCritical(6)).toBe(CriticalState.Success);
-//         });
+            testDie.roll();
 
-//         it("should return 'failure' for a roll less than or equal to the critFailThreshold", () => {
-//             expect(testDie.checkCritical(1)).toBe(CriticalState.Failure);
-//         });
+            expect(testDie.history).toEqual([3]); // Base roll before modification
+            expect(testDie.result).toBe(4); // Modified result (3+1)
+        });
 
-//         it("should return 'none' for a roll between the critSuccessThreshold and critFailThreshold", () => {
-//             expect(testDie.checkCritical(4)).toBe(CriticalState.None);
-//         });
-//     });
+        it("should reset modified history when modifier is changed", () => {
+            testDie.roll();
+            testDie.modifier = (n) => n * 2; // Change modifier
+            expect(testDie.history).toEqual([]); // Should reset history
+            expect(testDie.modifiedHistory).toEqual([]); // Reset modified history too
+        });
+    });
 
-//     describe("getResult", () => {
-//         it("should return the correct result and status after rolling", () => {
-//             rollDice.mockReturnValue(5); // Mock a roll result of 5
-//             testDie.roll(); // Perform a roll
+    // **Report Generation**
+    describe("Report", () => {
+        it("should return a concise report of the last roll", () => {
+            rollTestDie.mockReturnValue({
+                baseRoll: 5,
+                modifiedRoll: 6,
+                outcome: Outcome.CriticalSuccess,
+            });
+            testDie.roll();
 
-//             const result = testDie.getResult();
+            expect(testDie.report()).toBe(
+                JSON.stringify({
+                    type: "Modified_d6",
+                    last_result: 6,
+                    last_outcome: Outcome.CriticalSuccess,
+                })
+            );
+        });
 
-//             expect(result).toEqual({
-//                 roll: 5,
-//                 success: true, // Since 5 >= 4 (target)
-//                 critical: CriticalState.None, // No critical state for 5
-//             });
-//         });
+        it("should return a verbose report including full history", () => {
+            rollTestDie.mockReturnValueOnce({
+                baseRoll: 4,
+                modifiedRoll: 5,
+                outcome: Outcome.Success,
+            });
+            testDie.roll();
+            rollTestDie.mockReturnValueOnce({
+                baseRoll: 2,
+                modifiedRoll: 3,
+                outcome: Outcome.Failure,
+            });
+            testDie.roll();
 
-//         it("should return the correct result and critical state", () => {
-//             rollDice.mockReturnValue(6); // Mock a roll result of 6
-//             testDie.roll(); // Perform a roll
-
-//             const result = testDie.getResult();
-
-//             expect(result).toEqual({
-//                 roll: 6,
-//                 success: true, // Since 6 >= 4 (target)
-//                 critical: CriticalState.Success, // Since 6 >= 6 (critSuccessThreshold)
-//             });
-//         });
-//     });
-
-//     describe("report", () => {
-//         it("should report roll result, success, and critical state", () => {
-//             rollDice.mockReturnValue(5); // Mock roll result
-//             testDie.roll();
-
-//             const report = testDie.report();
-//             expect(report).toBe("Roll: 5, Success: Yes");
-//         });
-
-//         it("should report critical success", () => {
-//             rollDice.mockReturnValue(6); // Mock roll result
-//             testDie.roll();
-
-//             const report = testDie.report();
-//             expect(report).toBe("Roll: 6, Success: Yes, Critical: success");
-//         });
-
-//         it("should report critical failure", () => {
-//             rollDice.mockReturnValue(1); // Mock roll result
-//             testDie.roll();
-
-//             const report = testDie.report();
-//             expect(report).toBe("Roll: 1, Success: No, Critical: failure");
-//         });
-
-//         it("should report failure without critical state", () => {
-//             rollDice.mockReturnValue(3); // Mock roll result
-//             testDie.roll();
-
-//             const report = testDie.report();
-//             expect(report).toBe("Roll: 3, Success: No");
-//         });
-//     });
-// });
+            expect(testDie.report(true)).toBe(
+                JSON.stringify(
+                    {
+                        type: "Modified_d6",
+                        last_result: 3,
+                        last_outcome: Outcome.Failure,
+                        history: [
+                            {
+                                roll: 5,
+                                outcome: Outcome.Success,
+                            },
+                            {
+                                roll: 3,
+                                outcome: Outcome.Failure,
+                            },
+                        ],
+                    },
+                    null,
+                    2
+                )
+            );
+        });
+    });
+});

@@ -1,88 +1,122 @@
-// const { DieType } = require("../core/Types");
-// const { rollDice } = require("../core/DiceUtils");
-// const { Die } = require("../core/Die");
-// const { TargetDie } = require("../core/TargetDie");
+const { DieType, Outcome } = require("../core/Types");
+const { rollTargetDie } = require("../core/DiceUtils");
+const { TargetDie } = require("../core/TargetDie");
 
-// // Mock rollDice to return predictable values
-// jest.mock("../core/DiceUtils", () => ({
-//     rollDice: jest.fn(),
-// }));
+// Mock rollTargetDie to return predictable values
+jest.mock("../core/DiceUtils", () => ({
+    rollTargetDie: jest.fn(),
+}));
 
-// describe("TargetDie Class", () => {
-//     let targetDie;
-//     const targetConditions = { target: [3, 5, 6] }; // Define target conditions for success
+describe("TargetDie Class", () => {
+    let targetDie;
+    const targetConditions = { target_values: [3, 5, 6] }; // Define target conditions for success
 
-//     beforeEach(() => {
-//         targetDie = new TargetDie(DieType.D6, targetConditions);
-//         rollDice.mockClear(); // Reset the mock before each test
-//     });
+    beforeEach(() => {
+        targetDie = new TargetDie(DieType.D6, targetConditions);
+        rollTargetDie.mockClear(); // Reset the mock before each test
+    });
 
-//     describe("Initialization", () => {
-//         it("should initialize with the correct type, target conditions, and success as null", () => {
-//             expect(targetDie.type).toBe(DieType.D6);
-//             expect(targetDie.conditions).toEqual(targetConditions);
-//             expect(targetDie.success).toBeNull();
-//         });
-//     });
+    describe("Initialization", () => {
+        it("should initialize with the correct type and target conditions", () => {
+            expect(targetDie.type).toBe(DieType.D6);
+            expect(targetDie._conditions).toEqual(targetConditions);
+            expect(targetDie.getLastOutcome()).toBeNull();
+        });
+    });
 
-//     describe("Rolling", () => {
-//         it("should roll the die and determine success based on target conditions", () => {
-//             rollDice.mockReturnValue(5); // Mock a roll result of 5
+    describe("Rolling", () => {
+        it("should roll the die and determine success based on target conditions", () => {
+            rollTargetDie.mockReturnValue({
+                roll: 5,
+                outcome: Outcome.Success,
+            });
 
-//             const result = targetDie.roll();
+            const result = targetDie.roll();
 
-//             expect(result).toBe(5); // Check the roll result
-//             expect(targetDie.success).toBe(true); // Since 5 is in the target conditions [3, 5, 6]
-//             expect(targetDie.history).toEqual([5]);
-//             expect(rollDice).toHaveBeenCalledWith(DieType.D6, undefined);
-//         });
+            expect(result).toBe(5);
+            expect(targetDie.getLastOutcome()).toBe(Outcome.Success);
+            expect(targetDie.history).toEqual([5]);
+            expect(targetDie._outcomeHistory).toEqual([Outcome.Success]);
+            expect(rollTargetDie).toHaveBeenCalledWith(DieType.D6, [3, 5, 6]);
+        });
 
-//         it("should determine failure if the roll is not in the target conditions", () => {
-//             rollDice.mockReturnValue(2); // Mock a roll result of 2
+        it("should determine failure if the roll is not in the target conditions", () => {
+            rollTargetDie.mockReturnValue({
+                roll: 2,
+                outcome: Outcome.Failure,
+            });
 
-//             const result = targetDie.roll();
+            const result = targetDie.roll();
 
-//             expect(result).toBe(2); // Check the roll result
-//             expect(targetDie.success).toBe(false); // Since 2 is not in the target conditions [3, 5, 6]
-//             expect(targetDie.history).toEqual([2]);
-//         });
-//     });
+            expect(result).toBe(2);
+            expect(targetDie.getLastOutcome()).toBe(Outcome.Failure);
+            expect(targetDie.history).toEqual([2]);
+            expect(targetDie._outcomeHistory).toEqual([Outcome.Failure]);
+        });
+    });
 
-//     describe("getResult", () => {
-//         it("should return the correct result and success status", () => {
-//             rollDice.mockReturnValue(6); // Mock a roll result of 6
-//             targetDie.roll(); // Perform a roll
+    describe("History Tracking", () => {
+        it("should return full roll history with outcomes", () => {
+            rollTargetDie
+                .mockReturnValueOnce({ roll: 3, outcome: Outcome.Success })
+                .mockReturnValueOnce({ roll: 4, outcome: Outcome.Failure });
 
-//             const result = targetDie.getResult();
+            targetDie.roll();
+            targetDie.roll();
 
-//             expect(result).toEqual({ roll: 6, success: true }); // Since 6 is in the target conditions
-//         });
+            expect(targetDie.getHistory()).toEqual([
+                { roll: 3, outcome: Outcome.Success },
+                { roll: 4, outcome: Outcome.Failure },
+            ]);
+        });
 
-//         it("should return the correct result and failure status", () => {
-//             rollDice.mockReturnValue(4); // Mock a roll result of 4
-//             targetDie.roll(); // Perform a roll
+        it("should return an empty array if no rolls have been made", () => {
+            expect(targetDie.getHistory()).toEqual([]);
+        });
+    });
 
-//             const result = targetDie.getResult();
+    describe("Report", () => {
+        it("should return a concise report of the last roll", () => {
+            rollTargetDie.mockReturnValue({
+                roll: 5,
+                outcome: Outcome.Success,
+            });
+            targetDie.roll();
 
-//             expect(result).toEqual({ roll: 4, success: false }); // Since 4 is not in the target conditions
-//         });
-//     });
+            expect(targetDie.report()).toBe(
+                `{"type":"d6","last_result":5,"last_outcome":"success"}`
+            );
+        });
 
-//     describe("report", () => {
-//         it("should report roll result and success status", () => {
-//             rollDice.mockReturnValue(5); // Mock roll result
-//             targetDie.roll();
+        it("should return a verbose report including full history", () => {
+            rollTargetDie
+                .mockReturnValueOnce({ roll: 3, outcome: Outcome.Success })
+                .mockReturnValueOnce({ roll: 4, outcome: Outcome.Failure });
 
-//             const report = targetDie.report();
-//             expect(report).toBe("Roll: 5, Success: Yes");
-//         });
+            targetDie.roll();
+            targetDie.roll();
 
-//         it("should report failure", () => {
-//             rollDice.mockReturnValue(4); // Mock roll result
-//             targetDie.roll();
+            expect(targetDie.report(true)).toBe(
+                JSON.stringify(
+                    {
+                        type: "d6",
+                        last_result: 4,
+                        last_outcome: Outcome.Failure,
+                        history: [
+                            { roll: 3, outcome: Outcome.Success },
+                            { roll: 4, outcome: Outcome.Failure },
+                        ],
+                    },
+                    null,
+                    2
+                )
+            );
+        });
 
-//             const report = targetDie.report();
-//             expect(report).toBe("Roll: 4, Success: No");
-//         });
-//     });
-// });
+        it("should return a minimal report if no roll has been made", () => {
+            expect(targetDie.report()).toBe(
+                `{"type":"d6","last_result":null,"last_outcome":null}`
+            );
+        });
+    });
+});

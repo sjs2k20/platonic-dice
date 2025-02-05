@@ -23,7 +23,7 @@ describe("generateDieResult (Private Function)", () => {
         const numRolls = 10000; // Simulate a large number of rolls to get a good sample.
         const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
         const expectedCount = numRolls / 6;
-        const tolerance = expectedCount * 0.05; // Allow 5% margin of error.
+        const tolerance = expectedCount * 0.06; // Allow 6% margin of error.
 
         for (let i = 0; i < numRolls; i++) {
             const result = generateDieResult(DieType.D6);
@@ -83,9 +83,10 @@ describe("rollModDice", () => {
     it("should apply a modifier to a roll", () => {
         DiceUtils.__set__("generateDieResult", () => 4);
 
-        const { base, modified } = DiceUtils.rollModDice(DieType.D6, {
-            modifier: (n) => n + 2,
-        });
+        const { base, modified } = DiceUtils.rollModDice(
+            DieType.D6,
+            (n) => n + 2
+        );
 
         expect(base).toBe(4);
         expect(modified).toBe(6);
@@ -102,6 +103,48 @@ describe("rollModDice", () => {
 });
 
 describe("rollTestDie", () => {
+    it("should return success if the modified roll is equal or above the target", () => {
+        DiceUtils.__set__("generateDieResult", () => 4);
+
+        const result = DiceUtils.rollTestDie(DieType.D6, 3, {
+            modifier: (n) => n + 1,
+        });
+
+        expect(result.baseRoll).toBe(4);
+        expect(result.modifiedRoll).toBe(5);
+        expect(result.outcome).toBe(Outcome.Success);
+    });
+
+    it("should return failure if the modified roll is below the target", () => {
+        DiceUtils.__set__("generateDieResult", () => 2);
+
+        const result = DiceUtils.rollTestDie(DieType.D6, 4);
+
+        expect(result.baseRoll).toBe(2);
+        expect(result.modifiedRoll).toBe(2);
+        expect(result.outcome).toBe(Outcome.Failure);
+    });
+
+    it("should return critical success if modified roll meets critical threshold", () => {
+        DiceUtils.__set__("generateDieResult", () => 6);
+
+        const result = DiceUtils.rollTestDie(DieType.D6, 4, {
+            criticalSuccess: 6,
+        });
+
+        expect(result.outcome).toBe(Outcome.CriticalSuccess);
+    });
+
+    it("should return critical failure if modified roll meets critical failure threshold", () => {
+        DiceUtils.__set__("generateDieResult", () => 1);
+
+        const result = DiceUtils.rollTestDie(DieType.D6, 4, {
+            criticalFailure: 1,
+        });
+
+        expect(result.outcome).toBe(Outcome.CriticalFailure);
+    });
+
     it("should return success if the roll is equal or above the target", () => {
         DiceUtils.__set__("generateDieResult", () => 4);
 

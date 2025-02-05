@@ -1,4 +1,5 @@
 const { Die } = require("./Die");
+const { rollDice } = require("./DiceUtils");
 
 /**
  * Represents a fully customizable die where each face has a different effect.
@@ -10,20 +11,11 @@ class CustomDie extends Die {
      * @param {function(): (number|string)} [defaultOutcome] - Default outcome if a roll isn't mapped.
      */
     constructor(type, faceMappings, defaultOutcome = null) {
-        super(type, null); // Force modifier to be null
+        super(type);
         this._faceMappings = faceMappings;
         this._defaultOutcome = defaultOutcome;
         this._outcome = null;
         this._outcomeHistory = [];
-    }
-
-    // Disable the ability to set a modifier later
-    get modifier() {
-        throw new Error("Modifiers are not supported for this die type.");
-    }
-
-    set modifier(_) {
-        throw new Error("Modifiers are not supported for this die type.");
     }
 
     /**
@@ -31,7 +23,9 @@ class CustomDie extends Die {
      * @returns {number|string|null} - The final outcome.
      */
     roll() {
-        const roll = rollDice(this.type);
+        const roll = rollDice(this._type);
+        this._result = roll;
+        this._history.push(this._result);
         const outcomeFn = this._faceMappings[roll] || this._defaultOutcome;
 
         this._outcome = outcomeFn ? outcomeFn() : null;
@@ -46,7 +40,7 @@ class CustomDie extends Die {
      */
     report(verbose = false) {
         const reportData = {
-            type: `Custom_${this._type}`,
+            type: this.type,
             last_result: this._result,
             last_outcome: this._outcome ?? "No effect",
         };
@@ -73,6 +67,14 @@ class CustomDie extends Die {
      */
     getOutcomeHistory() {
         return this._outcomeHistory;
+    }
+
+    /**
+     * Overrides the type getter to prefix "Custom_".
+     * @returns {string}
+     */
+    get type() {
+        return `Custom_${this._type}`;
     }
 }
 
