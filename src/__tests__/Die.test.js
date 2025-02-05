@@ -1,128 +1,125 @@
-// const { DieType, RollType } = require("../core/Types");
-// const { rollDice } = require("../core/DiceUtils");
-// const { Die } = require("../core/Die");
+const { DieType, RollType } = require("../core/Types");
+const { rollDice } = require("../core/DiceUtils");
+const { Die } = require("../core/Die");
 
-// // Mock rollDice to return predictable values
-// jest.mock("../core/DiceUtils", () => ({
-//     rollDice: jest.fn(),
-// }));
+// Mock rollDice to return predictable values
+jest.mock("../core/DiceUtils", () => ({
+    rollDice: jest.fn(),
+}));
 
-// describe("Die Class", () => {
-//     let die;
+describe("Die Class", () => {
+    let die;
 
-//     beforeEach(() => {
-//         die = new Die(DieType.D6);
-//         rollDice.mockClear(); // Reset the mock before each test
-//     });
+    beforeEach(() => {
+        die = new Die(DieType.D6);
+        rollDice.mockClear(); // Reset the mock before each test
+    });
 
-//     describe("Initialization", () => {
-//         it("should initialize with the correct type and empty result/history", () => {
-//             expect(die.type).toBe(DieType.D6);
-//             expect(die.result).toBeNull();
-//             expect(die.history).toEqual([]);
-//         });
-//     });
+    describe("Initialization", () => {
+        it("should initialize with the correct type and empty result/history", () => {
+            expect(die.type).toBe(DieType.D6);
+            expect(die.result).toBeNull();
+            expect(die.history).toEqual([]);
+        });
+    });
 
-//     describe("Rolling", () => {
-//         it("should roll the die and store the result", () => {
-//             rollDice.mockReturnValue(4); // Mock the roll result
+    describe("Rolling", () => {
+        it("should roll the die and store the result", () => {
+            rollDice.mockReturnValue(4); // Mock the roll result
 
-//             const result = die.roll();
+            const result = die.roll();
 
-//             expect(result).toBe(4);
-//             expect(die.result).toBe(4);
-//             expect(die.history).toEqual([4]);
-//             expect(rollDice).toHaveBeenCalledWith(DieType.D6, undefined);
-//         });
+            expect(result).toBe(4);
+            expect(die.result).toBe(4);
+            expect(die.history).toEqual([4]);
+            expect(rollDice).toHaveBeenCalledWith(DieType.D6, {});
+        });
 
-//         it("should roll with advantage", () => {
-//             rollDice.mockReturnValue(6);
+        it("should roll with advantage", () => {
+            rollDice.mockReturnValue(6);
 
-//             const result = die.roll(RollType.Advantage);
+            const result = die.roll({ rollType: RollType.Advantage });
 
-//             expect(result).toBe(6);
-//             expect(die.history).toEqual([6]);
-//             expect(rollDice).toHaveBeenCalledWith(
-//                 DieType.D6,
-//                 RollType.Advantage
-//             );
-//         });
+            expect(result).toBe(6);
+            expect(die.history).toEqual([6]);
+            expect(rollDice).toHaveBeenCalledWith(DieType.D6, {
+                rollType: RollType.Advantage,
+            });
+        });
 
-//         it("should roll with disadvantage", () => {
-//             rollDice.mockReturnValue(2);
+        it("should roll with disadvantage", () => {
+            rollDice.mockReturnValue(2);
 
-//             const result = die.roll(RollType.Disadvantage);
+            const result = die.roll({ rollType: RollType.Disadvantage });
 
-//             expect(result).toBe(2);
-//             expect(die.history).toEqual([2]);
-//             expect(rollDice).toHaveBeenCalledWith(
-//                 DieType.D6,
-//                 RollType.Disadvantage
-//             );
-//         });
-//     });
+            expect(result).toBe(2);
+            expect(die.history).toEqual([2]);
+            expect(rollDice).toHaveBeenCalledWith(DieType.D6, {
+                rollType: RollType.Disadvantage,
+            });
+        });
+    });
 
-//     describe("Reset", () => {
-//         beforeEach(() => {
-//             die.result = 5;
-//             die.history = [2, 3, 5];
-//         });
+    describe("Reset", () => {
+        beforeEach(() => {
+            die._result = 5;
+            die._history = [2, 3, 5];
+        });
 
-//         it("should reset only the result when called without arguments", () => {
-//             die.reset();
+        it("should reset only the result when called without arguments", () => {
+            die._reset();
 
-//             expect(die.result).toBeNull();
-//             expect(die.history).toEqual([2, 3, 5]);
-//         });
+            expect(die.result).toBeNull();
+            expect(die.history).toEqual([2, 3, 5]);
+        });
 
-//         it("should reset both result and history when called with 'complete' set to true", () => {
-//             die.reset(true);
+        it("should reset both result and history when called with 'complete' set to true", () => {
+            die._reset(true);
 
-//             expect(die.result).toBeNull();
-//             expect(die.history).toEqual([]);
-//         });
-//     });
+            expect(die.result).toBeNull();
+            expect(die.history).toEqual([]);
+        });
+    });
 
-//     describe("Report", () => {
-//         it("should return the correct report when a result exists", () => {
-//             die.result = 3;
-//             expect(die.report()).toBe("Result: 3");
-//         });
+    describe("Report", () => {
+        it("should return the correct concise report when a result exists", () => {
+            die._result = 3;
+            expect(die.report()).toBe(`{"type":"d6","last_result":3}`);
+        });
 
-//         it("should return the correct message when no roll has been made", () => {
-//             expect(die.report()).toBe("Die has not been rolled.");
-//         });
-//     });
+        it("should return the correct verbose report including history", () => {
+            die._result = 4;
+            die._history = [2, 3, 4];
 
-//     describe("getResult", () => {
-//         it("should return the current result after rolling", () => {
-//             die.roll();
-//             const result = die.getResult();
-//             expect(result).toBeGreaterThanOrEqual(1);
-//             expect(result).toBeLessThanOrEqual(6);
-//         });
+            expect(die.report(true)).toBe(
+                JSON.stringify(
+                    {
+                        type: "d6",
+                        last_result: 4,
+                        history: [2, 3, 4],
+                    },
+                    null,
+                    2
+                )
+            );
+        });
 
-//         it("should return null if the die has not been rolled", () => {
-//             const result = die.getResult();
-//             expect(result).toBeNull();
-//         });
-//     });
+        it("should return a minimal report if the die has not been rolled", () => {
+            expect(die.report()).toBe(`{"type":"d6","last_result":null}`);
+        });
+    });
 
-//     describe("getHistory", () => {
-//         it("should return an array of all rolls", () => {
-//             die.roll();
-//             die.roll();
-//             const history = die.getHistory();
-//             expect(history.length).toBe(2);
-//             expect(history[0]).toBeGreaterThanOrEqual(1);
-//             expect(history[0]).toBeLessThanOrEqual(6);
-//             expect(history[1]).toBeGreaterThanOrEqual(1);
-//             expect(history[1]).toBeLessThanOrEqual(6);
-//         });
+    describe("History Tracking", () => {
+        it("should return an array of all rolls", () => {
+            rollDice.mockReturnValueOnce(3).mockReturnValueOnce(5);
 
-//         it("should return an empty array if the die has not been rolled", () => {
-//             const history = die.getHistory();
-//             expect(history).toEqual([]);
-//         });
-//     });
-// });
+            die.roll();
+            die.roll();
+            expect(die.history).toEqual([3, 5]);
+        });
+
+        it("should return an empty array if the die has not been rolled", () => {
+            expect(die.history).toEqual([]);
+        });
+    });
+});
