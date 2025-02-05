@@ -6,27 +6,35 @@ const { DieType, RollType, Outcome } = require("./Types");
  * @param {Object} [options] - Optional parameters.
  * @param {RollType} [options.rollType] - Advantage/Disadvantage rolling.
  * @param {number} [options.count=1] - Number of dice to roll.
- * @param {Function} [options.modifier=(n) => n] - Function to modify the roll.
  * @returns {number | number[]} - A single roll result or an array of results.
  */
-function rollDice(dieType, { rollType, count = 1, modifier = (n) => n } = {}) {
+function rollDice(dieType, { rollType, count = 1 } = {}) {
     if (count > 1) {
-        return Array.from({ length: count }, () =>
-            modifier(generateDieResult(dieType))
-        );
+        return Array.from({ length: count }, () => generateDieResult(dieType));
     }
 
     const roll1 = generateDieResult(dieType);
     if (rollType) {
         const roll2 = generateDieResult(dieType);
-        return modifier(
-            rollType === RollType.Advantage
-                ? Math.max(roll1, roll2)
-                : Math.min(roll1, roll2)
-        );
+        return rollType === RollType.Advantage
+            ? Math.max(roll1, roll2)
+            : Math.min(roll1, roll2);
     }
 
-    return modifier(roll1);
+    return roll1;
+}
+
+/**
+ * Rolls a modified die by applying a modifier function.
+ * @param {DieType} dieType - The type of die to roll.
+ * @param {Object} [options] - Optional parameters.
+ * @param {RollType} [options.rollType] - Advantage/Disadvantage rolling.
+ * @param {Function} [options.modifier=(n) => n] - Function to modify the roll.
+ * @returns {{ base: number, modified: number }} - The base and modified results.
+ */
+function rollModDice(dieType, { rollType, modifier = (n) => n } = {}) {
+    const baseRoll = rollDice(dieType, { rollType });
+    return { base: baseRoll, modified: modifier(baseRoll) };
 }
 
 /**
@@ -95,4 +103,4 @@ function generateDieResult(dieType) {
     return Math.floor(Math.random() * sides) + 1;
 }
 
-module.exports = { rollDice, rollTargetDie, rollTestDie };
+module.exports = { rollDice, rollModDice, rollTargetDie, rollTestDie };
