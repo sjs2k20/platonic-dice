@@ -1,5 +1,4 @@
-const { TestDie } = require("../core/TestDie");
-const { TestConditions } = require("../core/TestConditions");
+const { TestConditions, TestDie } = require("../core/TestDie");
 const { rollTestDie } = require("../core/DiceUtils");
 const { DieType, Outcome } = require("../core/Types");
 
