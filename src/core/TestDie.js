@@ -115,7 +115,7 @@ class TestDie extends ModifiedDie {
             reportData.history = this.getHistory();
         }
 
-        return JSON.stringify(reportData, null, verbose ? 2 : 0);
+        return reportData;
     }
 }
 

@@ -1,5 +1,5 @@
 const { Die } = require("./Die");
-const { rollModDice } = require("./DiceUtils");
+const { rollModDie } = require("./DiceUtils");
 
 /**
  * Represents a Die that supports result modification.
@@ -23,9 +23,11 @@ class ModifiedDie extends Die {
      */
     roll(rollType = null) {
         this._reset();
-        const { base, modified } = rollModDice(this._type, this._modifier, {
-            rollType,
-        });
+        const { base, modified } = rollModDie(
+            this._type,
+            this._modifier,
+            rollType
+        );
 
         this._result = base;
         this._modifiedResult = modified;
@@ -76,7 +78,7 @@ class ModifiedDie extends Die {
             baseReport.modified_history = this._modifiedHistory;
         }
 
-        return JSON.stringify(baseReport, null, verbose ? 2 : 0);
+        return baseReport;
     }
 
     /**

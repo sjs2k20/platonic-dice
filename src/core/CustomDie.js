@@ -1,5 +1,5 @@
 const { Die } = require("./Die");
-const { rollDice } = require("./DiceUtils");
+const { rollDie } = require("./DiceUtils");
 
 /**
  * Represents a fully customizable die where each face has a different effect.
@@ -23,7 +23,7 @@ class CustomDie extends Die {
      * @returns {number|string|null} - The final outcome.
      */
     roll() {
-        const roll = rollDice(this._type);
+        const roll = rollDie(this._type);
         this._result = roll;
         this._history.push(this._result);
         const outcomeFn = this._faceMappings[roll] || this._defaultOutcome;
@@ -50,7 +50,7 @@ class CustomDie extends Die {
             reportData.outcome_history = this._outcomeHistory;
         }
 
-        return JSON.stringify(reportData, null, verbose ? 2 : 0);
+        return reportData;
     }
 
     /**

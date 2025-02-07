@@ -83,9 +83,11 @@ describe("TargetDie Class", () => {
             });
             targetDie.roll();
 
-            expect(targetDie.report()).toBe(
-                `{"type":"d6","last_result":5,"last_outcome":"success"}`
-            );
+            expect(targetDie.report()).toEqual({
+                type: "d6",
+                last_result: 5,
+                last_outcome: "success",
+            });
         });
 
         it("should return a verbose report including full history", () => {
@@ -96,27 +98,23 @@ describe("TargetDie Class", () => {
             targetDie.roll();
             targetDie.roll();
 
-            expect(targetDie.report(true)).toBe(
-                JSON.stringify(
-                    {
-                        type: "d6",
-                        last_result: 4,
-                        last_outcome: Outcome.Failure,
-                        history: [
-                            { roll: 3, outcome: Outcome.Success },
-                            { roll: 4, outcome: Outcome.Failure },
-                        ],
-                    },
-                    null,
-                    2
-                )
-            );
+            expect(targetDie.report(true)).toEqual({
+                type: "d6",
+                last_result: 4,
+                last_outcome: Outcome.Failure,
+                history: [
+                    { roll: 3, outcome: Outcome.Success },
+                    { roll: 4, outcome: Outcome.Failure },
+                ],
+            });
         });
 
         it("should return a minimal report if no roll has been made", () => {
-            expect(targetDie.report()).toBe(
-                `{"type":"d6","last_result":null,"last_outcome":null}`
-            );
+            expect(targetDie.report()).toEqual({
+                type: "d6",
+                last_result: null,
+                last_outcome: null,
+            });
         });
     });
 });
