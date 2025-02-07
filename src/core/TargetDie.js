@@ -8,11 +8,17 @@ const { Outcome } = require("./Types");
 class TargetDie extends Die {
     /**
      * @param {DieType} type - The type of die.
-     * @param {TargetConditions} conditions - The target conditions (array of successful values).
+     * @param {number[]} targetValues - The target conditions (array of successful values).
      */
-    constructor(type, conditions) {
+    constructor(type, targetValues) {
+        if (
+            !Array.isArray(targetValues) ||
+            !targetValues.every(Number.isInteger)
+        ) {
+            throw new Error("targetValues must be an array of integers.");
+        }
         super(type);
-        this._conditions = conditions;
+        this._targetValues = targetValues;
         this._outcomeHistory = [];
     }
 
@@ -21,10 +27,7 @@ class TargetDie extends Die {
      * @returns {number} The final roll result.
      */
     roll() {
-        const { roll, outcome } = rollTargetDie(
-            this._type,
-            this._conditions.target_values // Ensure we're using target_values from `TargetConditions`
-        );
+        const { roll, outcome } = rollTargetDie(this._type, this._targetValues);
 
         // Store the modified roll and outcome
         this._result = roll;

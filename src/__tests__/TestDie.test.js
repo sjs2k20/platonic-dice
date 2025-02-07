@@ -1,4 +1,5 @@
 const { TestDie } = require("../core/TestDie");
+const { TestConditions } = require("../core/TestConditions");
 const { rollTestDie } = require("../core/DiceUtils");
 const { DieType, Outcome } = require("../core/Types");
 
@@ -9,11 +10,7 @@ jest.mock("../core/DiceUtils", () => ({
 
 describe("TestDie Class", () => {
     let testDie;
-    const conditions = {
-        target: 4, // Success on 4+
-        critical_success: 6,
-        critical_failure: 2,
-    };
+    const conditions = new TestConditions(4, 6, 2);
     const mockModifier = (n) => n + 1; // Example modifier
 
     beforeEach(() => {

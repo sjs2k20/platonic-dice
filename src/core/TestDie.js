@@ -1,4 +1,5 @@
 const { ModifiedDie } = require("./ModifiedDie");
+const { TestConditions } = require("./TestConditions");
 const { rollTestDie } = require("./DiceUtils");
 const { Outcome } = require("./Types");
 
@@ -8,10 +9,13 @@ const { Outcome } = require("./Types");
 class TestDie extends ModifiedDie {
     /**
      * @param {DieType} type - The type of die.
-     * @param {TestConditions} conditions - The test conditions (target, critical thresholds).
+     * @param {TestConditions} conditions - The test conditions {target, [critical_success], [critical_failure]}.
      * @param {function(number): number} [modifier] - Optional modifier function.
      */
     constructor(type, conditions, modifier = null) {
+        if (!(conditions instanceof TestConditions)) {
+            throw new Error("conditions must be an instance of TestConditions");
+        }
         super(type, modifier);
         this._conditions = conditions;
         this._outcomeHistory = [];

@@ -9,23 +9,23 @@ jest.mock("../core/DiceUtils", () => ({
 
 describe("TargetDie Class", () => {
     let targetDie;
-    const targetConditions = { target_values: [3, 5, 6] }; // Define target conditions for success
+    const targetValues = [3, 5, 6]; // Define target values for success
 
     beforeEach(() => {
-        targetDie = new TargetDie(DieType.D6, targetConditions);
+        targetDie = new TargetDie(DieType.D6, targetValues);
         rollTargetDie.mockClear(); // Reset the mock before each test
     });
 
     describe("Initialization", () => {
-        it("should initialize with the correct type and target conditions", () => {
+        it("should initialize with the correct type and target values", () => {
             expect(targetDie.type).toBe(DieType.D6);
-            expect(targetDie._conditions).toEqual(targetConditions);
+            expect(targetDie._targetValues).toEqual(targetValues);
             expect(targetDie.getLastOutcome()).toBeNull();
         });
     });
 
     describe("Rolling", () => {
-        it("should roll the die and determine success based on target conditions", () => {
+        it("should roll the die and determine success based on target values", () => {
             rollTargetDie.mockReturnValue({
                 roll: 5,
                 outcome: Outcome.Success,
@@ -40,7 +40,7 @@ describe("TargetDie Class", () => {
             expect(rollTargetDie).toHaveBeenCalledWith(DieType.D6, [3, 5, 6]);
         });
 
-        it("should determine failure if the roll is not in the target conditions", () => {
+        it("should determine failure if the roll is not in the target values", () => {
             rollTargetDie.mockReturnValue({
                 roll: 2,
                 outcome: Outcome.Failure,
