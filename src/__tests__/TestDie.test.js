@@ -35,8 +35,8 @@ describe("TestDie Class", () => {
     describe("Rolling", () => {
         it("should roll the die and determine success", () => {
             rollTestDie.mockReturnValueOnce({
-                baseRoll: 4,
-                modifiedRoll: 5,
+                base: 4,
+                modified: 5,
                 outcome: Outcome.Success,
             });
 
@@ -50,8 +50,8 @@ describe("TestDie Class", () => {
 
         it("should determine failure if roll is below target", () => {
             rollTestDie.mockReturnValue({
-                baseRoll: 2,
-                modifiedRoll: 3,
+                base: 2,
+                modified: 3,
                 outcome: Outcome.Failure,
             });
 
@@ -64,32 +64,32 @@ describe("TestDie Class", () => {
 
         it("should determine critical success if roll meets critical threshold", () => {
             rollTestDie.mockReturnValue({
-                baseRoll: 6,
-                modifiedRoll: 7,
-                outcome: Outcome.CriticalSuccess,
+                base: 6,
+                modified: 7,
+                outcome: Outcome.Critical_Success,
             });
 
             const result = testDie.roll();
 
             expect(result).toBe(7);
-            expect(testDie.getLastOutcome()).toBe(Outcome.CriticalSuccess);
+            expect(testDie.getLastOutcome()).toBe(Outcome.Critical_Success);
             expect(testDie.history).toEqual([6]);
-            expect(testDie._outcomeHistory).toEqual([Outcome.CriticalSuccess]);
+            expect(testDie._outcomeHistory).toEqual([Outcome.Critical_Success]);
         });
 
         it("should determine critical failure if roll meets critical failure threshold", () => {
             rollTestDie.mockReturnValue({
-                baseRoll: 1,
-                modifiedRoll: 2,
-                outcome: Outcome.CriticalFailure,
+                base: 1,
+                modified: 2,
+                outcome: Outcome.Critical_Failure,
             });
 
             const result = testDie.roll();
 
             expect(result).toBe(2);
-            expect(testDie.getLastOutcome()).toBe(Outcome.CriticalFailure);
+            expect(testDie.getLastOutcome()).toBe(Outcome.Critical_Failure);
             expect(testDie.history).toEqual([1]);
-            expect(testDie._outcomeHistory).toEqual([Outcome.CriticalFailure]);
+            expect(testDie._outcomeHistory).toEqual([Outcome.Critical_Failure]);
         });
     });
 
@@ -97,14 +97,14 @@ describe("TestDie Class", () => {
     describe("History Tracking", () => {
         it("should return full roll history with outcomes", () => {
             rollTestDie.mockReturnValueOnce({
-                baseRoll: 4,
-                modifiedRoll: 5,
+                base: 4,
+                modified: 5,
                 outcome: Outcome.Success,
             });
             testDie.roll();
             rollTestDie.mockReturnValueOnce({
-                baseRoll: 2,
-                modifiedRoll: 3,
+                base: 2,
+                modified: 3,
                 outcome: Outcome.Failure,
             });
             testDie.roll();
@@ -120,8 +120,8 @@ describe("TestDie Class", () => {
     describe("Modifier Functionality", () => {
         it("should apply the modifier correctly", () => {
             rollTestDie.mockReturnValue({
-                baseRoll: 3,
-                modifiedRoll: 4,
+                base: 3,
+                modified: 4,
                 outcome: Outcome.Success,
             });
 
@@ -143,9 +143,9 @@ describe("TestDie Class", () => {
     describe("Report", () => {
         it("should return a concise report of the last roll", () => {
             rollTestDie.mockReturnValue({
-                baseRoll: 5,
-                modifiedRoll: 6,
-                outcome: Outcome.CriticalSuccess,
+                base: 5,
+                modified: 6,
+                outcome: Outcome.Critical_Success,
             });
             testDie.roll();
 
@@ -153,21 +153,21 @@ describe("TestDie Class", () => {
                 JSON.stringify({
                     type: "Modified_d6",
                     last_result: 6,
-                    last_outcome: Outcome.CriticalSuccess,
+                    last_outcome: Outcome.Critical_Success,
                 })
             );
         });
 
         it("should return a verbose report including full history", () => {
             rollTestDie.mockReturnValueOnce({
-                baseRoll: 4,
-                modifiedRoll: 5,
+                base: 4,
+                modified: 5,
                 outcome: Outcome.Success,
             });
             testDie.roll();
             rollTestDie.mockReturnValueOnce({
-                baseRoll: 2,
-                modifiedRoll: 3,
+                base: 2,
+                modified: 3,
                 outcome: Outcome.Failure,
             });
             testDie.roll();

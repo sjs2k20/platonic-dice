@@ -110,8 +110,8 @@ describe("rollTestDie", () => {
             modifier: (n) => n + 1,
         });
 
-        expect(result.baseRoll).toBe(4);
-        expect(result.modifiedRoll).toBe(5);
+        expect(result.base).toBe(4);
+        expect(result.modified).toBe(5);
         expect(result.outcome).toBe(Outcome.Success);
     });
 
@@ -120,8 +120,8 @@ describe("rollTestDie", () => {
 
         const result = DiceUtils.rollTestDie(DieType.D6, 4);
 
-        expect(result.baseRoll).toBe(2);
-        expect(result.modifiedRoll).toBe(2);
+        expect(result.base).toBe(2);
+        expect(result.modified).toBe(2);
         expect(result.outcome).toBe(Outcome.Failure);
     });
 
@@ -129,20 +129,20 @@ describe("rollTestDie", () => {
         DiceUtils.__set__("generateDieResult", () => 6);
 
         const result = DiceUtils.rollTestDie(DieType.D6, 4, {
-            criticalSuccess: 6,
+            critical_success: 6,
         });
 
-        expect(result.outcome).toBe(Outcome.CriticalSuccess);
+        expect(result.outcome).toBe(Outcome.Critical_Success);
     });
 
     it("should return critical failure if modified roll meets critical failure threshold", () => {
         DiceUtils.__set__("generateDieResult", () => 1);
 
         const result = DiceUtils.rollTestDie(DieType.D6, 4, {
-            criticalFailure: 1,
+            critical_failure: 1,
         });
 
-        expect(result.outcome).toBe(Outcome.CriticalFailure);
+        expect(result.outcome).toBe(Outcome.Critical_Failure);
     });
 
     it("should return success if the roll is equal or above the target", () => {
@@ -163,20 +163,20 @@ describe("rollTestDie", () => {
         DiceUtils.__set__("generateDieResult", () => 6);
 
         const result = DiceUtils.rollTestDie(DieType.D6, 3, {
-            criticalSuccess: 6,
+            critical_success: 6,
         });
 
-        expect(result.outcome).toBe(Outcome.CriticalSuccess);
+        expect(result.outcome).toBe(Outcome.Critical_Success);
     });
 
     it("should return critical failure if the roll meets or falls below critical failure threshold", () => {
         DiceUtils.__set__("generateDieResult", () => 1);
 
         const result = DiceUtils.rollTestDie(DieType.D6, 3, {
-            criticalFailure: 1,
+            critical_failure: 1,
         });
 
-        expect(result.outcome).toBe(Outcome.CriticalFailure);
+        expect(result.outcome).toBe(Outcome.Critical_Failure);
     });
 });
 

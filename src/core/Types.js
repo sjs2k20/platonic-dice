@@ -30,8 +30,8 @@ const RollType = {
 const Outcome = {
     Success: "success",
     Failure: "failure",
-    CriticalSuccess: "critical_success",
-    CriticalFailure: "critical_failure",
+    Critical_Success: "critical_success",
+    Critical_Failure: "critical_failure",
 };
 
 /**

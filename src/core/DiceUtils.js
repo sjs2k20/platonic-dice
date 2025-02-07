@@ -34,8 +34,8 @@ function rollDice(dieType, { rollType, count = 1 } = {}) {
  * @returns {{ base: number, modified: number }} - The base and modified results.
  */
 function rollModDice(dieType, modifier, { rollType } = {}) {
-    const baseRoll = rollDice(dieType, { rollType });
-    return { base: baseRoll, modified: (modifier ?? ((n) => n))(baseRoll) };
+    const base = rollDice(dieType, { rollType });
+    return { base: base, modified: (modifier ?? ((n) => n))(base) };
 }
 
 /**
@@ -69,40 +69,34 @@ function rollTargetDie(
  * @param {DieType} dieType - The type of die to roll.
  * @param {number} target - Minimum roll required for success.
  * @param {Object} [options] - Optional parameters.
- * @param {number} [options.criticalSuccess] - Threshold for critical success.
- * @param {number} [options.criticalFailure] - Threshold for critical failure.
+ * @param {number} [options.critical_success] - Threshold for critical success.
+ * @param {number} [options.critical_failure] - Threshold for critical failure.
  * @param {Function} [options.modifier] - Function to modify the roll.
- * @returns {{ baseRoll: number, modifiedRoll: number, outcome: string }} - The roll result and its outcome.
+ * @returns {{ base: number, modified: number, outcome: string }} - The roll result and its outcome.
  */
 function rollTestDie(
     dieType,
     target,
-    { criticalSuccess, criticalFailure, modifier = null } = {}
+    { critical_success, critical_failure, modifier = null } = {}
 ) {
-    let baseRoll, modifiedRoll;
+    let base, modified;
     if (modifier) {
-        ({ base: baseRoll, modified: modifiedRoll } = rollModDice(
-            dieType,
-            modifier
-        ));
+        ({ base: base, modified: modified } = rollModDice(dieType, modifier));
     } else {
-        baseRoll = generateDieResult(dieType);
-        modifiedRoll = baseRoll;
+        base = generateDieResult(dieType);
+        modified = base;
     }
 
     let outcome;
-    if (criticalSuccess !== undefined && modifiedRoll >= criticalSuccess) {
-        outcome = Outcome.CriticalSuccess;
-    } else if (
-        criticalFailure !== undefined &&
-        modifiedRoll <= criticalFailure
-    ) {
-        outcome = Outcome.CriticalFailure;
+    if (critical_success !== undefined && modified >= critical_success) {
+        outcome = Outcome.Critical_Success;
+    } else if (critical_failure !== undefined && modified <= critical_failure) {
+        outcome = Outcome.Critical_Failure;
     } else {
-        outcome = modifiedRoll >= target ? Outcome.Success : Outcome.Failure;
+        outcome = modified >= target ? Outcome.Success : Outcome.Failure;
     }
 
-    return { baseRoll, modifiedRoll, outcome };
+    return { base, modified, outcome };
 }
 
 /**

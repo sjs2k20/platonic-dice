@@ -23,24 +23,23 @@ class TestDie extends ModifiedDie {
      */
     roll() {
         this._reset();
-        const { baseRoll, modifiedRoll, outcome } = rollTestDie(
+        const { base, modified, outcome } = rollTestDie(
             this._type,
             this._conditions.target,
             {
-                criticalSuccess: this._conditions.critical_success,
-                criticalFailure: this._conditions.critical_failure,
+                critical_success: this._conditions.critical_success,
+                critical_failure: this._conditions.critical_failure,
                 modifier: this._modifier,
             }
         );
 
-        // Store the baseRoll and outcome
-        this._result = baseRoll;
-        this._modifiedResult =
-            modifiedRoll !== undefined ? modifiedRoll : baseRoll; // Handle case if no modifier
+        // Store the base roll and outcome
+        this._result = base;
+        this._modifiedResult = modified !== null ? modified : base; // Handle case if no modifier
         this._outcomeHistory.push(outcome);
-        this._history.push(baseRoll); // Always track base roll
+        this._history.push(base); // Always track base roll
         if (this._modifier) {
-            this._modifiedHistory.push(modifiedRoll); // Track modified roll if a modifier exists
+            this._modifiedHistory.push(modified); // Track modified roll if a modifier exists
         }
         return this._modifiedResult; // Ensure the correct result is returned
     }
