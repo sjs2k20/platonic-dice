@@ -12,7 +12,7 @@ class TestDie extends ModifiedDie {
      * @param {function(number): number} [modifier] - Optional modifier function.
      */
     constructor(type, conditions, modifier = null) {
-        super(type, modifier ?? ((n) => n));
+        super(type, modifier);
         this._conditions = conditions;
         this._outcomeHistory = [];
     }
