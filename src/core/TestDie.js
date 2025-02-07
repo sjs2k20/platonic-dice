@@ -37,7 +37,8 @@ class TestDie extends ModifiedDie {
         if (!(conditions instanceof TestConditions)) {
             throw new Error("conditions must be an instance of TestConditions");
         }
-        super(type, modifier);
+        super(type, modifier ?? ((n) => n));
+        this._modifiedHistory = modifier ? [] : null;
         this._conditions = conditions;
         this._outcomeHistory = [];
     }
@@ -60,13 +61,18 @@ class TestDie extends ModifiedDie {
 
         // Store the base roll and outcome
         this._result = base;
-        this._modifiedResult = modified !== null ? modified : base; // Handle case if no modifier
         this._outcomeHistory.push(outcome);
         this._history.push(base); // Always track base roll
-        if (this._modifier) {
-            this._modifiedHistory.push(modified); // Track modified roll if a modifier exists
+
+        // Check if modifier is actually modifying
+        if (this._modifier !== ((n) => n)) {
+            this._modifiedResult = modified;
+            this._modifiedHistory.push(modified);
+        } else {
+            this._modifiedResult = null;
         }
-        return this._modifiedResult; // Ensure the correct result is returned
+
+        return this._modifiedResult ?? this._result; // Ensure the correct result is returned
     }
 
     /**
@@ -75,9 +81,10 @@ class TestDie extends ModifiedDie {
      */
     getHistory() {
         return this._history.map((_, index) => ({
-            roll: this._modifier
-                ? this._modifiedHistory[index]
-                : this._history[index],
+            roll:
+                this._modifier !== ((n) => n)
+                    ? this._modifiedHistory[index]
+                    : this._history[index],
             outcome: this._outcomeHistory[index],
         }));
     }

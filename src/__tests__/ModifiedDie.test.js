@@ -35,17 +35,15 @@ describe("ModifiedDie Class", () => {
             expect(result).toBe(6);
             expect(modifiedDie.history).toEqual([4]); // Base roll
             expect(modifiedDie.modifiedHistory).toEqual([6]); // Modified roll
-            expect(rollModDice).toHaveBeenCalledWith(
-                DieType.D6,
-                mockModifier,
-                {}
-            );
+            expect(rollModDice).toHaveBeenCalledWith(DieType.D6, mockModifier, {
+                rollType: null,
+            });
         });
 
         it("should roll with advantage and apply the modifier", () => {
             rollModDice.mockReturnValue({ base: 5, modified: 7 });
 
-            const result = modifiedDie.roll({ rollType: RollType.Advantage });
+            const result = modifiedDie.roll(RollType.Advantage);
 
             expect(result).toBe(7);
             expect(modifiedDie.history).toEqual([5]);
@@ -58,9 +56,7 @@ describe("ModifiedDie Class", () => {
         it("should roll with disadvantage and apply the modifier", () => {
             rollModDice.mockReturnValue({ base: 2, modified: 4 });
 
-            const result = modifiedDie.roll({
-                rollType: RollType.Disadvantage,
-            });
+            const result = modifiedDie.roll(RollType.Disadvantage);
 
             expect(result).toBe(4);
             expect(modifiedDie.history).toEqual([2]);
@@ -92,11 +88,9 @@ describe("ModifiedDie Class", () => {
             expect(result).toBe(6);
             expect(modifiedDie.history).toEqual([3]);
             expect(modifiedDie.modifiedHistory).toEqual([6]);
-            expect(rollModDice).toHaveBeenCalledWith(
-                DieType.D6,
-                newModifier,
-                {}
-            );
+            expect(rollModDice).toHaveBeenCalledWith(DieType.D6, newModifier, {
+                rollType: null,
+            });
         });
     });
 

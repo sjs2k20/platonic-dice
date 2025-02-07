@@ -18,17 +18,14 @@ class ModifiedDie extends Die {
 
     /**
      * Rolls the die, applying the modifier.
-     * @param {Object} [options] - Optional roll settings.
-     * @param {RollType} [options.rollType] - Advantage/Disadvantage rolling.
+     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
      * @returns {number} - The modified roll result.
      */
-    roll(options = {}) {
+    roll(rollType = null) {
         this._reset();
-        const { base, modified } = rollModDice(
-            this._type,
-            this._modifier,
-            options
-        );
+        const { base, modified } = rollModDice(this._type, this._modifier, {
+            rollType,
+        });
 
         this._result = base;
         this._modifiedResult = modified;

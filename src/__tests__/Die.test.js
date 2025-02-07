@@ -32,13 +32,15 @@ describe("Die Class", () => {
             expect(result).toBe(4);
             expect(die.result).toBe(4);
             expect(die.history).toEqual([4]);
-            expect(rollDice).toHaveBeenCalledWith(DieType.D6, {});
+            expect(rollDice).toHaveBeenCalledWith(DieType.D6, {
+                rollType: null,
+            });
         });
 
         it("should roll with advantage", () => {
             rollDice.mockReturnValue(6);
 
-            const result = die.roll({ rollType: RollType.Advantage });
+            const result = die.roll(RollType.Advantage);
 
             expect(result).toBe(6);
             expect(die.history).toEqual([6]);
@@ -50,7 +52,7 @@ describe("Die Class", () => {
         it("should roll with disadvantage", () => {
             rollDice.mockReturnValue(2);
 
-            const result = die.roll({ rollType: RollType.Disadvantage });
+            const result = die.roll(RollType.Disadvantage);
 
             expect(result).toBe(2);
             expect(die.history).toEqual([2]);

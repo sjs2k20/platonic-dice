@@ -1,4 +1,4 @@
-const { DieType } = require("./Types");
+const { DieType, RollType } = require("./Types");
 const { rollDice } = require("./DiceUtils");
 
 /**
@@ -27,13 +27,12 @@ class Die {
 
     /**
      * Rolls the die with optional parameters.
-     * @param {Object} [options] - Optional roll settings.
-     * @param {import("./Types").RollType} [options.rollType] - Advantage/Disadvantage rolling.
+     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
      * @returns {number} - The roll result.
      */
-    roll(options = {}) {
+    roll(rollType = null) {
         this._reset();
-        this._result = rollDice(this._type, options);
+        this._result = rollDice(this._type, { rollType });
         this._history.push(this._result);
         return this._result;
     }
