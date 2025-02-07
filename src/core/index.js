@@ -1,7 +1,7 @@
 // src/core/index.js
-const { Die } = require("./Die");
-const { TargetDie } = require("./TargetDie");
-const { TestDie } = require("./TestDie");
+const { Die } = require("./dice/Die");
+const { TargetDie } = require("./dice/TargetDie");
+const { TestDie } = require("./dice/TestDie");
 const { ModifyMixin } = require("./ModifyMixin");
 const { rollDice } = require("./DiceUtils");
 const { DieType, RollType, CriticalState } = require("./Types");

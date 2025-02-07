@@ -1,6 +1,6 @@
-const { TestConditions, TestDie } = require("../core/TestDie");
-const { rollTestDie } = require("../core/DiceUtils");
-const { DieType, Outcome } = require("../core/Types");
+const { TestConditions, TestDie } = require("../../core/dice/TestDie");
+const { rollTestDie } = require("../../core/DiceUtils");
+const { DieType, Outcome } = require("../../core/Types");
 
 // Mock rollTestDie to control test outcomes
 jest.mock("../core/DiceUtils", () => ({

@@ -1,6 +1,6 @@
 const { ModifiedDie } = require("./ModifiedDie");
-const { rollTestDie } = require("./DiceUtils");
-const { Outcome } = require("./Types");
+const { rollTestDie } = require("../DiceUtils");
+const { Outcome } = require("../Types");
 
 /**
  * Represents conditions for a test-based roll.
