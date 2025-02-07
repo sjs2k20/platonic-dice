@@ -52,9 +52,7 @@ class TargetDie extends Die {
      * @returns {Outcome | null}
      */
     getLastOutcome() {
-        return this._outcomeHistory.length > 0
-            ? this._outcomeHistory[this._outcomeHistory.length - 1]
-            : null;
+        return this._outcomeHistory.at(-1) || null;
     }
 
     /**
@@ -73,7 +71,7 @@ class TargetDie extends Die {
             reportData.history = this.getHistory();
         }
 
-        return JSON.stringify(reportData, null, verbose ? 2 : 0);
+        return reportData;
     }
 }
 

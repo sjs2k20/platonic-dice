@@ -4,7 +4,10 @@ const { DieType, RollType, Outcome } = require("../core/Types");
 
 // Get private methods using rewire
 const generateDieResult = DiceUtils.__get__("generateDieResult");
+const rollDie = DiceUtils.__get__("rollDie");
 const rollDice = DiceUtils.__get__("rollDice");
+const rollModDie = DiceUtils.__get__("rollModDie");
+const rollModDice = DiceUtils.__get__("rollModDice");
 
 describe("generateDieResult (Private Function)", () => {
     it("should roll a single die and return a number within range", () => {
@@ -41,24 +44,12 @@ describe("generateDieResult (Private Function)", () => {
     });
 });
 
-describe("rollDice", () => {
-    let originalGenerateDieResult;
+describe("rollDie", () => {
+    it("should roll a single die and return a number", () => {
+        DiceUtils.__set__("generateDieResult", () => 4);
 
-    beforeEach(() => {
-        originalGenerateDieResult = DiceUtils.__get__("generateDieResult");
-    });
-
-    afterEach(() => {
-        DiceUtils.__set__("generateDieResult", originalGenerateDieResult);
-    });
-
-    it("should roll multiple dice and return an array of results", () => {
-        const results = rollDice(DieType.D6, { count: 3 });
-        expect(results).toHaveLength(3);
-        results.forEach((result) => {
-            expect(result).toBeGreaterThanOrEqual(1);
-            expect(result).toBeLessThanOrEqual(6);
-        });
+        const result = rollDie(DieType.D6);
+        expect(result).toBe(4);
     });
 
     it("should return highest/lowest result correctly when rolling with advantage/disadvantage", () => {
@@ -67,38 +58,83 @@ describe("rollDice", () => {
             rollCount++ % 2 === 0 ? 15 : 1
         );
 
-        const resultAdvantage = rollDice(DieType.D20, {
-            rollType: RollType.Advantage,
-        });
-        const resultDisadvantage = rollDice(DieType.D20, {
-            rollType: RollType.Disadvantage,
-        });
+        const resultAdvantage = rollDie(DieType.D20, RollType.Advantage);
+        const resultDisadvantage = rollDie(DieType.D20, RollType.Disadvantage);
 
         expect(resultAdvantage).toBe(15);
         expect(resultDisadvantage).toBe(1);
     });
 });
 
-describe("rollModDice", () => {
-    it("should apply a modifier to a roll", () => {
+describe("rollDice", () => {
+    it("should throw an error if count is less than 1", () => {
+        expect(() => rollDice(DieType.D6, { count: 0 })).toThrow(
+            "Count must be at least 1."
+        );
+    });
+
+    it("should roll multiple dice and return an array of results", () => {
+        DiceUtils.__set__("generateDieResult", () => 3);
+
+        const results = rollDice(DieType.D6, { count: 3 });
+        expect(results).toEqual([3, 3, 3]);
+    });
+
+    it("should handle multiple dice rolls with advantage/disadvantage", () => {
+        DiceUtils.__set__("generateDieResult", () => 10);
+
+        const results = rollDice(DieType.D6, {
+            count: 2,
+            rollType: RollType.Advantage,
+        });
+
+        expect(results).toEqual([10, 10]);
+    });
+});
+
+describe("rollModDie", () => {
+    it("should apply a modifier to a single roll", () => {
         DiceUtils.__set__("generateDieResult", () => 4);
 
-        const { base, modified } = DiceUtils.rollModDice(
-            DieType.D6,
-            (n) => n + 2
-        );
+        const { base, modified } = rollModDie(DieType.D6, (n) => n + 2);
 
         expect(base).toBe(4);
         expect(modified).toBe(6);
     });
 
-    it("should not modify the roll if no modifier is provided", () => {
-        DiceUtils.__set__("generateDieResult", () => 5);
+    it("should handle advantage/disadvantage when rolling a single modified die", () => {
+        let rollCount = 0;
+        DiceUtils.__set__("generateDieResult", () =>
+            rollCount++ % 2 === 0 ? 5 : 2
+        );
 
-        const { base, modified } = DiceUtils.rollModDice(DieType.D6);
+        const { base, modified } = rollModDie(
+            DieType.D6,
+            (n) => n + 3,
+            RollType.Advantage
+        );
 
         expect(base).toBe(5);
-        expect(modified).toBe(5);
+        expect(modified).toBe(8);
+    });
+});
+
+describe("rollModDice", () => {
+    it("should throw an error if count is less than 1", () => {
+        expect(() =>
+            rollModDice(DieType.D6, (n) => n + 1, { count: 0 })
+        ).toThrow("Count must be at least 1.");
+    });
+
+    it("should apply a modifier to multiple rolls", () => {
+        DiceUtils.__set__("generateDieResult", () => 3);
+
+        const { base, modified } = rollModDice(DieType.D6, (n) => n * 2, {
+            count: 2,
+        });
+
+        expect(base).toEqual([3, 3]);
+        expect(modified).toEqual([6, 6]);
     });
 });
 

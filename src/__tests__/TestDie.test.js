@@ -145,13 +145,11 @@ describe("TestDie Class", () => {
             });
             testDie.roll();
 
-            expect(testDie.report()).toBe(
-                JSON.stringify({
-                    type: "Modified_d6",
-                    last_result: 6,
-                    last_outcome: Outcome.Critical_Success,
-                })
-            );
+            expect(testDie.report()).toEqual({
+                type: "Modified_d6",
+                last_result: 6,
+                last_outcome: Outcome.Critical_Success,
+            });
         });
 
         it("should return a verbose report including full history", () => {
@@ -168,27 +166,21 @@ describe("TestDie Class", () => {
             });
             testDie.roll();
 
-            expect(testDie.report(true)).toBe(
-                JSON.stringify(
+            expect(testDie.report(true)).toEqual({
+                type: "Modified_d6",
+                last_result: 3,
+                last_outcome: Outcome.Failure,
+                history: [
                     {
-                        type: "Modified_d6",
-                        last_result: 3,
-                        last_outcome: Outcome.Failure,
-                        history: [
-                            {
-                                roll: 5,
-                                outcome: Outcome.Success,
-                            },
-                            {
-                                roll: 3,
-                                outcome: Outcome.Failure,
-                            },
-                        ],
+                        roll: 5,
+                        outcome: Outcome.Success,
                     },
-                    null,
-                    2
-                )
-            );
+                    {
+                        roll: 3,
+                        outcome: Outcome.Failure,
+                    },
+                ],
+            });
         });
     });
 });

@@ -1,5 +1,5 @@
 const { DieType, RollType } = require("./Types");
-const { rollDice } = require("./DiceUtils");
+const { rollDie } = require("./DiceUtils");
 
 /**
  * Represents a standard Die object.
@@ -32,7 +32,7 @@ class Die {
      */
     roll(rollType = null) {
         this._reset();
-        this._result = rollDice(this._type, { rollType });
+        this._result = rollDie(this._type, rollType);
         this._history.push(this._result);
         return this._result;
     }
@@ -64,7 +64,7 @@ class Die {
     /**
      * Generates a report of the die's state.
      * @param {boolean} [verbose=false] - If true, includes history.
-     * @returns {string} - The die report.
+     * @returns {Object} - The die report.
      */
     report(verbose = false) {
         const baseReport = {
@@ -76,7 +76,17 @@ class Die {
             baseReport.history = this._history;
         }
 
-        return JSON.stringify(baseReport, null, verbose ? 2 : 0);
+        return baseReport;
+    }
+
+    /**
+     * Converts the die's state to a JSON string.
+     * Includes full history by default.
+     *
+     * @returns {string} - A JSON-formatted string representing the die's state.
+     */
+    toJSON(verbose = true) {
+        return JSON.stringify(this.report(verbose), null, 2);
     }
 }
 
