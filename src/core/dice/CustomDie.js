@@ -1,5 +1,4 @@
-const { Die } = require("./Die");
-const { rollDie } = require("./DiceUtils");
+const { Die, rollDie } = require("../");
 
 /**
  * Represents a fully customizable die where each face has a different effect.

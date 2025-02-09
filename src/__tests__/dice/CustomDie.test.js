@@ -1,9 +1,7 @@
-const { DieType } = require("../core/Types");
-const { rollDie } = require("../core/DiceUtils");
-const { CustomDie } = require("../core/CustomDie");
+const { DieType, rollDie, CustomDie } = require("../../core");
 
 // Mock rollDie to return predictable values
-jest.mock("../core/DiceUtils", () => ({
+jest.mock("../../core/DiceUtils", () => ({
     rollDie: jest.fn(),
 }));
 

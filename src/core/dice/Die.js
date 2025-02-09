@@ -1,5 +1,4 @@
-const { DieType, RollType } = require("./Types");
-const { rollDie } = require("./DiceUtils");
+const { DieType, RollType, rollDie } = require("../");
 
 /**
  * Represents a standard Die object.

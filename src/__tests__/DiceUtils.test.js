@@ -1,6 +1,6 @@
 const rewire = require("rewire");
 const DiceUtils = rewire("../core/DiceUtils");
-const { DieType, RollType, Outcome } = require("../core/Types");
+const { DieType, RollType, Outcome } = require("../core");
 
 // Get private methods using rewire
 const generateDieResult = DiceUtils.__get__("generateDieResult");
