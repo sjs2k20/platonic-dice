@@ -97,8 +97,8 @@ console.log(targetDie.getHistory()); // View full roll history
 const { CustomDie } = require("platonic-dice");
 
 const faceMappings = {
-  1: () => "Critical Failure",
-  20: () => "Critical Success",
+    1: () => "Critical Failure",
+    20: () => "Critical Success",
 };
 
 const customDie = new CustomDie("d20", faceMappings, () => "Normal Roll");
@@ -142,7 +142,7 @@ Want to contribute? Here’s how:
 
 ## License
 
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** – see the [LICENSE](https://github.com/sjs2k20/platonic-dice/blob/main/LICENSE) file for details.
 
 ---
 
