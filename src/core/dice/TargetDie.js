@@ -1,6 +1,4 @@
-const { Die } = require("./Die");
-const { rollTargetDie } = require("../DiceUtils");
-const { Outcome } = require("../Types");
+const { Die, rollTargetDie, Outcome } = require("../");
 
 /**
  * Represents a Target Die that determines success/failure based on matching numbers.

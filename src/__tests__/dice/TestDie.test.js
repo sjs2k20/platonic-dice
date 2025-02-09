@@ -1,9 +1,13 @@
-const { TestConditions, TestDie } = require("../../core/dice/TestDie");
-const { rollTestDie } = require("../../core/DiceUtils");
-const { DieType, Outcome } = require("../../core/Types");
+const {
+    TestConditions,
+    TestDie,
+    rollTestDie,
+    DieType,
+    Outcome,
+} = require("../../core");
 
 // Mock rollTestDie to control test outcomes
-jest.mock("../core/DiceUtils", () => ({
+jest.mock("../../core/DiceUtils", () => ({
     rollTestDie: jest.fn(),
 }));
 

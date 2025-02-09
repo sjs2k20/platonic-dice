@@ -1,20 +1,44 @@
-// src/core/index.js
-const { Die } = require("./dice/Die");
-const { TargetDie } = require("./dice/TargetDie");
-const { TestDie } = require("./dice/TestDie");
-const { ModifyMixin } = require("./ModifyMixin");
-const { rollDice } = require("./DiceUtils");
-const { DieType, RollType, CriticalState } = require("./Types");
-const { TestConditions } = require("./TestConditions");
-
 module.exports = {
-    Die,
-    TargetDie,
-    TestDie,
-    TestConditions,
-    ModifyMixin,
-    rollDice,
-    DieType,
-    RollType,
-    CriticalState,
+    get DieType() {
+        return require("./Types").DieType;
+    },
+    get RollType() {
+        return require("./Types").RollType;
+    },
+    get Outcome() {
+        return require("./Types").Outcome;
+    },
+    get rollDie() {
+        return require("./DiceUtils").rollDie;
+    },
+    get rollDice() {
+        return require("./DiceUtils").rollDice;
+    },
+    get rollModDie() {
+        return require("./DiceUtils").rollModDie;
+    },
+    get rollTargetDie() {
+        return require("./DiceUtils").rollTargetDie;
+    },
+    get rollTestDie() {
+        return require("./DiceUtils").rollTestDie;
+    },
+    get Die() {
+        return require("./dice").Die;
+    },
+    get TargetDie() {
+        return require("./dice").TargetDie;
+    },
+    get CustomDie() {
+        return require("./dice").CustomDie;
+    },
+    get ModifiedDie() {
+        return require("./dice").ModifiedDie;
+    },
+    get TestDie() {
+        return require("./dice").TestDie;
+    },
+    get TestConditions() {
+        return require("./dice").TestConditions;
+    },
 };

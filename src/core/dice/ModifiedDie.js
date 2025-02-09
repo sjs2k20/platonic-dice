@@ -1,5 +1,4 @@
-const { Die } = require("./Die");
-const { rollModDie } = require("../DiceUtils");
+const { Die, rollModDie } = require("../");
 
 /**
  * Represents a Die that supports result modification.
