@@ -51,7 +51,6 @@ declare module "platonic-dice" {
         TargetDie: typeof TargetDie;
         ModifiedDie: typeof ModifiedDie;
         TestDie: typeof TestDie;
-        FaceOutcomeMapping: typeof FaceOutcomeMapping;
         TestConditions: typeof TestConditions;
     }
 
@@ -74,13 +73,14 @@ declare module "platonic-dice" {
     export class CustomDie extends Die {
         constructor(
             type: DieType,
-            faceMappings: Record<number, () => number | string>,
-            defaultOutcome?: () => number | string,
+            faceMappings: DieFaceResultMap,
+            defaultOutcome?: DieFaceResult,
         );
-        private _faceMappings: Record<number, () => number | string>;
-        private _defaultOutcome?: () => number | string;
+        private _faceMappings: Map<number, DieFaceResult>;
         private _outcome: number | string | null;
         private _outcomeHistory: (number | string | null)[];
+
+        get faceMappings(): DieFaceResultMap;
 
         roll(): number | string | null;
         getOutcome(): number | string | null;
@@ -134,13 +134,19 @@ declare module "platonic-dice" {
         getLastOutcome(): Outcome | null;
         report(verbose?: boolean): object;
     }
-
-    // Interface for face-to-outcome mappings in CustomDie
-    export class FaceOutcomeMapping {
-        default?: (face: number) => number | string;
-        mappings: Record<number, (face: number) => number | string>;
+    
+    // A value or function representing a custom outcome for a die face.
+    export type DieFaceResult = number | string | ((face: number) => number);
+    
+    // Maps a specific die face to its outcome.
+    export interface DieFaceMapping {
+        face: number;
+        result: DieFaceResult;
     }
-
+    
+    // An array of mappings for all die faces in a custom die.
+    export type DieFaceResultMap = DieFaceMapping[];
+    
     // Export the platonicDice module object
     export const platonicDice: PlatonicDice;
 
