@@ -35,6 +35,24 @@ class TestDie extends ModifiedDie {
         if (!(conditions instanceof TestConditions)) {
             throw new Error("conditions must be an instance of TestConditions");
         }
+        // Validate modifier shape
+        if (modifier !== null) {
+            if (typeof modifier !== "function") {
+                throw new Error("modifier must be a function or null.");
+            }
+
+            // Must declare exactly 1 expected parameter
+            if (modifier.length !== 1) {
+                throw new Error("modifier must accept exactly one parameter.");
+            }
+
+            // Quick runtime check: apply to a number and verify return is number
+            const testValue = modifier(1);
+            if (typeof testValue !== "number" || Number.isNaN(testValue)) {
+                throw new Error("modifier must return a number when given a number.");
+            }
+        }
+
         super(type, modifier ?? ((n) => n));
         this._modifiedHistory = modifier ? [] : null;
         this._conditions = conditions;
