@@ -42,6 +42,15 @@ class CustomDie extends Die {
         if (defaultOutcome !== null && !CustomDie._isValidResult(defaultOutcome)) {
             throw new Error("defaultOutcome must be null, a number, a string, or a function(number): number.");
         }
+        
+        // Check for duplicate face entries.
+        const seenFaces = new Set();
+        for (const mapping of faceMappings) {
+            if (seenFaces.has(mapping.face)) {
+                throw new Error(`Duplicate mapping found for face ${mapping.face}.`);
+            }
+            seenFaces.add(mapping.face);
+        }
 
         // Build a complete mapping for all faces
         const mappingMap = new Map();
@@ -92,6 +101,11 @@ class CustomDie extends Die {
         }
 
         return reportData;
+    }
+
+    /** @returns {DieFaceResultMap} */
+    get faceMappings() {
+        return Array.from(this._faceMappings.entries()).map(([face, result]) => ({ face, result }));
     }
 
     /** @returns {number|string|null} */
