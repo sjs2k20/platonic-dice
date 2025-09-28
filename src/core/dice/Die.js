@@ -33,10 +33,7 @@ class Die {
      * @returns {number} - The roll result.
      */
     roll(rollType = null) {
-        if (
-            rollType !== null &&
-            !Object.values(RollType).includes(rollType)
-        ) {
+        if (rollType !== null && !Object.values(RollType).includes(rollType)) {
             throw new Error(`Invalid roll type: ${rollType}`);
         }
         this._reset();
@@ -67,6 +64,19 @@ class Die {
      */
     get history() {
         return this._history;
+    }
+
+    /** Returns the number of faces for this die. */
+    get faceCount() {
+        const lookup = {
+            [DieType.D4]: 4,
+            [DieType.D6]: 6,
+            [DieType.D8]: 8,
+            [DieType.D10]: 10,
+            [DieType.D12]: 12,
+            [DieType.D20]: 20,
+        };
+        return lookup[this._type];
     }
 
     /**

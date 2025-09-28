@@ -17,9 +17,6 @@ class CustomDie extends Die {
     constructor(type, faceMappings, defaultOutcome = (n) => n) {
         super(type);
 
-        // Get number of faces from type
-        const faceCount = CustomDie._getFaceCount(type);
-
         // Runtime validation for faceMappings
         if (!Array.isArray(faceMappings)) {
             throw new Error(
@@ -35,10 +32,10 @@ class CustomDie extends Die {
             if (
                 !Number.isInteger(mapping.face) ||
                 mapping.face < 1 ||
-                mapping.face > faceCount
+                mapping.face > this.faceCount
             ) {
                 throw new Error(
-                    `Invalid face value in faceMappings[${i}]: ${mapping.face}. Must be between 1 and ${faceCount}.`
+                    `Invalid face value in faceMappings[${i}]: ${mapping.face}. Must be between 1 and ${this.faceCount}.`
                 );
             }
             if (!CustomDie._isValidResult(mapping.result)) {
@@ -69,7 +66,7 @@ class CustomDie extends Die {
 
         // Build a complete mapping for all faces
         const mappingMap = new Map();
-        for (let i = 1; i <= faceCount; i++) {
+        for (let i = 1; i <= this.faceCount; i++) {
             const provided = faceMappings.find((m) => m.face === i);
             mappingMap.set(i, provided ? provided.result : defaultOutcome);
         }
@@ -147,21 +144,6 @@ class CustomDie extends Die {
             typeof result === "string" ||
             (typeof result === "function" && result.length === 1) // must accept 1 arg
         );
-    }
-
-    static _getFaceCount(type) {
-        const lookup = {
-            [DieType.D4]: 4,
-            [DieType.D6]: 6,
-            [DieType.D8]: 8,
-            [DieType.D10]: 10,
-            [DieType.D12]: 12,
-            [DieType.D20]: 20,
-        };
-        if (!(type in lookup)) {
-            throw new Error(`Unknown die type: ${type}`);
-        }
-        return lookup[type];
     }
 }
 
