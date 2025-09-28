@@ -23,6 +23,80 @@ describe("TestDie Class", () => {
 
     // **Initialization Tests**
     describe("Initialization", () => {
+        it("should throw if conditions is not an instance of TestConditions", () => {
+            expect(() => new TestDie(DieType.D6, {})).toThrow(
+                "conditions must be an instance of TestConditions"
+            );
+            expect(() => new TestDie(DieType.D6, null)).toThrow(
+                "conditions must be an instance of TestConditions"
+            );
+        });
+
+        it("should throw if modifier is not a function", () => {
+            expect(() => new TestDie(DieType.D6, conditions, 123)).toThrow(
+                "modifier must be a function or null."
+            );
+            expect(() => new TestDie(DieType.D6, conditions, "bad")).toThrow(
+                "modifier must be a function or null."
+            );
+        });
+
+        it("should throw if modifier has the wrong arity (no params)", () => {
+            const badModifier = () => 5; // 0 params
+            expect(
+                () => new TestDie(DieType.D6, conditions, badModifier)
+            ).toThrow("modifier must accept exactly one parameter.");
+        });
+
+        it("should throw if modifier has the wrong arity (too many params)", () => {
+            const badModifier = (a, b) => a + b;
+            expect(
+                () => new TestDie(DieType.D6, conditions, badModifier)
+            ).toThrow("modifier must accept exactly one parameter.");
+        });
+
+        it("should throw if modifier does not return a number", () => {
+            const badModifier = () => "not_a_number";
+            expect(
+                () => new TestDie(DieType.D6, conditions, badModifier)
+            ).toThrow("modifier must return a number when given a number.");
+        });
+
+        it("should throw if modifier returns NaN", () => {
+            const badModifier = () => NaN;
+            expect(
+                () => new TestDie(DieType.D6, conditions, badModifier)
+            ).toThrow("modifier must return a number when given a number.");
+        });
+
+        it("should accept a valid modifier with exactly one parameter returning a number", () => {
+            const goodModifier = (n) => n + 1;
+            const die = new TestDie(DieType.D6, conditions, goodModifier);
+            expect(die._modifier).toBe(goodModifier);
+        });
+
+        it("should initialize with plain type when no modifier is provided", () => {
+            const plainDie = new TestDie(DieType.D6, conditions);
+            expect(plainDie.type).toBe(DieType.D6);
+            expect(plainDie._modifiedHistory).toBeNull();
+        });
+
+        it("should roll and return the base result if no modifier is given", () => {
+            const plainDie = new TestDie(DieType.D6, conditions);
+            rollTestDie.mockReturnValue({
+                base: 5,
+                modified: 5, // same since no modifier
+                outcome: Outcome.Success,
+            });
+
+            const result = plainDie.roll();
+            expect(result).toBe(5);
+            expect(plainDie.getLastOutcome()).toBe(Outcome.Success);
+            expect(plainDie.getHistory()).toEqual([
+                { roll: 5, outcome: Outcome.Success },
+            ]);
+        });
+
         it("should initialize with the correct type, conditions, and modifier", () => {
             expect(testDie.type).toBe("Modified_d6"); // Because of modifier
             expect(testDie._conditions).toEqual(conditions);
