@@ -42,35 +42,45 @@ describe("TestDie Class", () => {
         });
 
         it("should throw if modifier has the wrong arity (no params)", () => {
-            const badModifier = () => 5; // 0 params
+            const badModifier = () => {
+                return 5;
+            }; // 0 params
             expect(
                 () => new TestDie(DieType.D6, conditions, badModifier)
             ).toThrow("modifier must accept exactly one parameter.");
         });
 
         it("should throw if modifier has the wrong arity (too many params)", () => {
-            const badModifier = (a, b) => a + b;
+            const badModifier = (a, b) => {
+                return a + b;
+            }; // 2 params
             expect(
                 () => new TestDie(DieType.D6, conditions, badModifier)
             ).toThrow("modifier must accept exactly one parameter.");
         });
 
         it("should throw if modifier does not return a number", () => {
-            const badModifier = () => "not_a_number";
+            const badModifier = (n) => {
+                return "not a number";
+            };
             expect(
                 () => new TestDie(DieType.D6, conditions, badModifier)
             ).toThrow("modifier must return a number when given a number.");
         });
 
         it("should throw if modifier returns NaN", () => {
-            const badModifier = () => NaN;
+            const badModifier = (n) => {
+                return NaN;
+            };
             expect(
                 () => new TestDie(DieType.D6, conditions, badModifier)
             ).toThrow("modifier must return a number when given a number.");
         });
 
         it("should accept a valid modifier with exactly one parameter returning a number", () => {
-            const goodModifier = (n) => n + 1;
+            const goodModifier = (n) => {
+                return n + 1;
+            };
             const die = new TestDie(DieType.D6, conditions, goodModifier);
             expect(die._modifier).toBe(goodModifier);
         });

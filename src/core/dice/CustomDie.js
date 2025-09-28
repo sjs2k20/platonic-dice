@@ -1,4 +1,4 @@
-const { Die, rollDie } = require("../");
+const { Die, DieType, rollDie } = require("../");
 
 /**
  * @typedef {import("./Types").DieFaceResultMap} DieFaceResultMap
@@ -22,13 +22,21 @@ class CustomDie extends Die {
 
         // Runtime validation for faceMappings
         if (!Array.isArray(faceMappings)) {
-            throw new Error("faceMappings must be an array of DieFaceMapping objects.");
+            throw new Error(
+                "faceMappings must be an array of DieFaceMapping objects."
+            );
         }
         faceMappings.forEach((mapping, i) => {
             if (typeof mapping !== "object" || mapping === null) {
-                throw new Error(`faceMappings[${i}] must be an object with {face, result}.`);
+                throw new Error(
+                    `faceMappings[${i}] must be an object with {face, result}.`
+                );
             }
-            if (!Number.isInteger(mapping.face) || mapping.face < 1 || mapping.face > faceCount) {
+            if (
+                !Number.isInteger(mapping.face) ||
+                mapping.face < 1 ||
+                mapping.face > faceCount
+            ) {
                 throw new Error(
                     `Invalid face value in faceMappings[${i}]: ${mapping.face}. Must be between 1 and ${faceCount}.`
                 );
@@ -39,15 +47,22 @@ class CustomDie extends Die {
                 );
             }
         });
-        if (defaultOutcome !== null && !CustomDie._isValidResult(defaultOutcome)) {
-            throw new Error("defaultOutcome must be null, a number, a string, or a function(number): number.");
+        if (
+            defaultOutcome !== null &&
+            !CustomDie._isValidResult(defaultOutcome)
+        ) {
+            throw new Error(
+                "defaultOutcome must be null, a number, a string, or a function(number): number."
+            );
         }
-        
+
         // Check for duplicate face entries.
         const seenFaces = new Set();
         for (const mapping of faceMappings) {
             if (seenFaces.has(mapping.face)) {
-                throw new Error(`Duplicate mapping found for face ${mapping.face}.`);
+                throw new Error(
+                    `Duplicate mapping found for face ${mapping.face}.`
+                );
             }
             seenFaces.add(mapping.face);
         }
@@ -105,7 +120,9 @@ class CustomDie extends Die {
 
     /** @returns {DieFaceResultMap} */
     get faceMappings() {
-        return Array.from(this._faceMappings.entries()).map(([face, result]) => ({ face, result }));
+        return Array.from(this._faceMappings.entries()).map(
+            ([face, result]) => ({ face, result })
+        );
     }
 
     /** @returns {number|string|null} */

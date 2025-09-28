@@ -1,4 +1,4 @@
-const { Die, rollModDie } = require("../");
+const { Die, RollType, rollModDie } = require("../");
 
 /**
  * Represents a Die that supports result modification.
@@ -13,7 +13,7 @@ class ModifiedDie extends Die {
         if (typeof modifier !== "function") {
             throw new Error("Modifier must be a function.");
         }
-        
+
         this._modifier = modifier;
         this._modifiedResult = null;
         this._modifiedHistory = [];
@@ -25,13 +25,10 @@ class ModifiedDie extends Die {
      * @returns {number} - The modified roll result.
      */
     roll(rollType = null) {
-        if (
-            rollType !== null &&
-            !Object.values(RollType).includes(rollType)
-        ) {
+        if (rollType !== null && !Object.values(RollType).includes(rollType)) {
             throw new Error(`Invalid roll type: ${rollType}`);
         }
-        
+
         this._reset();
         const { base, modified } = rollModDie(
             this._type,

@@ -1,4 +1,11 @@
-const { ModifiedDie, rollTestDie, Outcome } = require("../");
+const { DieType, ModifiedDie, rollTestDie, Outcome } = require("../");
+
+/**
+ * Helper to check if a function is the identity function.
+ * Accepts null as well.
+ */
+const isIdentity = (fn) =>
+    fn === null || fn.toString() === ((n) => n).toString();
 
 /**
  * Represents conditions for a test-based roll.
@@ -49,7 +56,9 @@ class TestDie extends ModifiedDie {
             // Quick runtime check: apply to a number and verify return is number
             const testValue = modifier(1);
             if (typeof testValue !== "number" || Number.isNaN(testValue)) {
-                throw new Error("modifier must return a number when given a number.");
+                throw new Error(
+                    "modifier must return a number when given a number."
+                );
             }
         }
 
@@ -81,7 +90,7 @@ class TestDie extends ModifiedDie {
         this._history.push(base); // Always track base roll
 
         // Check if modifier is actually modifying
-        if (this._modifier !== ((n) => n)) {
+        if (!isIdentity(this._modifier)) {
             this._modifiedResult = modified;
             this._modifiedHistory.push(modified);
         } else {
@@ -91,16 +100,21 @@ class TestDie extends ModifiedDie {
         return this._modifiedResult ?? this._result; // Ensure the correct result is returned
     }
 
+    get type() {
+        return !isIdentity(this._modifier)
+            ? `Modified_${this._type}`
+            : this._type;
+    }
+
     /**
      * Returns the full roll history including outcomes.
      * @returns {Array<{roll: number, outcome: Outcome}>}
      */
     getHistory() {
         return this._history.map((_, index) => ({
-            roll:
-                this._modifier !== ((n) => n)
-                    ? this._modifiedHistory[index]
-                    : this._history[index],
+            roll: !isIdentity(this._modifier)
+                ? this._modifiedHistory[index]
+                : this._history[index],
             outcome: this._outcomeHistory[index],
         }));
     }
@@ -122,7 +136,9 @@ class TestDie extends ModifiedDie {
      */
     report(verbose = false) {
         const reportData = {
-            type: this._modifier ? `Modified_${this._type}` : this._type,
+            type: !isIdentity(this._modifier)
+                ? `Modified_${this._type}`
+                : this._type,
             last_result: this._modifiedResult ?? this._result,
             last_outcome: this.getLastOutcome(),
         };
