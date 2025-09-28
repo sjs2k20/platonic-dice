@@ -14,6 +14,12 @@ describe("Die Class", () => {
     });
 
     describe("Initialization", () => {
+        it("should throw an error if constructed with an invalid die type", () => {
+            expect(() => new Die("d7")).toThrow("Invalid die type: d7");
+            expect(() => new Die(null)).toThrow("Invalid die type: null");
+            expect(() => new Die(42)).toThrow("Invalid die type: 42");
+        });
+        
         it("should initialize with the correct type and empty result/history", () => {
             expect(die.type).toBe(DieType.D6);
             expect(die.result).toBeNull();
@@ -31,6 +37,13 @@ describe("Die Class", () => {
             expect(die.result).toBe(4);
             expect(die.history).toEqual([4]);
             expect(rollDie).toHaveBeenCalledWith(DieType.D6, null);
+        });
+        
+        it("should throw an error if roll is called with an invalid roll type", () => {
+            expect(() => die.roll("not_a_roll_type")).toThrow(
+                "Invalid roll type: not_a_roll_type"
+            );
+            expect(() => die.roll(123)).toThrow("Invalid roll type: 123");
         });
 
         it("should roll with advantage", () => {
@@ -57,6 +70,26 @@ describe("Die Class", () => {
                 DieType.D6,
                 RollType.Disadvantage
             );
+        });
+
+        it("should allow rolling with no roll type explicitly (null)", () => {
+            rollDie.mockReturnValue(5);
+            
+            const result = die.roll(null);
+            
+            expect(result).toBe(5);
+            expect(die.history).toEqual([5]);
+            expect(rollDie).toHaveBeenCalledWith(DieType.D6, null);
+        });
+        
+        it("should allow multiple rolls and preserve history correctly", () => {
+            rollDie.mockReturnValueOnce(1).mockReturnValueOnce(6);
+            
+            die.roll();
+            die.roll();
+            
+            expect(die.history).toEqual([1, 6]);
+            expect(die.result).toBe(6);
         });
     });
 
