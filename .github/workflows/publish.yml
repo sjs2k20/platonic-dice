@@ -24,7 +24,7 @@ jobs:
             - name: Verify package.json version matches tag
               run: |
                   PKG_VERSION=$(node -p "require('./package.json').version")
-                  TAG_VERSION=${GITHUB_REF_NAME#v}
+                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
                   echo "package.json version=$PKG_VERSION, git tag=$TAG_VERSION"
                   if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
                     echo "ERROR: Version mismatch! package.json=$PKG_VERSION, tag=$TAG_VERSION"
@@ -42,8 +42,8 @@ jobs:
               run: |
                   TAG_VERSION=${GITHUB_REF_NAME#v}
                   set -e
-                  npm publish --access public --registry https://registry.npmjs.org/ || {
-                    if npm view @sjs2k20/platonic-dice@$TAG_VERSION >/dev/null 2>&1; then
+                  npm publish --registry https://registry.npmjs.org/ --access public || {
+                    if npm view platonic-dice@$TAG_VERSION >/dev/null 2>&1; then
                       echo "WARNING: Version $TAG_VERSION already exists on npm, continuing."
                     else
                       echo "ERROR: npm publish failed for another reason."
@@ -53,12 +53,13 @@ jobs:
               env:
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-            # --- PUBLISH TO GITHUB PACKAGES ---
+            # Optional GitHub Packages publish (will require scoped package)
+            # # --- PUBLISH TO GITHUB PACKAGES ---
 
-            - name: Publish to GitHub Packages
-              run: npm publish --registry https://npm.pkg.github.com/
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            # - name: Publish to GitHub Packages
+            #   run: npm publish --registry https://npm.pkg.github.com/ --access public
+            #   env:
+            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             # --- CREATE GITHUB RELEASE ---
 
