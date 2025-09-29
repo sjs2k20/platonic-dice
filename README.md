@@ -27,13 +27,13 @@ Whether you need a simple dice roller, a way to track roll history, or an extens
 To install via **npm**, run:
 
 ```bash
-npm install platonic-dice
+npm install @sjs2k20/platonic-dice
 ```
 
 Or via **yarn**:
 
 ```bash
-yarn add platonic-dice
+yarn add @sjs2k20/platonic-dice
 ```
 
 ---
