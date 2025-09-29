@@ -1,0 +1,43 @@
+name: Publish Package & Release
+
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - "v*.*.*"
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "20"
+
+            - run: npm ci
+
+            - name: Check npm authentication
+              run: npm whoami --registry=https://registry.npmjs.org/
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Publish to npmjs.org
+              run: npm publish --access public --registry https://registry.npmjs.org/
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Publish to GitHub Packages
+              run: npm publish --registry https://npm.pkg.github.com/
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Create Github Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: ${{ github.ref_name }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
