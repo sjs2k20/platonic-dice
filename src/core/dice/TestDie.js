@@ -1,9 +1,10 @@
 const {
     DieType,
     ModifiedDie,
-    TargetDie,
-    rollTestDie,
     Outcome,
+    RollRecord,
+    rollTestDie,
+    TargetDie,
 } = require("../");
 
 /**
@@ -31,7 +32,7 @@ class TestConditions {
 /**
  * Represents a Test Die that determines success/failure against a target threshold.
  */
-class TestDie extends Die {
+class TestDie {
     /**
      * @param {DieType} type - The type of die.
      * @param {TestConditions} conditions - The test conditions {target, [critical_success], [critical_failure]}.
@@ -61,24 +62,33 @@ class TestDie extends Die {
             }
         }
 
+        // Composition
         this._modifiedDie = new ModifiedDie(type, modifier ?? ((n) => n));
         this._targetDie = new TargetDie(type, [conditions.target]);
         this._conditions = conditions;
+
+        // Internal state
+        this._history = [];
+        this._modifiedHistory = [];
+        this._outcomeHistory = [];
+        this._result = null;
+        this._modifiedResult = null;
+        this._outcome = null;
     }
 
     get type() {
-        return !TestDie.#isIdentity(this._modifier)
-            ? `Modified_${this._type}`
-            : this._type;
+        return !TestDie.#isIdentity(this._modifiedDie.modifier)
+            ? `Modified_${this._modifiedDie.type}`
+            : this._modifiedDie.type;
     }
 
     /**
      * Returns the full roll history including outcomes.
-     * @returns {Array<{roll: number, outcome: Outcome}>}
+     * @returns {RollRecord[]}
      */
     get history() {
         return this._history.map((_, index) => ({
-            roll: !TestDie.#isIdentity(this._modifier)
+            roll: !TestDie.#isIdentity(this._modifiedDie.modifier)
                 ? this._modifiedHistory[index]
                 : this._history[index],
             outcome: this._outcomeHistory[index],
@@ -100,73 +110,58 @@ class TestDie extends Die {
      * @returns {number} The final roll result.
      */
     roll() {
-        this._reset();
-        // Roll using ModifiedDie, then determine outcome using TargetDie logic
-        this._modifiedDie.roll();
-        const base = this._modifiedDie.history.at(-1);
-        const modified = this._modifiedDie.modifiedHistory.at(-1);
+        // Reset internal state
+        this._result = null;
+        this._modifiedResult = null;
+        this._outcome = null;
 
-        // Determine outcome using test conditions
-        let outcome;
+        // Roll ModifiedDie
+        const base = this._modifiedDie.roll();
+        const modified = this._modifiedDie.modifiedResult ?? base;
+
+        // Determine outcome
         const { critical_success, critical_failure, target } = this._conditions;
         if (
             typeof critical_success === "number" &&
             modified >= critical_success
         ) {
-            outcome = Outcome.Critical_Success;
+            this._outcome = Outcome.Critical_Success;
         } else if (
             typeof critical_failure === "number" &&
             modified <= critical_failure
         ) {
-            outcome = Outcome.Critical_Failure;
+            this._outcome = Outcome.Critical_Failure;
         } else if (modified >= target) {
-            outcome = Outcome.Success;
+            this._outcome = Outcome.Success;
         } else {
-            outcome = Outcome.Failure;
+            this._outcome = Outcome.Failure;
         }
-        // const { base, modified, outcome } = rollTestDie(
-        //     this._type,
-        //     this._conditions.target,
-        //     {
-        //         critical_success: this._conditions.critical_success,
-        //         critical_failure: this._conditions.critical_failure,
-        //         modifier: this._modifier,
-        //     }
-        // );
 
-        // Store the base roll and outcome
-        this._result = base;
-        this._outcome = outcome;
+        // Store history
         this._history.push(base);
-        this._outcomeHistory.push(outcome);
-
-        // Check if modifier is actually modifying
-        if (!TestDie.#isIdentity(this._modifier)) {
+        if (!TestDie.#isIdentity(this._modifiedDie.modifier)) {
             this._modifiedResult = modified;
             this._modifiedHistory.push(modified);
-        } else {
-            this._modifiedResult = null;
         }
+        this._outcomeHistory.push(this._outcome);
 
-        return this._modifiedResult ?? this._result; // Ensure the correct result is returned
+        return this._modifiedResult ?? this._result ?? base;
     }
 
     /**
      * Generates a report on the latest roll.
      * @param {boolean} [verbose=false] - Whether to include full roll history.
-     * @returns {string} A string representation of the die state.
+     * @returns {Object} A representation of the die state.
      */
     report(verbose = false) {
         const reportData = {
-            type: !TestDie.#isIdentity(this._modifier)
-                ? `Modified_${this._type}`
-                : this._type,
+            type: this.type,
             last_result: this._modifiedResult ?? this._result,
             last_outcome: this._outcome,
         };
 
         if (verbose) {
-            reportData.history = this.getHistory();
+            reportData.history = this.history;
         }
 
         return reportData;
