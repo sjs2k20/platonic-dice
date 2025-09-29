@@ -35,10 +35,27 @@ const Outcome = {
 };
 
 /**
- * Represents face-to-outcome mappings for a CustomDie.
- * @typedef {Object} FaceOutcomeMapping
- * @property {function(number): (number | string)} [default] - Default outcome function (if face not explicitly mapped).
- * @property {Object<number, function(number): (number | string)>} mappings - Explicit mappings of face values to outcome functions.
+ * A result that a die face can produce.
+ * Can be:
+ *  - A number
+ *  - A string
+ *  - A function that accepts a number (the rolled face) and returns a number
+ *
+ * @typedef {(number | string | function(number): number)} DieFaceResult
+ */
+
+/**
+ * A mapping between a die face value and its result.
+ *
+ * @typedef {Object} DieFaceMapping
+ * @property {number} face - The face value (e.g., 1–20 for a d20).
+ * @property {DieFaceResult} result - The outcome for this face.
+ */
+
+/**
+ * A collection of face-to-result mappings for a custom die.
+ *
+ * @typedef {DieFaceMapping[]} DieFaceResultMap
  */
 
 module.exports = { DieType, RollType, Outcome };

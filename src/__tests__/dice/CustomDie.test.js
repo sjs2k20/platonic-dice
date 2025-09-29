@@ -7,12 +7,12 @@ jest.mock("../../core/DiceUtils", () => ({
 
 describe("CustomDie Class", () => {
     let customDie;
-    const faceMappings = {
-        1: () => "Gain 10 Gold",
-        2: () => "Lose 5 Gold",
-        3: () => "Extra Turn",
-    };
-    const defaultOutcome = () => "No effect";
+    const faceMappings = [
+        { face: 1, result: "Gain 10 Gold" },
+        { face: 2, result: "Lose 5 Gold" },
+        { face: 3, result: "Extra Turn" },
+    ];
+    const defaultOutcome = "No effect";
 
     beforeEach(() => {
         customDie = new CustomDie(DieType.D6, faceMappings, defaultOutcome);
@@ -23,19 +23,53 @@ describe("CustomDie Class", () => {
     describe("Initialization", () => {
         it("should initialize with correct type and mappings", () => {
             expect(customDie.type).toBe("Custom_d6");
-            expect(customDie._faceMappings).toEqual(faceMappings);
-            expect(customDie._defaultOutcome).toBe(defaultOutcome);
+            expect(customDie.faceMappings).toEqual(
+                expect.arrayContaining(faceMappings)
+            );
+            expect(customDie.getOutcomeHistory()).toEqual([]);
         });
 
-        it("should start with empty outcome history", () => {
-            expect(customDie.getOutcomeHistory()).toEqual([]);
+        it("should throw if faceMappings is not an array", () => {
+            expect(() => new CustomDie(DieType.D6, {}, defaultOutcome)).toThrow(
+                "faceMappings must be an array of DieFaceMapping objects."
+            );
+        });
+
+        it("should throw on invalid face values", () => {
+            const badMappings = [{ face: 7, result: "Oops" }]; // outside d6 range
+            expect(() => new CustomDie(DieType.D6, badMappings)).toThrow(
+                "Invalid face value in faceMappings[0]: 7. Must be between 1 and 6."
+            );
+        });
+
+        it("should throw on duplicate face values", () => {
+            const dupMappings = [
+                { face: 1, result: "Gold" },
+                { face: 1, result: "More Gold" },
+            ];
+            expect(() => new CustomDie(DieType.D6, dupMappings)).toThrow(
+                "Duplicate mapping found for face 1."
+            );
+        });
+
+        it("should throw on invalid result type", () => {
+            const badMappings = [{ face: 1, result: {} }];
+            expect(() => new CustomDie(DieType.D6, badMappings)).toThrow(
+                "Invalid result for face 1. Must be number, string, or function(number): number."
+            );
+        });
+
+        it("should throw on invalid default outcome", () => {
+            expect(() => new CustomDie(DieType.D6, faceMappings, {})).toThrow(
+                "defaultOutcome must be null, a number, a string, or a function(number): number."
+            );
         });
     });
 
     // Rolling tests
     describe("Rolling", () => {
         it("should return mapped outcome if face is explicitly mapped", () => {
-            rollDie.mockReturnValue(1); // Mock roll of 1
+            rollDie.mockReturnValue(1);
 
             const outcome = customDie.roll();
 
@@ -46,7 +80,7 @@ describe("CustomDie Class", () => {
         });
 
         it("should return default outcome if face is not explicitly mapped", () => {
-            rollDie.mockReturnValue(5); // Mock roll of 5 (not in faceMappings)
+            rollDie.mockReturnValue(5);
 
             const outcome = customDie.roll();
 
@@ -55,11 +89,21 @@ describe("CustomDie Class", () => {
             expect(customDie.getOutcomeHistory()).toEqual(["No effect"]);
         });
 
-        it("should handle rolling multiple times and track history", () => {
-            rollDie.mockReturnValueOnce(2).mockReturnValueOnce(3); // First roll 2, then 3
+        it("should call a function result with the rolled face", () => {
+            const fnMappings = [{ face: 2, result: (n) => n * 10 }];
+            const die = new CustomDie(DieType.D6, fnMappings, "default");
 
-            customDie.roll(); // Rolls 2 -> "Lose 5 Gold"
-            customDie.roll(); // Rolls 3 -> "Extra Turn"
+            rollDie.mockReturnValue(2);
+            const outcome = die.roll();
+
+            expect(outcome).toBe(20); // 2 * 10
+        });
+
+        it("should handle multiple rolls and track history", () => {
+            rollDie.mockReturnValueOnce(2).mockReturnValueOnce(3);
+
+            customDie.roll(); // 2 -> "Lose 5 Gold"
+            customDie.roll(); // 3 -> "Extra Turn"
 
             expect(customDie.getOutcomeHistory()).toEqual([
                 "Lose 5 Gold",
@@ -82,10 +126,10 @@ describe("CustomDie Class", () => {
         });
 
         it("should generate a verbose report with full history", () => {
-            rollDie.mockReturnValueOnce(2).mockReturnValueOnce(4); // Rolls 2 (mapped) and 4 (default)
+            rollDie.mockReturnValueOnce(2).mockReturnValueOnce(4);
 
-            customDie.roll();
-            customDie.roll();
+            customDie.roll(); // mapped
+            customDie.roll(); // default
 
             expect(customDie.report(true)).toEqual({
                 type: "Custom_d6",

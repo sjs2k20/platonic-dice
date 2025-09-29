@@ -9,14 +9,31 @@ class TargetDie extends Die {
      * @param {number[]} targetValues - The target conditions (array of successful values).
      */
     constructor(type, targetValues) {
-        if (
-            !Array.isArray(targetValues) ||
-            !targetValues.every(Number.isInteger)
-        ) {
+        if (!Array.isArray(targetValues)) {
             throw new Error("targetValues must be an array of integers.");
         }
+        if (targetValues.length === 0) {
+            throw new Error("targetValues cannot be empty.");
+        }
+        if (!targetValues.every((v) => Number.isInteger(v))) {
+            throw new Error("targetValues must only contain integers.");
+        }
+
         super(type);
-        this._targetValues = targetValues;
+
+        for (const v of targetValues) {
+            if (v < 1 || v > this.faceCount) {
+                throw new Error(
+                    `Invalid target value: ${v}. Must be between 1 and ${this.faceCount}.`
+                );
+            }
+        }
+        const unique = new Set(targetValues);
+        if (unique.size !== targetValues.length) {
+            throw new Error("targetValues must not contain duplicates.");
+        }
+
+        this._targetValues = [...unique];
         this._outcomeHistory = [];
     }
 

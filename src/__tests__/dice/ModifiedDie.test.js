@@ -15,6 +15,18 @@ describe("ModifiedDie Class", () => {
     });
 
     describe("Initialization", () => {
+        it("should throw if modifier is not a function", () => {
+            expect(() => new ModifiedDie(DieType.D6, null)).toThrow(
+                "Modifier must be a function."
+            );
+            expect(() => new ModifiedDie(DieType.D6, 123)).toThrow(
+                "Modifier must be a function."
+            );
+            expect(() => new ModifiedDie(DieType.D6, "not_a_function")).toThrow(
+                "Modifier must be a function."
+            );
+        });
+        
         it("should initialize with correct type and modifier", () => {
             expect(modifiedDie.type).toBe("Modified_d6");
             expect(modifiedDie._modifier).toBe(mockModifier);
@@ -25,6 +37,15 @@ describe("ModifiedDie Class", () => {
     });
 
     describe("Rolling", () => {
+        it("should throw an error if roll is called with an invalid roll type", () => {
+            expect(() => modifiedDie.roll("invalid_type")).toThrow(
+                "Invalid roll type: invalid_type"
+            );
+            expect(() => modifiedDie.roll(123)).toThrow(
+                "Invalid roll type: 123"
+            );
+        });
+        
         it("should roll the die and apply the modifier", () => {
             rollModDie.mockReturnValue({ base: 4, modified: 6 });
 

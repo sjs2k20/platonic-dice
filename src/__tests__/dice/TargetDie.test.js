@@ -15,6 +15,40 @@ describe("TargetDie Class", () => {
     });
 
     describe("Initialization", () => {
+        it("should throw if targetValues is not an array", () => {
+            expect(() => new TargetDie(DieType.D6, "not-an-array")).toThrow(
+                "targetValues must be an array of integers."
+            );
+        });
+
+        it("should throw if targetValues is empty", () => {
+            expect(() => new TargetDie(DieType.D6, [])).toThrow(
+                "targetValues cannot be empty."
+            );
+        });
+
+        it("should throw if targetValues contains non-integers", () => {
+            expect(() => new TargetDie(DieType.D6, [1, 2.5, 3])).toThrow(
+                "targetValues must only contain integers."
+            );
+        });
+
+        it("should throw if targetValues contains values outside die range", () => {
+            expect(() => new TargetDie(DieType.D6, [0, 7])).toThrow(
+                "Invalid target value: 0. Must be between 1 and 6."
+            );
+        });
+
+        it("should throw if targetValues contains duplicates", () => {
+            expect(() => new TargetDie(DieType.D6, [2, 2, 3])).toThrow(
+                "targetValues must not contain duplicates."
+            );
+        });
+
+        it("should allow valid targetValues", () => {
+            expect(() => new TargetDie(DieType.D6, [1, 3, 6])).not.toThrow();
+        });
+
         it("should initialize with the correct type and target values", () => {
             expect(targetDie.type).toBe(DieType.D6);
             expect(targetDie._targetValues).toEqual(targetValues);

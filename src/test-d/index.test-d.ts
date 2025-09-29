@@ -1,4 +1,11 @@
-import platonicDice, { DieType, Outcome, RollType } from "platonic-dice";
+import platonicDice, {
+    DieType,
+    Outcome,
+    RollType,
+    DieFaceResult,
+    DieFaceMapping,
+    DieFaceResultMap,
+} from "platonic-dice";
 
 // Test basic dice rolls
 const singleRoll: number = platonicDice.rollDie(DieType.D20);
@@ -32,11 +39,24 @@ const targetDie = new platonicDice.TargetDie(DieType.D6, [2, 4, 6]);
 targetDie.roll();
 const targetOutcomeHistory = targetDie.getHistory();
 
-// Test CustomDie
-const customDie = new platonicDice.CustomDie(DieType.D8, { 1: () => "fail", 8: () => "win" }, () => "neutral");
+// --- CustomDie Tests ---
+// Define valid mappings
+const mappings: DieFaceResultMap = [
+    { face: 1, result: "Gain 10 Gold" },
+    { face: 2, result: (n: number) => n + 5 },
+    { face: 3, result: 42 },
+];
+const defaultOutcome: DieFaceResult = "No effect";
+
+const customDie = new platonicDice.CustomDie(DieType.D8, mappings, defaultOutcome);
 customDie.roll();
-const customOutcome = customDie.getOutcome();
-const customHistory = customDie.getOutcomeHistory();
+const customOutcome: number | string | null = customDie.getOutcome();
+const customHistory: (number | string | null)[] = customDie.getOutcomeHistory();
+const customMappings: DieFaceResultMap = customDie.faceMappings;
+
+// Type-level check: invalid mapping should fail
+// @ts-expect-error
+const badMappings: DieFaceResultMap = [{ face: 1, result: {} }];
 
 // Test ModifiedDie
 const modDie = new platonicDice.ModifiedDie(DieType.D10, (roll) => roll - 1);
@@ -47,7 +67,7 @@ const modDieResult = modDie.result;
 const testConditions = new platonicDice.TestConditions(10, 18, 2);
 const testDie = new platonicDice.TestDie(DieType.D20, testConditions);
 testDie.roll();
-const lastOutcome = testDie.getLastOutcome();
-const outcomeHistory = testDie.getOutcomeHistory();
+const lastOutcome: Outcome | null = testDie.getLastOutcome();
+const outcomeHistory: Outcome[] = testDie.getOutcomeHistory();
 
-console.log("All tests passed if no TypeScript errors occur.");
+console.log("All type tests passed if no TypeScript errors occur.");
