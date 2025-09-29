@@ -34,7 +34,27 @@ class TargetDie extends Die {
         }
 
         this._targetValues = [...unique];
+        this._outcome = null;
         this._outcomeHistory = [];
+    }
+
+    /**
+     * Returns the full roll history including outcomes.
+     * @returns {Array<{roll: number, outcome: Outcome}>}
+     */
+    get history() {
+        return this._history.map((roll, index) => ({
+            roll,
+            outcome: this._outcomeHistory[index],
+        }));
+    }
+
+    /**
+     * Returns the last outcome of the roll.
+     * @returns {Outcome | null}
+     */
+    get outcome() {
+        return this._outcome;
     }
 
     /**
@@ -46,28 +66,10 @@ class TargetDie extends Die {
 
         // Store the modified roll and outcome
         this._result = roll;
+        this._outcome = outcome;
         this._history.push(roll);
         this._outcomeHistory.push(outcome);
         return roll;
-    }
-
-    /**
-     * Returns the full roll history including outcomes.
-     * @returns {Array<{roll: number, outcome: Outcome}>}
-     */
-    getHistory() {
-        return this._history.map((roll, index) => ({
-            roll,
-            outcome: this._outcomeHistory[index],
-        }));
-    }
-
-    /**
-     * Returns the last outcome of the roll.
-     * @returns {Outcome | null}
-     */
-    getLastOutcome() {
-        return this._outcomeHistory.at(-1) || null;
     }
 
     /**
@@ -79,11 +81,11 @@ class TargetDie extends Die {
         const reportData = {
             type: this._type,
             last_result: this._result,
-            last_outcome: this.getLastOutcome(),
+            last_outcome: this._outcome,
         };
 
         if (verbose) {
-            reportData.history = this.getHistory();
+            reportData.history = this.history;
         }
 
         return reportData;

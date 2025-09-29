@@ -1,11 +1,10 @@
-const { DieType, ModifiedDie, rollTestDie, Outcome } = require("../");
-
-/**
- * Helper to check if a function is the identity function.
- * Accepts null as well.
- */
-const isIdentity = (fn) =>
-    fn === null || fn.toString() === ((n) => n).toString();
+const {
+    DieType,
+    ModifiedDie,
+    TargetDie,
+    rollTestDie,
+    Outcome,
+} = require("../");
 
 /**
  * Represents conditions for a test-based roll.
@@ -32,13 +31,13 @@ class TestConditions {
 /**
  * Represents a Test Die that determines success/failure against a target threshold.
  */
-class TestDie extends ModifiedDie {
+class TestDie extends Die {
     /**
      * @param {DieType} type - The type of die.
      * @param {TestConditions} conditions - The test conditions {target, [critical_success], [critical_failure]}.
      * @param {function(number): number} [modifier] - Optional modifier function.
      */
-    constructor(type, conditions, modifier = null) {
+    constructor(type, conditions, modifier = (n) => n) {
         if (!(conditions instanceof TestConditions)) {
             throw new Error("conditions must be an instance of TestConditions");
         }
@@ -62,46 +61,13 @@ class TestDie extends ModifiedDie {
             }
         }
 
-        super(type, modifier ?? ((n) => n));
-        this._modifiedHistory = modifier ? [] : null;
+        this._modifiedDie = new ModifiedDie(type, modifier ?? ((n) => n));
+        this._targetDie = new TargetDie(type, [conditions.target]);
         this._conditions = conditions;
-        this._outcomeHistory = [];
-    }
-
-    /**
-     * Rolls the die, applying the test conditions and modifier.
-     * @returns {number} The final roll result.
-     */
-    roll() {
-        this._reset();
-        const { base, modified, outcome } = rollTestDie(
-            this._type,
-            this._conditions.target,
-            {
-                critical_success: this._conditions.critical_success,
-                critical_failure: this._conditions.critical_failure,
-                modifier: this._modifier,
-            }
-        );
-
-        // Store the base roll and outcome
-        this._result = base;
-        this._outcomeHistory.push(outcome);
-        this._history.push(base); // Always track base roll
-
-        // Check if modifier is actually modifying
-        if (!isIdentity(this._modifier)) {
-            this._modifiedResult = modified;
-            this._modifiedHistory.push(modified);
-        } else {
-            this._modifiedResult = null;
-        }
-
-        return this._modifiedResult ?? this._result; // Ensure the correct result is returned
     }
 
     get type() {
-        return !isIdentity(this._modifier)
+        return !TestDie.#isIdentity(this._modifier)
             ? `Modified_${this._type}`
             : this._type;
     }
@@ -110,9 +76,9 @@ class TestDie extends ModifiedDie {
      * Returns the full roll history including outcomes.
      * @returns {Array<{roll: number, outcome: Outcome}>}
      */
-    getHistory() {
+    get history() {
         return this._history.map((_, index) => ({
-            roll: !isIdentity(this._modifier)
+            roll: !TestDie.#isIdentity(this._modifier)
                 ? this._modifiedHistory[index]
                 : this._history[index],
             outcome: this._outcomeHistory[index],
@@ -123,10 +89,66 @@ class TestDie extends ModifiedDie {
      * Returns the last outcome of the roll.
      * @returns {Outcome | null}
      */
-    getLastOutcome() {
+    get outcome() {
         return this._outcomeHistory.length > 0
             ? this._outcomeHistory[this._outcomeHistory.length - 1]
             : null;
+    }
+
+    /**
+     * Rolls the die, applying the test conditions and modifier.
+     * @returns {number} The final roll result.
+     */
+    roll() {
+        this._reset();
+        // Roll using ModifiedDie, then determine outcome using TargetDie logic
+        this._modifiedDie.roll();
+        const base = this._modifiedDie.history.at(-1);
+        const modified = this._modifiedDie.modifiedHistory.at(-1);
+
+        // Determine outcome using test conditions
+        let outcome;
+        const { critical_success, critical_failure, target } = this._conditions;
+        if (
+            typeof critical_success === "number" &&
+            modified >= critical_success
+        ) {
+            outcome = Outcome.Critical_Success;
+        } else if (
+            typeof critical_failure === "number" &&
+            modified <= critical_failure
+        ) {
+            outcome = Outcome.Critical_Failure;
+        } else if (modified >= target) {
+            outcome = Outcome.Success;
+        } else {
+            outcome = Outcome.Failure;
+        }
+        // const { base, modified, outcome } = rollTestDie(
+        //     this._type,
+        //     this._conditions.target,
+        //     {
+        //         critical_success: this._conditions.critical_success,
+        //         critical_failure: this._conditions.critical_failure,
+        //         modifier: this._modifier,
+        //     }
+        // );
+
+        // Store the base roll and outcome
+        this._result = base;
+        this._outcome = outcome;
+        this._history.push(base);
+        this._outcomeHistory.push(outcome);
+
+        // Check if modifier is actually modifying
+        if (!TestDie.#isIdentity(this._modifier)) {
+            this._modifiedResult = modified;
+            this._modifiedHistory.push(modified);
+        } else {
+            this._modifiedResult = null;
+        }
+
+        return this._modifiedResult ?? this._result; // Ensure the correct result is returned
     }
 
     /**
@@ -136,11 +158,11 @@ class TestDie extends ModifiedDie {
      */
     report(verbose = false) {
         const reportData = {
-            type: !isIdentity(this._modifier)
+            type: !TestDie.#isIdentity(this._modifier)
                 ? `Modified_${this._type}`
                 : this._type,
             last_result: this._modifiedResult ?? this._result,
-            last_outcome: this.getLastOutcome(),
+            last_outcome: this._outcome,
         };
 
         if (verbose) {
@@ -149,6 +171,13 @@ class TestDie extends ModifiedDie {
 
         return reportData;
     }
+
+    /**
+     * Helper to check if a function is the identity function.
+     * Accepts null as well.
+     */
+    static #isIdentity = (fn) =>
+        fn === null || fn.toString() === ((n) => n).toString();
 }
 
 module.exports = { TestConditions, TestDie };

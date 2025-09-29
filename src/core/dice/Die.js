@@ -17,32 +17,6 @@ class Die {
     }
 
     /**
-     * Resets the die's state.
-     * @param {boolean} [complete=false] - If true, also clears history.
-     */
-    _reset(complete = false) {
-        this._result = null;
-        if (complete) {
-            this._history = [];
-        }
-    }
-
-    /**
-     * Rolls the die with optional parameters.
-     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
-     * @returns {number} - The roll result.
-     */
-    roll(rollType = null) {
-        if (rollType !== null && !Object.values(RollType).includes(rollType)) {
-            throw new Error(`Invalid roll type: ${rollType}`);
-        }
-        this._reset();
-        this._result = rollDie(this._type, rollType);
-        this._history.push(this._result);
-        return this._result;
-    }
-
-    /**
      * Retrieves the last roll result.
      * @returns {number | null}
      */
@@ -77,6 +51,32 @@ class Die {
             [DieType.D20]: 20,
         };
         return lookup[this._type];
+    }
+
+    /**
+     * Resets the die's state.
+     * @param {boolean} [complete=false] - If true, also clears history.
+     */
+    _reset(complete = false) {
+        this._result = null;
+        if (complete) {
+            this._history = [];
+        }
+    }
+
+    /**
+     * Rolls the die with optional parameters.
+     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
+     * @returns {number} - The roll result.
+     */
+    roll(rollType = null) {
+        if (rollType !== null && !Object.values(RollType).includes(rollType)) {
+            throw new Error(`Invalid roll type: ${rollType}`);
+        }
+        this._reset();
+        this._result = rollDie(this._type, rollType);
+        this._history.push(this._result);
+        return this._result;
     }
 
     /**

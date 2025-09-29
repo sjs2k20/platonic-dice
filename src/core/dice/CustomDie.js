@@ -38,7 +38,7 @@ class CustomDie extends Die {
                     `Invalid face value in faceMappings[${i}]: ${mapping.face}. Must be between 1 and ${this.faceCount}.`
                 );
             }
-            if (!CustomDie._isValidResult(mapping.result)) {
+            if (!CustomDie.#isValidResult(mapping.result)) {
                 throw new Error(
                     `Invalid result for face ${mapping.face}. Must be number, string, or function(number): number.`
                 );
@@ -46,7 +46,7 @@ class CustomDie extends Die {
         });
         if (
             defaultOutcome !== null &&
-            !CustomDie._isValidResult(defaultOutcome)
+            !CustomDie.#isValidResult(defaultOutcome)
         ) {
             throw new Error(
                 "defaultOutcome must be null, a number, a string, or a function(number): number."
@@ -123,12 +123,12 @@ class CustomDie extends Die {
     }
 
     /** @returns {number|string|null} */
-    getOutcome() {
+    get outcome() {
         return this._outcome;
     }
 
     /** @returns {(number|string|null)[]} */
-    getOutcomeHistory() {
+    get outcomeHistory() {
         return this._outcomeHistory;
     }
 
@@ -138,7 +138,7 @@ class CustomDie extends Die {
     }
 
     // Helper to check result type
-    static _isValidResult(result) {
+    static #isValidResult(result) {
         return (
             typeof result === "number" ||
             typeof result === "string" ||
