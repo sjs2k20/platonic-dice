@@ -30,6 +30,10 @@ jobs:
               env:
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+            - name: Show npm error log
+              if: failure()
+              run: LOGFILE=$(ls -t /home/runner/.npm/_logs/*.log | head -n1) && cat "$LOGFILE"
+
             - name: Publish to GitHub Packages
               run: npm publish --registry https://npm.pkg.github.com/
               env:
