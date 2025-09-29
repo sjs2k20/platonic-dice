@@ -1,6 +1,6 @@
 {
   "name": "@sjs2k20/platonic-dice",
-  "version": "1.1.5",
+  "version": "1.1.10",
   "description": "A JavaScript library for simulating TTRPG dice rolls.",
   "main": "src/index.js",
   "types": "src/index.d.ts",
