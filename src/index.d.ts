@@ -61,10 +61,11 @@ declare module "platonic-dice" {
         protected _result: number | null;
         protected _history: number[];
 
-        roll(rollType?: RollType): number | string | null;
         get result(): number | null;
         get type(): DieType;
-        get history(): number[];
+        get history(): RollRecord[];
+
+        roll(rollType?: RollType): number | string | null;
         report(verbose?: boolean): object;
         toJSON(verbose?: boolean): string;
     }
@@ -92,16 +93,19 @@ declare module "platonic-dice" {
     // Class for modified die
     export class ModifiedDie extends Die {
         constructor(type: DieType, modifier: (roll: number) => number);
+
         private _modifier: (roll: number) => number;
         private _modifiedResult: number | null;
         private _modifiedHistory: number[];
 
-        roll(rollType?: RollType): number;
         set modifier(newModifier: (roll: number) => number);
         get result(): number | null;
+        get history(): RollRecord[];
         get modifiedHistory(): number[];
-        report(verbose?: boolean): object;
         get type(): DieType;
+
+        roll(rollType?: RollType): number;
+        report(verbose?: boolean): object;
     }
 
     // Class for test conditions
@@ -126,27 +130,37 @@ declare module "platonic-dice" {
     // Class for target die
     export class TargetDie extends Die {
         constructor(type: DieType, targetValues: number[]);
+
         private _targetValues: number[];
         private _outcomeHistory: Outcome[];
 
+        get history(): RollRecord[];
+        get outcome(): Outcome | null;
+
         roll(): number;
-        getHistory(): Array<{ roll: number; outcome: Outcome }>;
-        getLastOutcome(): Outcome | null;
         report(verbose?: boolean): object;
     }
-    
+
+    // Interface for roll records as used in history
+    export interface RollRecord {
+        roll?: number;
+        base?: number;
+        modified?: number;
+        outcome?: Outcome;
+    }
+
     // A value or function representing a custom outcome for a die face.
     export type DieFaceResult = number | string | ((face: number) => number);
-    
+
     // Maps a specific die face to its outcome.
     export interface DieFaceMapping {
         face: number;
         result: DieFaceResult;
     }
-    
+
     // An array of mappings for all die faces in a custom die.
     export type DieFaceResultMap = DieFaceMapping[];
-    
+
     // Export the platonicDice module object
     export const platonicDice: PlatonicDice;
 

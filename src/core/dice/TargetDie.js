@@ -1,4 +1,4 @@
-const { Die, rollTargetDie, Outcome } = require("../");
+const { Die, Outcome, RollRecord, rollTargetDie } = require("../");
 
 /**
  * Represents a Target Die that determines success/failure based on matching numbers.
@@ -40,7 +40,7 @@ class TargetDie extends Die {
 
     /**
      * Returns the full roll history including outcomes.
-     * @returns {Array<{roll: number, outcome: Outcome}>}
+     * @returns {RollRecord[]}
      */
     get history() {
         return this._history.map((roll, index) => ({
@@ -75,7 +75,7 @@ class TargetDie extends Die {
     /**
      * Generates a report on the latest roll.
      * @param {boolean} [verbose=false] - Whether to include full roll history.
-     * @returns {string} A string representation of the die state.
+     * @returns {Object} A representation of the die state.
      */
     report(verbose = false) {
         const reportData = {

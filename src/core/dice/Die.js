@@ -1,4 +1,4 @@
-const { DieType, RollType, rollDie } = require("../");
+const { DieType, rollDie, RollRecord, RollType } = require("../");
 
 /**
  * Represents a standard Die object.
@@ -33,11 +33,11 @@ class Die {
     }
 
     /**
-     * Retrieves roll history.
-     * @returns {number[]}
+     * Retrieves structured roll history.
+     * @returns {RollRecord[]}
      */
     get history() {
-        return this._history;
+        return this._history.map((roll) => ({ roll }));
     }
 
     /** Returns the number of faces for this die. */
@@ -91,7 +91,7 @@ class Die {
         };
 
         if (verbose) {
-            baseReport.history = this._history;
+            baseReport.history = this.history;
         }
 
         return baseReport;
