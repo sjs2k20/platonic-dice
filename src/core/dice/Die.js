@@ -1,4 +1,4 @@
-const { DieType, RollType, rollDie } = require("../");
+const { DieType, RollRecordManager, RollType, rollDie } = require("../");
 
 /**
  * Represents a standard Die object.
@@ -13,33 +13,7 @@ class Die {
         }
         this._type = type;
         this._result = null;
-        this._history = [];
-    }
-
-    /**
-     * Resets the die's state.
-     * @param {boolean} [complete=false] - If true, also clears history.
-     */
-    _reset(complete = false) {
-        this._result = null;
-        if (complete) {
-            this._history = [];
-        }
-    }
-
-    /**
-     * Rolls the die with optional parameters.
-     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
-     * @returns {number} - The roll result.
-     */
-    roll(rollType = null) {
-        if (rollType !== null && !Object.values(RollType).includes(rollType)) {
-            throw new Error(`Invalid roll type: ${rollType}`);
-        }
-        this._reset();
-        this._result = rollDie(this._type, rollType);
-        this._history.push(this._result);
-        return this._result;
+        this._rolls = new RollRecordManager();
     }
 
     /**
@@ -58,12 +32,14 @@ class Die {
         return this._type;
     }
 
-    /**
-     * Retrieves roll history.
-     * @returns {number[]}
-     */
+    /** Roll history (abridged, without timestamps). */
     get history() {
-        return this._history;
+        return this._rolls.all;
+    }
+
+    /** Full roll history (with timestamps). */
+    get history_full() {
+        return this._rolls.full;
     }
 
     /** Returns the number of faces for this die. */
@@ -80,32 +56,87 @@ class Die {
     }
 
     /**
-     * Generates a report of the die's state.
-     * @param {boolean} [verbose=false] - If true, includes history.
-     * @returns {Object} - The die report.
+     * Resets the die's state.
+     * @param {boolean} [complete=false] - If true, also clears history.
      */
-    report(verbose = false) {
+    _reset(complete = false) {
+        this._result = null;
+        if (complete) {
+            this._rolls.clear();
+        }
+    }
+
+    /**
+     * Rolls the die with optional parameters.
+     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
+     * @returns {number} - The roll result.
+     */
+    roll(rollType = null) {
+        if (rollType !== null && !Object.values(RollType).includes(rollType)) {
+            throw new Error(`Invalid roll type: ${rollType}`);
+        }
+        this._reset();
+        this._result = rollDie(this._type, rollType);
+        this._rolls.add({ roll: this._result, timestamp: new Date() });
+        return this._result;
+    }
+
+    /**
+     * Retrieves roll history with fine-grained control.
+     * @param {Object} [options]
+     * @param {number} [options.limit] - Number of records to retrieve.
+     * @param {boolean} [options.verbose=false] - Include timestamps.
+     * @returns {RollRecord[]}
+     */
+    historyDetailed(options = {}) {
+        return this._rolls.report(options);
+    }
+
+    /**
+     * Generates a report of the die's state.
+     *
+     * At minimum, always includes:
+     * - type
+     * - latest_roll (from RollRecordManager.report with limit=1)
+     * - times_rolled
+     *
+     * If options are passed, they are forwarded to RollRecordManager.report
+     * to control inclusion of history, verbosity, and record limits.
+     *
+     * @param {Object} [options]
+     * @param {number} [options.limit] - Max number of records for history.
+     * @param {boolean} [options.verbose=false] - Include timestamps if true.
+     * @param {boolean} [options.includeHistory=false] - Whether to include history.
+     * @returns {Object}
+     */
+    report({ limit, verbose = false, includeHistory = false } = {}) {
+        const latest = this._rolls.report({ verbose, limit: 1 })[0] || null;
+
         const baseReport = {
             type: this._type,
-            last_result: this._result,
+            latest_roll: latest,
+            times_rolled: this._rolls.length,
         };
 
-        if (verbose) {
-            baseReport.history = this._history;
+        if (includeHistory) {
+            baseReport.history = this._rolls.report({ verbose, limit });
         }
 
         return baseReport;
     }
 
-    /**
-     * Converts the die's state to a JSON string.
-     * Includes full history by default.
-     *
-     * @param {boolean} [verbose=true] - If true, includes history.
-     * @returns {string} - A JSON-formatted string representing the die's state.
-     */
-    toJSON(verbose = true) {
-        return JSON.stringify(this.report(verbose), null, 2);
+    toString() {
+        if (this._rolls.length === 0) {
+            return `Die(${this._type}): not rolled yet`;
+        }
+        const latest = this.historyDetailed({ verbose: true, limit: 1 })[0];
+        return `Die(${this._type}): latest=${JSON.stringify(
+            latest
+        )}, total rolls=${this._rolls.length}`;
+    }
+
+    toJSON() {
+        return this.report({ verbose: true, includeHistory: true });
     }
 }
 

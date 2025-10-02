@@ -40,7 +40,7 @@ class ModifiedDie extends Die {
         this._modifiedResult = modified;
         this._history.push(this._result);
         this._modifiedHistory.push(this._modifiedResult);
-        return this._modifiedResult;
+        return modified;
     }
 
     /**

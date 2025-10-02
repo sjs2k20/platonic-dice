@@ -41,7 +41,7 @@ const Outcome = {
  *  - A string
  *  - A function that accepts a number (the rolled face) and returns a number
  *
- * @typedef {(number | string | function(number): number)} DieFaceResult
+ * @typedef {(number | string | function(number): number)} FaceResult
  */
 
 /**
@@ -49,13 +49,53 @@ const Outcome = {
  *
  * @typedef {Object} DieFaceMapping
  * @property {number} face - The face value (e.g., 1–20 for a d20).
- * @property {DieFaceResult} result - The outcome for this face.
+ * @property {FaceResult} result - The outcome for this face.
  */
 
 /**
  * A collection of face-to-result mappings for a custom die.
  *
- * @typedef {DieFaceMapping[]} DieFaceResultMap
+ * @typedef {DieFaceMapping[]} FaceResultMap
  */
 
-module.exports = { DieType, RollType, Outcome };
+/**
+ * Roll record types for various die classes
+ */
+
+/**
+ * Simple Die roll record
+ * @typedef {Object} DieRollRecord
+ * @property {number} roll - The rolled number
+ * @property {Date} timestamp - When it was rolled
+ */
+
+/**
+ * ModifiedDie roll record
+ * @typedef {Object} ModifiedDieRollRecord
+ * @property {number} roll - The base roll
+ * @property {number} modified - The modified result
+ * @property {Date} timestamp - When it was rolled
+ */
+
+/**
+ * TargetDie roll record
+ * @typedef {Object} TargetDieRollRecord
+ * @property {number} roll - The base roll
+ * @property {keyof typeof Outcome} outcome - The result (success/failure/etc.)
+ * @property {Date} timestamp - When it was rolled
+ */
+
+/**
+ * Union type for all possible roll records
+ * @typedef {DieRollRecord | ModifiedDieRollRecord | TargetDieRollRecord} RollRecord
+ */
+
+module.exports = {
+    DieType,
+    RollType,
+    Outcome,
+    FaceResult,
+    DieFaceMapping,
+    FaceResultMap,
+    RollRecord,
+};

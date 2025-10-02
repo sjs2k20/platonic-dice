@@ -1,4 +1,4 @@
-const { DieType, RollType, Outcome } = require("./");
+const { DieType, RollType, Outcome } = require("..");
 
 /**
  * Rolls a single die, applying advantage/disadvantage if provided.
