@@ -123,7 +123,8 @@ console.log(testDie.report()); // View latest roll result and outcome
 ## Development Roadmap
 
 ✅ **Core Dice Functionality** – Standard rolls, advantage/disadvantage, roll history.  
-✅ **Target-Based & Test Rolls** – Rolling against thresholds with outcomes.  
+✅ **Target-Based & Test Rolls** – Rolling against thresholds with outcomes.
+🔲 **Code Tidy** – Tidy up the API to improve UX and integration into larger apps.
 🔲 **Dice Pools & Multiple Dice Mechanics** – Implement grouped rolls with different conditions.  
 🔲 **Optional UI Component** – Develop a visual dice roller for web apps.
 
