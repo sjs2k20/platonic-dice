@@ -38,22 +38,22 @@ class ModifiedDie extends Die {
     }
 
     /**
-     * Retrieves structured roll history.
-     * @returns {RollRecord[]}
+     * Overrides getter to return modified history.
+     * @returns {number[]}
      */
     get history() {
+        return this._modifiedHistory.map((m) => m);
+    }
+
+    /**
+     * Retrieves structured roll history (verbose).
+     * @returns {RollRecord[]}
+     */
+    get v_history() {
         return this._history.map((base, index) => ({
             base,
             modified: this._modifiedHistory[index],
         }));
-    }
-
-    /**
-     * Convenience getter for just the modified roll history.
-     * @returns {number[]}
-     */
-    get modifiedHistory() {
-        return this._modifiedHistory.map((m) => m);
     }
 
     /**
@@ -96,11 +96,12 @@ class ModifiedDie extends Die {
     report(verbose = false) {
         const baseReport = {
             type: this.type, // "Modified_d6"
-            last_result: this._modifiedResult,
+            modifier: this._modifier.toString(),
+            last_result: this.result,
         };
 
         if (verbose) {
-            baseReport.history = this.history;
+            baseReport.history = this.v_history;
         }
 
         return baseReport;

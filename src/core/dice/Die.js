@@ -86,8 +86,8 @@ class Die {
      */
     report(verbose = false) {
         const baseReport = {
-            type: this._type,
-            last_result: this._result,
+            type: this.type,
+            last_result: this.result,
         };
 
         if (verbose) {
