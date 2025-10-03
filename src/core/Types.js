@@ -1,5 +1,6 @@
-/**
- * Enum for die types.
+/** Supported die types:
+ * The platonic solids: 'd4', 'd6', 'd8', 'd12', 'd20'
+ * Plus the 'd10' (pentagonal trapezohedron) commonly used in RPGs.
  * @readonly
  * @enum {string}
  */
