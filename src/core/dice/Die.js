@@ -148,9 +148,9 @@ class Die {
 
     /**
      * JSON representation of the die.
-     * Calls:
-     *     'this.report({ verbose: true, includeHistory: true });'
-     * under the hood.
+     * Calls...
+     * 'this.report({ verbose: true, includeHistory: true });'
+     * ... under the hood.
      * Refer to report() doc for structure.
      * @returns {Object}
      */
