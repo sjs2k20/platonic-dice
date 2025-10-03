@@ -152,6 +152,7 @@ class Die {
      *     'this.report({ verbose: true, includeHistory: true });'
      * under the hood.
      * Refer to report() doc for structure.
+     * @returns {Object}
      */
     toJSON() {
         return this.report({ verbose: true, includeHistory: true });
