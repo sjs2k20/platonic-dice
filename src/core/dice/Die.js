@@ -1,11 +1,13 @@
 const { DieType, RollRecordManager, RollType, rollDie } = require("../");
 
 /**
- * Represents a standard Die object.
+ * Represents a standard die with roll tracking and history management.
  */
 class Die {
     /**
-     * @param {DieType} type - The type of die.
+     * Create a new die.
+     * @param {DieType} type - The die type (e.g. D6, D20).
+     * @throws {Error} If an invalid die type is provided.
      */
     constructor(type) {
         if (!Object.values(DieType).includes(type)) {
@@ -17,32 +19,41 @@ class Die {
     }
 
     /**
-     * Retrieves the last roll result.
-     * @returns {number | null}
+     * The most recent roll result.
+     * @returns {number|null}
      */
     get result() {
         return this._result;
     }
 
     /**
-     * Retrieves the die type.
+     * The die type.
      * @returns {DieType}
      */
     get type() {
         return this._type;
     }
 
-    /** Roll history (abridged, without timestamps). */
+    /**
+     * Roll history without timestamps.
+     * @returns {RollRecord[]}
+     */
     get history() {
         return this._rolls.all;
     }
 
-    /** Full roll history (with timestamps). */
+    /**
+     * Full roll history including timestamps.
+     * @returns {RollRecord[]}
+     */
     get history_full() {
         return this._rolls.full;
     }
 
-    /** Returns the number of faces for this die. */
+    /**
+     * Number of faces for this die.
+     * @returns {number}
+     */
     get faceCount() {
         const lookup = {
             [DieType.D4]: 4,
@@ -56,8 +67,8 @@ class Die {
     }
 
     /**
-     * Resets the die's state.
-     * @param {boolean} [complete=false] - If true, also clears history.
+     * Reset the die state.
+     * @param {boolean} [complete=false] - If true, clears history as well.
      */
     _reset(complete = false) {
         this._result = null;
@@ -67,9 +78,10 @@ class Die {
     }
 
     /**
-     * Rolls the die with optional parameters.
-     * @param {RollType} [rollType] - Advantage/Disadvantage rolling.
-     * @returns {number} - The roll result.
+     * Roll the die.
+     * @param {RollType|null} [rollType=null] - Optional roll modifier (advantage/disadvantage).
+     * @returns {number} The result of the roll.
+     * @throws {Error} If an invalid roll type is provided.
      */
     roll(rollType = null) {
         if (rollType !== null && !Object.values(RollType).includes(rollType)) {
@@ -82,9 +94,9 @@ class Die {
     }
 
     /**
-     * Retrieves roll history with fine-grained control.
+     * Retrieve roll history with options.
      * @param {Object} [options]
-     * @param {number} [options.limit] - Number of records to retrieve.
+     * @param {number} [options.limit] - Maximum number of records.
      * @param {boolean} [options.verbose=false] - Include timestamps.
      * @returns {RollRecord[]}
      */
@@ -93,19 +105,17 @@ class Die {
     }
 
     /**
-     * Generates a report of the die's state.
+     * Generate a structured report of this die.
+     * Always includes:
+     * - die type
+     * - latest roll
+     * - total rolls
      *
-     * At minimum, always includes:
-     * - type
-     * - latest_roll (from RollRecordManager.report with limit=1)
-     * - times_rolled
-     *
-     * If options are passed, they are forwarded to RollRecordManager.report
-     * to control inclusion of history, verbosity, and record limits.
+     * Optionally includes history if requested.
      *
      * @param {Object} [options]
-     * @param {number} [options.limit] - Max number of records for history.
-     * @param {boolean} [options.verbose=false] - Include timestamps if true.
+     * @param {number} [options.limit] - Max number of history records.
+     * @param {boolean} [options.verbose=false] - Include timestamps in history.
      * @param {boolean} [options.includeHistory=false] - Whether to include history.
      * @returns {Object}
      */
@@ -125,6 +135,10 @@ class Die {
         return baseReport;
     }
 
+    /**
+     * Human-readable string summary of the die.
+     * @returns {string}
+     */
     toString() {
         if (this._rolls.length === 0) {
             return `Die(${this._type}): not rolled yet`;
@@ -135,6 +149,10 @@ class Die {
         )}, total rolls=${this._rolls.length}`;
     }
 
+    /**
+     * JSON representation of the die (always includes history).
+     * @returns {Object}
+     */
     toJSON() {
         return this.report({ verbose: true, includeHistory: true });
     }
