@@ -9,19 +9,22 @@ module.exports = {
         return require("./Types").Outcome;
     },
     get rollDie() {
-        return require("./DiceUtils").rollDie;
+        return require("./utils/DiceUtils").rollDie;
     },
     get rollDice() {
-        return require("./DiceUtils").rollDice;
+        return require("./utils/DiceUtils").rollDice;
     },
     get rollModDie() {
-        return require("./DiceUtils").rollModDie;
+        return require("./utils/DiceUtils").rollModDie;
     },
     get rollTargetDie() {
-        return require("./DiceUtils").rollTargetDie;
+        return require("./utils/DiceUtils").rollTargetDie;
     },
     get rollTestDie() {
-        return require("./DiceUtils").rollTestDie;
+        return require("./utils/DiceUtils").rollTestDie;
+    },
+    get RollRecordManager() {
+        return require("./utils/RollRecordManager").RollRecordManager;
     },
     get Die() {
         return require("./dice").Die;

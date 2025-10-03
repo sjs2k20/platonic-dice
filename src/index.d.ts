@@ -54,6 +54,59 @@ declare module "platonic-dice" {
         TestConditions: typeof TestConditions;
     }
 
+    /**
+     * Manages roll history for Die or derived classes.
+    */
+    export class RollRecordManager {
+        private _records: RollRecord[];
+
+        /** All roll records, including timestamps. */
+        get full(): RollRecord[];
+
+        /** Roll records without timestamps. */
+        get all(): RollRecord[];
+
+        /** Number of stored roll records. */
+        get length(): number;
+
+        /**
+         * Adds a roll record to the history.
+         * @param record RollRecord to add.
+         */
+        add(record: RollRecord): void;
+
+        /** Clears all roll records. */
+        clear(): void;
+
+        /**
+         * Returns the last roll record(s).
+         * @param n Number of records to retrieve. Default: 1
+         * @param verbose Whether to include timestamps. Default: false
+         * @returns Last record(s) or null if empty.
+         */
+        last(n?: number, verbose?: boolean): RollRecord | RollRecord[] | null;
+
+        /**
+         * Produces a report of roll records.
+         * @param options.limit Maximum number of records to return.
+         * @param options.verbose Include timestamps if true.
+         * @returns Array of RollRecords.
+         */
+        report(options?: { limit?: number; verbose?: boolean }): RollRecord[];
+
+        /**
+         * Human-readable string representation of the manager.
+         * Example: "RollRecordManager: 5 rolls (last: 12 @ 2025-10-03T12:00:00.000Z)"
+         */
+        toString(): string;
+
+        /**
+         * JSON representation of the roll history.
+         * Calls `report({ verbose: true })` under the hood. Refer to report() for structure.
+         */
+        toJSON(): RollRecord[];
+    }
+
     // Class for standard die
     export class Die {
         constructor(type: DieType);
@@ -73,14 +126,14 @@ declare module "platonic-dice" {
     export class CustomDie extends Die {
         constructor(
             type: DieType,
-            faceMappings: DieFaceResultMap,
-            defaultOutcome?: DieFaceResult,
+            faceMappings: FaceResultMap,
+            defaultOutcome?: FaceResult,
         );
-        private _faceMappings: Map<number, DieFaceResult>;
+        private _faceMappings: Map<number, FaceResult>;
         private _outcome: number | string | null;
         private _outcomeHistory: (number | string | null)[];
 
-        get faceMappings(): DieFaceResultMap;
+        get faceMappings(): FaceResultMap;
 
         roll(): number | string | null;
         getOutcome(): number | string | null;
@@ -134,19 +187,45 @@ declare module "platonic-dice" {
         getLastOutcome(): Outcome | null;
         report(verbose?: boolean): object;
     }
-    
+
     // A value or function representing a custom outcome for a die face.
-    export type DieFaceResult = number | string | ((face: number) => number);
-    
+    export type FaceResult = number | string | ((face: number) => number);
+
     // Maps a specific die face to its outcome.
-    export interface DieFaceMapping {
+    export interface FaceMapping {
         face: number;
-        result: DieFaceResult;
+        result: FaceResult;
     }
-    
+
     // An array of mappings for all die faces in a custom die.
-    export type DieFaceResultMap = DieFaceMapping[];
-    
+    export type FaceResultMap = FaceMapping[];
+
+    /** Simple Die roll record */
+    export interface DieRollRecord {
+        roll: number;
+        timestamp: Date;
+    }
+
+    /** ModifiedDie roll record */
+    export interface ModifiedDieRollRecord {
+        roll: number;
+        modified: number;
+        timestamp: Date;
+    }
+
+    /** TargetDie roll record */
+    export interface TargetDieRollRecord {
+        roll: number;
+        outcome: Outcome;
+        timestamp: Date;
+    }
+
+    /** Union type for all possible roll records */
+    export type RollRecord =
+        | DieRollRecord
+        | ModifiedDieRollRecord
+        | TargetDieRollRecord;
+
     // Export the platonicDice module object
     export const platonicDice: PlatonicDice;
 
