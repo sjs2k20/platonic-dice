@@ -67,8 +67,9 @@ class Die {
     }
 
     /**
-     * Reset the die state.
-     * @param {boolean} [complete=false] - If true, clears history as well.
+     * Resets the die's state.
+     * @private
+     * @param {boolean} [complete=false] - If true, also clears history.
      */
     _reset(complete = false) {
         this._result = null;
