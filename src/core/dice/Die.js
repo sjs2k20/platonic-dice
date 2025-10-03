@@ -136,10 +136,6 @@ class Die {
         return baseReport;
     }
 
-    /**
-     * Human-readable string summary of the die.
-     * @returns {string}
-     */
     toString() {
         if (this._rolls.length === 0) {
             return `Die(${this._type}): not rolled yet`;
@@ -151,8 +147,11 @@ class Die {
     }
 
     /**
-     * JSON representation of the die (always includes history).
-     * @returns {Object}
+     * JSON representation of the die.
+     * Calls:
+     *     'this.report({ verbose: true, includeHistory: true });'
+     * under the hood.
+     * Refer to report() doc for structure.
      */
     toJSON() {
         return this.report({ verbose: true, includeHistory: true });
