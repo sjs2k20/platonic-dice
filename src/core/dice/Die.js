@@ -19,19 +19,19 @@ class Die {
     }
 
     /**
+     * The die type as a string (e.g., "d6").
+     * @returns {string}
+     */
+    get type() {
+        return this._type;
+    }
+
+    /**
      * The most recent roll result.
      * @returns {number|null}
      */
     get result() {
         return this._result;
-    }
-
-    /**
-     * The die type.
-     * @returns {DieType}
-     */
-    get type() {
-        return this._type;
     }
 
     /**

@@ -141,8 +141,8 @@ declare module "platonic-dice" {
         /** The most recent roll result. */
         get result(): number | null;
 
-        /** The die type. */
-        get type(): DieType;
+        /** The die type as a string (e.g., "d6"). */
+        get type(): string;
 
         /** Roll history without timestamps. */
         get history(): RollRecord[];
@@ -191,6 +191,82 @@ declare module "platonic-dice" {
         toJSON(): RollRecord[];
     }
 
+    /**
+     * Represents a Die that supports result modification.
+     * 
+     * Uses the inherited RollRecordManager to store ModifiedDieRollRecord objects:
+     * ```ts
+     * { roll: number, modified: number, timestamp: Date }
+     * ```
+     */
+    export class ModifiedDie extends Die {
+        /**
+         * @param type Die type (e.g. `"d6"`).
+         * @param modifier Function that accepts a base roll and returns a modified result.
+         * @throws {TypeError} If the modifier is not a function.
+         */
+        constructor(type: DieType, modifier: (roll: number) => number);
+
+        /**
+         * The descriptive type string for this die, e.g. `"Modified_d6"`.
+         */
+        get type(): string;
+
+        /**
+         * The last modified roll result.
+         */
+        get result(): number | null;
+
+        /**
+         * Replace the modifier function and clear all history.
+         * 
+         * @param newModifier New modifier function.
+         * @throws {TypeError} If `newModifier` is not a function.
+         */
+        set modifier(newModifier: (roll: number) => number);
+
+        /**
+         * Rolls the die (via `rollModDie`), records a ModifiedDieRollRecord,
+         * and returns the modified result.
+         * 
+         * @param rollType Optional roll modifier (e.g. advantage/disadvantage).
+         * @returns The modified roll result.
+         * @throws {Error} If `rollType` is invalid.
+         */
+        roll(rollType?: RollType | null): number;
+
+        /**
+         * Generate a report for this ModifiedDie.
+         * 
+         * @param options Report options.
+         * @param options.limit Limit the number of history entries returned.
+         * @param options.verbose Include timestamps if true.
+         * @param options.includeHistory Include full roll history if true.
+         * 
+         * @returns An object containing type, modifier (as string),
+         * last result, roll count, and optionally history.
+         */
+        report(options?: {
+            limit?: number;
+            verbose?: boolean;
+            includeHistory?: boolean;
+        }): {
+            type: string;
+            modifier: string;
+            last_result: number | null;
+            times_rolled: number;
+            latest_record: ModifiedDieRollRecord | null;
+            history?: ModifiedDieRollRecord[];
+        };
+
+        /**
+         * String representation of this ModifiedDie.
+         * Includes the latest roll, total rolls, and modifier function string.
+         */
+        toString(): string;
+    }
+
+
     // // Class for custom die
     // export class CustomDie extends Die {
     //     constructor(
@@ -211,20 +287,7 @@ declare module "platonic-dice" {
     //     report(verbose?: boolean): object;
     // }
 
-    // // Class for modified die
-    // export class ModifiedDie extends Die {
-    //     constructor(type: DieType, modifier: (roll: number) => number);
-    //     private _modifier: (roll: number) => number;
-    //     private _modifiedResult: number | null;
-    //     private _modifiedHistory: number[];
 
-    //     roll(rollType?: RollType): number;
-    //     set modifier(newModifier: (roll: number) => number);
-    //     get result(): number | null;
-    //     get modifiedHistory(): number[];
-    //     report(verbose?: boolean): object;
-    //     get type(): DieType;
-    // }
 
     // Class for test conditions
     export class TestConditions {
