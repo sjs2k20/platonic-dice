@@ -181,6 +181,56 @@ declare module "platonic-dice" {
         toJSON(): R[];
     }
 
+
+    /**
+     * A wrapper for RollRecordManager that maintains multiple, independently capped histories.
+     *
+     * Useful for scenarios where a single RollRecordManager needs to support "history parking",
+     * such as storing separate roll histories per modifier or context.
+     */
+    export class RollHistoryCache<R extends RollRecord = BaseRollRecord> {
+        /**
+         * @param options.maxRecordsPerKey Maximum records per history key.
+         * * Defaults to {@link DEFAULT_MAX_RECORDS}/10 = 100).
+         * @param options.maxKeys Maximum number of keys to store in cache. Default: 10
+         */
+        constructor(options?: { maxRecordsPerKey?: number; maxKeys?: number });
+
+        /** Currently active history key */
+        get activeKey(): string | null;
+
+        /** Currently active RollRecordManager (or null if no key set) */
+        get activeManager(): RollRecordManager<R> | null;
+
+        /** Sets the currently active history key */
+        setActiveKey(key: string): void;
+
+        /** Adds a record to the active history */
+        add(record: R): void;
+
+        /** Retrieves all roll records for the active key */
+        getAll(verbose?: boolean): R[];
+
+        /** Clears all roll records for the active key */
+        clearActive(): void;
+
+        /** Clears all cached histories */
+        clearAll(): void;
+
+        /**
+         * Returns a roll history report for all cached keys.
+         * @param options.limit Maximum number of records per key
+         * @param options.verbose Include timestamps if true
+         */
+        report(options?: { limit?: number; verbose?: boolean }): Record<string, R[]>;
+
+        /** String summary of the cache */
+        toString(): string;
+
+        /** JSON-friendly object mapping keys to arrays of RollRecords */
+        toJSON(): Record<string, R[]>;
+    }
+
     /**
      * Represents a standard die with roll tracking and history.
      * 

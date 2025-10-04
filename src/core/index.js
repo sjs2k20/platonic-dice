@@ -29,6 +29,9 @@ module.exports = {
     get RollRecordManager() {
         return require("./utils/RollRecordManager").RollRecordManager;
     },
+    get RollHistoryCache() {
+        return require("./utils/RollHistoryCache").RollHistoryCache;
+    },
     get Die() {
         return require("./dice").Die;
     },
