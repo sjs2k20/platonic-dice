@@ -2,6 +2,7 @@ const { Die, RollType, rollModDie } = require("../");
 
 /**
  * Represents a Die that supports result modification.
+ * @extends {Die<number, ModifiedDieRollRecord, ModifiedDieReport>}
  * Uses the inherited RollRecordManager to store ModifiedDieRollRecord objects:
  *   { roll: <base>, modified: <modified>, timestamp: Date }
  */
@@ -101,10 +102,9 @@ class ModifiedDie extends Die {
 
         const baseReport = {
             type: this.type,
-            modifier: this._modifier.toString(),
-            last_result: this._modifiedResult,
             times_rolled: this._rolls.length,
-            latest_record: latestRecord, // helpful detail (contains base & modified)
+            latest_record: latestRecord,
+            modifier: this._modifier.toString(),
         };
 
         if (includeHistory) {

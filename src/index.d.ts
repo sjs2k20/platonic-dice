@@ -1,5 +1,12 @@
 declare module "platonic-dice" {
 
+    /** --- Global Constants --- */
+
+    /**
+     * Default maximum number of roll records stored by RollRecordManager.
+     */
+    export const DEFAULT_MAX_RECORDS: 1000;
+
     /** --- Enums --- */
 
     /** Supported die types:
@@ -43,55 +50,96 @@ declare module "platonic-dice" {
         result: FaceResult;
     }
 
-    /** Simple Die roll record */
-    export interface DieRollRecord {
+    /** Base roll record (used by all dice) */
+    export interface BaseRollRecord {
         roll: number;
         timestamp: Date;
     }
 
     /** ModifiedDie roll record */
-    export interface ModifiedDieRollRecord {
-        roll: number;
+    export interface ModifiedDieRollRecord extends BaseRollRecord {
         modified: number;
-        timestamp: Date;
     }
 
     /** TargetDie roll record */
-    export interface TargetDieRollRecord {
-        roll: number;
+    export interface TargetDieRollRecord extends BaseRollRecord {
         outcome: Outcome;
-        timestamp: Date;
     }
 
-    /** Union type for all possible roll records */
+    /** Union type for any kind of roll record */
     export type RollRecord =
-        | DieRollRecord
+        | BaseRollRecord
         | ModifiedDieRollRecord
         | TargetDieRollRecord;
 
+    /** Base report for any die */
+    export interface BaseDieReport<
+        R extends RollRecord = BaseRollRecord
+    > {
+        type: string;
+        times_rolled: number;
+        latest_record: R | null;
+        history?: R[];
+    }
+
+    /** ModifiedDie report */
+    export interface ModifiedDieReport
+        extends BaseDieReport<ModifiedDieRollRecord> {
+        modifier: string;
+    }
+
+    /** Union type for all possible die reports */
+    export type DieReport = BaseDieReport | ModifiedDieReport;
+
+
+    /** --- Classes --- */
 
     /**
      * Manages roll history for Die or derived classes.
-    */
-    export class RollRecordManager {
-        private _records: RollRecord[];
+     * Stores RollRecord objects and provides controlled access,
+     * limiting the total number of retained records.
+     */
+    export class RollRecordManager<R extends RollRecord = BaseRollRecord> {
+        private _records: R[];
+        private _maxRecords: number;
 
-        /** All roll records, including timestamps. */
-        get full(): RollRecord[];
+        /**
+         * @param maxRecords Maximum number of roll records to retain.
+         * Defaults to {@link DEFAULT_MAX_RECORDS} (= 1000).
+         */
+        constructor(maxRecords?: number);
 
-        /** Roll records without timestamps. */
-        get all(): RollRecord[];
+        /**
+         * The maximum number of roll records retained before the oldest are discarded.
+         */
+        get maxRecords(): number;
 
-        /** Number of stored roll records. */
+        /**
+         * All roll records, including timestamps.
+         */
+        get full(): R[];
+
+        /**
+         * Roll records without timestamps.
+         */
+        get all(): R[];
+
+        /**
+         * Number of stored roll records.
+         */
         get length(): number;
 
         /**
          * Adds a roll record to the history.
+         * Automatically trims history if exceeding {@link maxRecords}.
          * @param record RollRecord to add.
+         * @throws {TypeError} If record is not a valid RollRecord variant.
          */
-        add(record: RollRecord): void;
+        add(record: R): void;
 
-        /** Clears all roll records. */
+        /**
+         * Clears all roll records.
+         */
         clear(): void;
 
         /**
@@ -100,19 +148,29 @@ declare module "platonic-dice" {
          * @param verbose Whether to include timestamps. Default: false
          * @returns Last record(s) or null if empty.
          */
-        last(n?: number, verbose?: boolean): RollRecord | RollRecord[] | null;
+        last(n?: number, verbose?: boolean): R | R[] | null;
 
         /**
          * Produces a report of roll records.
-         * @param options.limit Maximum number of records to return.
+         * Always returns an array (even when `limit = 1`).
+         *
+         * - If `limit` ≤ 0 → returns an empty array.
+         * - If `limit` > available records → clamps to available.
+         *
+         * @param options.limit Maximum number of records to return (default: all available).
          * @param options.verbose Include timestamps if true.
-         * @returns Array of RollRecords.
+         * @returns Array of RollRecords matching the specified options.
          */
-        report(options?: { limit?: number; verbose?: boolean }): RollRecord[];
+        report(options?: { limit?: number; verbose?: boolean }): R[];
+
 
         /**
-         * Human-readable string representation of the manager.
-         * Example: "RollRecordManager: 5 rolls (last: 12 @ 2025-10-03T12:00:00.000Z)"
+         * Human-readable summary of the record manager.
+         * Example (non-empty):
+         * `"RollRecordManager: 42/1000 rolls (last: 17 @ 2025-10-04T15:02:56.123Z)"`
+         *
+         * Example (empty):
+         * `"RollRecordManager: empty (maxRecords=1000)"`
          */
         toString(): string;
 
@@ -120,35 +178,43 @@ declare module "platonic-dice" {
          * JSON representation of the roll history.
          * Calls `report({ verbose: true })` under the hood. Refer to report() for structure.
          */
-        toJSON(): RollRecord[];
+        toJSON(): R[];
     }
 
     /**
      * Represents a standard die with roll tracking and history.
-     */
-    export class Die {
+     * 
+     * @template TResult Type of value returned by `roll()` (default: number)
+     * @template TRollRecord Type of roll record stored
+     * @template TReport Type of structured report produced
+    */
+    export class Die<
+        TResult = number,
+        TRollRecord extends RollRecord = BaseRollRecord,
+        TReport extends BaseDieReport<TRollRecord> = BaseDieReport<TRollRecord>
+    > {
+        protected _type: DieType;
+        protected _result: TResult | null;
+        protected _rolls: RollRecordManager<TRollRecord>;
+
         /**
          * Create a new die.
          * @param type The die type (e.g. D6, D20).
          * @throws If an invalid die type is provided.
-         */
+        */
         constructor(type: DieType);
 
-        protected _type: DieType;
-        protected _result: number | null;
-        protected _rolls: RollRecordManager;
-
         /** The most recent roll result. */
-        get result(): number | null;
+        get result(): TResult | null;
 
         /** The die type as a string (e.g., "d6"). */
         get type(): string;
 
         /** Roll history without timestamps. */
-        get history(): RollRecord[];
+        get history(): TRollRecord[];
 
         /** Full roll history with timestamps. */
-        get history_full(): RollRecord[];
+        get history_full(): TRollRecord[];
 
         /** Number of faces for this die. */
         get faceCount(): number;
@@ -157,29 +223,29 @@ declare module "platonic-dice" {
          * Roll the die.
          * @param rollType Optional roll modifier (advantage/disadvantage).
          * @returns The roll result.
-         */
-        roll(rollType?: RollType | null): number;
+        */
+        roll(rollType?: RollType | null): TResult;
 
         /**
          * Retrieve roll history with fine-grained control.
          * @param options.limit Maximum number of records.
          * @param options.verbose Include timestamps if true.
-         */
+        */
         historyDetailed(options?: {
             limit?: number;
             verbose?: boolean;
-        }): RollRecord[];
+        }): TRollRecord[];
 
         /**
          * Generate a structured report of the die.
          * Always includes type, latest roll, and total rolls.
          * Optionally includes history.
-         */
+        */
         report(options?: {
             limit?: number;
             verbose?: boolean;
             includeHistory?: boolean;
-        }): object;
+        }): TReport;
 
         toString(): string;
 
@@ -187,9 +253,12 @@ declare module "platonic-dice" {
          * JSON representation of the die.
          * Calls 'this.report({ verbose: true, includeHistory: true })' under the hood.
          * Refer to report() doc for structure.
-         */
-        toJSON(): RollRecord[];
+        */
+        toJSON(): TReport;
     }
+
+    /** Standard Die instance type definition */
+    export type DieInstance = Die<number, BaseRollRecord, BaseDieReport>;
 
     /**
      * Represents a Die that supports result modification.
@@ -198,18 +267,25 @@ declare module "platonic-dice" {
      * ```ts
      * { roll: number, modified: number, timestamp: Date }
      * ```
-     */
-    export class ModifiedDie extends Die {
+    */
+    export class ModifiedDie extends Die<
+        number,
+        ModifiedDieRollRecord,
+        ModifiedDieReport
+    > {
+        protected _modifier: (roll: number) => number;
+        protected _modifiedResult: number | null;
+
         /**
          * @param type Die type (e.g. `"d6"`).
          * @param modifier Function that accepts a base roll and returns a modified result.
          * @throws {TypeError} If the modifier is not a function.
-         */
+        */
         constructor(type: DieType, modifier: (roll: number) => number);
 
         /**
          * The descriptive type string for this die, e.g. `"Modified_d6"`.
-         */
+        */
         get type(): string;
 
         /**
@@ -222,17 +298,17 @@ declare module "platonic-dice" {
          * 
          * @param newModifier New modifier function.
          * @throws {TypeError} If `newModifier` is not a function.
-         */
+        */
         set modifier(newModifier: (roll: number) => number);
 
         /**
          * Rolls the die (via `rollModDie`), records a ModifiedDieRollRecord,
-         * and returns the modified result.
-         * 
-         * @param rollType Optional roll modifier (e.g. advantage/disadvantage).
-         * @returns The modified roll result.
-         * @throws {Error} If `rollType` is invalid.
-         */
+          * and returns the modified result.
+          * 
+          * @param rollType Optional roll modifier (e.g. advantage/disadvantage).
+          * @returns The modified roll result.
+          * @throws {Error} If `rollType` is invalid.
+          */
         roll(rollType?: RollType | null): number;
 
         /**
@@ -245,19 +321,12 @@ declare module "platonic-dice" {
          * 
          * @returns An object containing type, modifier (as string),
          * last result, roll count, and optionally history.
-         */
+        */
         report(options?: {
             limit?: number;
             verbose?: boolean;
             includeHistory?: boolean;
-        }): {
-            type: string;
-            modifier: string;
-            last_result: number | null;
-            times_rolled: number;
-            latest_record: ModifiedDieRollRecord | null;
-            history?: ModifiedDieRollRecord[];
-        };
+        }): ModifiedDieReport;
 
         /**
          * String representation of this ModifiedDie.
@@ -266,6 +335,8 @@ declare module "platonic-dice" {
         toString(): string;
     }
 
+    /** Modified Die instance type definition */
+    export type ModifiedDieInstance = Die<number, ModifiedDieRollRecord, ModifiedDieReport>;
 
     // // Class for custom die
     // export class CustomDie extends Die {

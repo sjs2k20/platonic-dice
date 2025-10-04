@@ -23,6 +23,9 @@ module.exports = {
     get rollTestDie() {
         return require("./utils/DiceUtils").rollTestDie;
     },
+    get DEFAULUT_MAX_ROLLS() {
+        return require("./utils/RollRecordManager").DEFAULT_MAX_ROLLS;
+    },
     get RollRecordManager() {
         return require("./utils/RollRecordManager").RollRecordManager;
     },

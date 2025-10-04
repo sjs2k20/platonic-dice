@@ -1,7 +1,11 @@
 const { DieType, RollRecordManager, RollType, rollDie } = require("../");
 
 /**
- * Represents a standard die with roll tracking and history management.
+ * Represents a standard die with roll tracking and history.
+ *
+ * @template TResult
+ * @template TRollRecord
+ * @template TReport
  */
 class Die {
     /**
@@ -19,7 +23,7 @@ class Die {
     }
 
     /**
-     * The die type as a string (e.g., "d6").
+     * The die type as a string (e.g. "d6").
      * @returns {string}
      */
     get type() {
@@ -36,7 +40,7 @@ class Die {
 
     /**
      * Roll history without timestamps.
-     * @returns {RollRecord[]}
+     * @returns {TRollRecord[]}
      */
     get history() {
         return this._rolls.all;
@@ -44,7 +48,7 @@ class Die {
 
     /**
      * Full roll history including timestamps.
-     * @returns {RollRecord[]}
+     * @returns {TRollRecord[]}
      */
     get history_full() {
         return this._rolls.full;
@@ -80,8 +84,8 @@ class Die {
 
     /**
      * Roll the die.
-     * @param {RollType|null} [rollType=null] - Optional roll modifier (advantage/disadvantage).
-     * @returns {number} The result of the roll.
+     * @param {import('./Types').RollType} [rollType]
+     * @returns {TResult}
      * @throws {Error} If an invalid roll type is provided.
      */
     roll(rollType = null) {
@@ -99,7 +103,7 @@ class Die {
      * @param {Object} [options]
      * @param {number} [options.limit] - Maximum number of records.
      * @param {boolean} [options.verbose=false] - Include timestamps.
-     * @returns {RollRecord[]}
+     * @returns {TRollRecord[]}
      */
     historyDetailed(options = {}) {
         return this._rolls.report(options);
@@ -118,20 +122,19 @@ class Die {
      * @param {number} [options.limit] - Max number of history records.
      * @param {boolean} [options.verbose=false] - Include timestamps in history.
      * @param {boolean} [options.includeHistory=false] - Whether to include history.
-     * @returns {Object}
+     * @returns {TReport}
      */
     report({ limit, verbose = false, includeHistory = false } = {}) {
         const latest = this._rolls.report({ verbose, limit: 1 })[0] || null;
 
         const baseReport = {
             type: this._type,
-            latest_roll: latest,
             times_rolled: this._rolls.length,
+            latest_record: latest,
+            ...(includeHistory && {
+                history: this._rolls.report({ verbose, limit }),
+            }),
         };
-
-        if (includeHistory) {
-            baseReport.history = this._rolls.report({ verbose, limit });
-        }
 
         return baseReport;
     }

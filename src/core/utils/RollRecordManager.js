@@ -1,12 +1,32 @@
 const { RollRecord, Outcome } = require("../Types");
 
 /**
+ * Default maximum number of roll records stored.
+ * @type {number}
+ */
+const DEFAULT_MAX_RECORDS = 1000;
+
+/**
  * Utility class for managing roll history of Die and child/composite classes.
+ * @template R
  */
 class RollRecordManager {
-    constructor() {
-        /** @type {RollRecord[]} */
+    /**
+     * @param {number} [maxRecords=1000] - Maximum number of roll records to retain.
+     */
+    constructor(maxRecords = DEFAULT_MAX_RECORDS) {
+        /** @private */
         this._records = [];
+        /** @private */
+        this._maxRecords = maxRecords;
+    }
+
+    /**
+     * The maximum number of roll records retained.
+     * @returns {number}
+     */
+    get maxRecords() {
+        return this._maxRecords;
     }
 
     /** Returns a copy of all roll records. */
@@ -16,7 +36,7 @@ class RollRecordManager {
 
     /**
      * Returns a copy of all roll records with timestamps stripped.
-     * @returns {RollRecord[]}
+     * @returns {R[]}
      */
     get all() {
         return this._records.map(RollRecordManager.#stripTimestamp);
@@ -49,6 +69,9 @@ class RollRecordManager {
         }
 
         this._records.push(record);
+        if (this._records.length > this._maxRecords) {
+            this._records.shift(); // remove oldest
+        }
     }
 
     /** Clears the roll history. */
@@ -59,7 +82,7 @@ class RollRecordManager {
     /** * Returns the last roll record or last `n` records.
      * @param {number} [n=1] - Number of records to retrieve.
      * @param {boolean} [verbose=false] - Include timestamps if true.
-     * @returns {RollRecord|RollRecord[]|null}
+     * @returns {R|R[]|null}
      */
     last(n = 1, verbose = false) {
         if (typeof n !== "number" || n < 1) {
@@ -95,32 +118,32 @@ class RollRecordManager {
      * @param {Object} [options]
      * @param {number} [options.limit] - Maximum number of records to return.
      * @param {boolean} [options.verbose=false] - Include timestamps if true.
-     * @returns {RollRecord[]} Array of RollRecords according to options.
+     * @returns {R[]} Array of RollRecords according to options.
      */
     report({ limit, verbose = false } = {}) {
         let n;
 
         if (typeof limit === "number") {
-            n = limit > 0 ? limit : this._records.length;
+            if (limit <= 0) return [];
+            n = Math.min(limit, this._records.length);
         } else {
             n = this._records.length;
         }
-
         const records = this.last(n, verbose);
 
         // Ensure consistent return type (always an array)
-        if (!Array.isArray(records)) {
-            return records ? [records] : [];
-        }
-        return records;
+        return Array.isArray(records) ? records : records ? [records] : [];
     }
 
     toString() {
-        if (this._records.length === 0) return "RollRecordManager: empty";
+        if (this._records.length === 0) {
+            return `RollRecordManager: empty (maxRecords=${this._maxRecords})`;
+        }
+
         const last = this._records[this._records.length - 1];
-        return `RollRecordManager: ${this._records.length} rolls (last: ${
-            last.roll
-        } @ ${last.timestamp.toISOString()})`;
+        return `RollRecordManager: ${this._records.length}/${
+            this._maxRecords
+        } rolls (last: ${last.roll} @ ${last.timestamp.toISOString()})`;
     }
 
     /**
@@ -170,4 +193,4 @@ class RollRecordManager {
     }
 }
 
-module.exports = { RollRecordManager };
+module.exports = { DEFAULT_MAX_RECORDS, RollRecordManager };
