@@ -313,78 +313,88 @@ declare module "platonic-dice" {
     /**
      * Represents a Die that supports result modification.
      * 
-     * Uses the inherited RollRecordManager to store ModifiedDieRollRecord objects:
+     * Uses an internal RollHistoryCache to store ModifiedDieRollRecord objects:
      * ```ts
      * { roll: number, modified: number, timestamp: Date }
      * ```
-    */
+     */
     export class ModifiedDie extends Die<
-        number,
-        ModifiedDieRollRecord,
-        ModifiedDieReport
+    number,
+    ModifiedDieRollRecord,
+    ModifiedDieReport
     > {
         protected _modifier: (roll: number) => number;
         protected _modifiedResult: number | null;
-
+        
         /**
          * @param type Die type (e.g. `"d6"`).
          * @param modifier Function that accepts a base roll and returns a modified result.
          * @throws {TypeError} If the modifier is not a function.
-        */
+         */
         constructor(type: DieType, modifier: (roll: number) => number);
-
+        
         /**
          * The descriptive type string for this die, e.g. `"Modified_d6"`.
-        */
+         */
         get type(): string;
-
+        
         /**
          * The last modified roll result.
          */
         get result(): number | null;
-
+        
         /**
          * Replace the modifier function and clear all history.
-         * 
          * @param newModifier New modifier function.
          * @throws {TypeError} If `newModifier` is not a function.
-        */
+         */
         set modifier(newModifier: (roll: number) => number);
-
+        
         /**
          * Rolls the die (via `rollModDie`), records a ModifiedDieRollRecord,
-          * and returns the modified result.
-          * 
-          * @param rollType Optional roll modifier (e.g. advantage/disadvantage).
-          * @returns The modified roll result.
-          * @throws {Error} If `rollType` is invalid.
-          */
+         * and returns the modified result.
+         * @param rollType Optional roll modifier (e.g. advantage/disadvantage).
+         * @returns The modified roll result.
+         * @throws {Error} If `rollType` is invalid.
+         */
         roll(rollType?: RollType | null): number;
-
+        
         /**
          * Generate a report for this ModifiedDie.
-         * 
          * @param options Report options.
          * @param options.limit Limit the number of history entries returned.
          * @param options.verbose Include timestamps if true.
          * @param options.includeHistory Include full roll history if true.
-         * 
          * @returns An object containing type, modifier (as string),
          * last result, roll count, and optionally history.
-        */
+         */
         report(options?: {
             limit?: number;
             verbose?: boolean;
             includeHistory?: boolean;
         }): ModifiedDieReport;
-
+        
         /**
          * String representation of this ModifiedDie.
          * Includes the latest roll, total rolls, and modifier function string.
          */
         toString(): string;
+        
+        /**
+         * JSON-friendly representation of this ModifiedDie.
+         * Returns an object mapping active keys to arrays of roll records
+         * (with timestamps) rather than a flat array.
+         * This overrides {@link Die.toJSON} to reflect the internal RollHistoryCache structure.
+         */
+        toJSON(): Record<string, ModifiedDieRollRecord[]>;
+        
+        /**
+         * Internal RollHistoryCache storing ModifiedDieRollRecord objects.
+         * Provides history management for multiple contexts if needed.
+         */
+        protected _historyCache: RollHistoryCache<ModifiedDieRollRecord>;
     }
-
+    
     /** Modified Die instance type definition */
     export type ModifiedDieInstance = Die<number, ModifiedDieRollRecord, ModifiedDieReport>;
 
