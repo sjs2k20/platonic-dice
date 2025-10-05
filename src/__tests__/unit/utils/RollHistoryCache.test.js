@@ -1,8 +1,4 @@
-const { RollHistoryCache } = require("../../core/utils/RollHistoryCache");
-const {
-    RollRecordManager,
-    DEFAULT_MAX_RECORDS,
-} = require("../../core/utils/RollRecordManager");
+const { RollHistoryCache, RollRecordManager } = require("../../../core");
 
 describe("RollHistoryCache", () => {
     let cache;

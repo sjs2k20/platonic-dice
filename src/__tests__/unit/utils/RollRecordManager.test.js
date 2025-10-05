@@ -1,8 +1,8 @@
-const { Outcome, RollRecordManager } = require("../../core");
+const { Outcome, RollRecordManager } = require("../../../core");
 
 /**
- * @typedef {import("../../core/Types").RollRecord} RollRecord
- * @typedef {import("../../core/Types").ModifiedDieRollRecord} ModifiedDieRollRecord
+ * @typedef {import("../../../core/Types").RollRecord} RollRecord
+ * @typedef {import("../../../core/Types").ModifiedDieRollRecord} ModifiedDieRollRecord
  */
 
 describe("RollRecordManager", () => {

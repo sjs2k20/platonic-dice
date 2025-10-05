@@ -113,7 +113,7 @@ class Die {
      * Generate a structured report of this die.
      * Always includes:
      * - die type
-     * - latest roll
+     * - latest record
      * - total rolls
      *
      * Optionally includes history if requested.

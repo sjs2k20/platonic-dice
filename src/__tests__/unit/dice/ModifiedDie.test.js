@@ -1,4 +1,4 @@
-const { DieType, RollType, ModifiedDie } = require("../../core");
+const { DieType, RollType, ModifiedDie } = require("../../../core");
 
 // Mock rollModDie to return deterministic values
 jest.mock("../../core/DiceUtils", () => ({

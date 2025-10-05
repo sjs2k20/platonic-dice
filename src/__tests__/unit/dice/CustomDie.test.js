@@ -1,7 +1,7 @@
 const { DieType, rollDie, CustomDie } = require("../../core");
 
 // Mock rollDie to return predictable values
-jest.mock("../../core/DiceUtils", () => ({
+jest.mock("../../../core/DiceUtils", () => ({
     rollDie: jest.fn(),
 }));
 

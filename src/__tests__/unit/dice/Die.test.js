@@ -1,7 +1,7 @@
-const { DieType, RollType, rollDie, Die } = require("../../core");
+const { DieType, RollType, rollDie, Die } = require("../../../core");
 
 // Mock rollDie to return predictable values
-jest.mock("../../core/DiceUtils", () => ({
+jest.mock("../../../core/utils/DiceUtils", () => ({
     rollDie: jest.fn(),
 }));
 
@@ -125,7 +125,7 @@ describe("Die Class", () => {
 
             expect(die.report()).toEqual({
                 type: DieType.D6,
-                latest_roll: { roll: 3 },
+                latest_record: { roll: 3 },
                 times_rolled: 1,
             });
         });
@@ -139,7 +139,7 @@ describe("Die Class", () => {
 
             expect(report.type).toBe(DieType.D6);
             expect(report.times_rolled).toBe(2);
-            expect(report.latest_roll).toHaveProperty("roll", 5);
+            expect(report.latest_record).toHaveProperty("roll", 5);
             expect(report.history).toHaveLength(2);
             expect(report.history[0]).toHaveProperty("timestamp"); // verbose adds timestamp
         });
@@ -147,7 +147,7 @@ describe("Die Class", () => {
         it("should handle report when no rolls have been made", () => {
             expect(die.report()).toEqual({
                 type: DieType.D6,
-                latest_roll: null,
+                latest_record: null,
                 times_rolled: 0,
             });
         });
@@ -165,7 +165,7 @@ describe("Die Class", () => {
 
             expect(json.type).toBe(DieType.D6);
             expect(json.times_rolled).toBe(1);
-            expect(json.latest_roll).toHaveProperty("roll", 4);
+            expect(json.latest_record).toHaveProperty("roll", 4);
             expect(json.history).toBeDefined();
             expect(Array.isArray(json.history)).toBe(true);
         });
@@ -189,7 +189,7 @@ describe("Die Class", () => {
             expect(die.toString()).toBe("Die(d6): not rolled yet");
         });
 
-        it("should show the latest roll and count when rolled", () => {
+        it("should show the latest record and count when rolled", () => {
             rollDie.mockReturnValueOnce(6);
             die.roll();
 

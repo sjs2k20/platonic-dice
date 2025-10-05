@@ -4,10 +4,10 @@ const {
     rollTestDie,
     DieType,
     Outcome,
-} = require("../../core");
+} = require("../../../core");
 
 // Mock rollTestDie to control test outcomes
-jest.mock("../../core/DiceUtils", () => ({
+jest.mock("../../../core/DiceUtils", () => ({
     rollTestDie: jest.fn(),
 }));
 
