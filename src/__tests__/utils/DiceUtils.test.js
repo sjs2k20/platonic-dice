@@ -1,5 +1,5 @@
 const rewire = require("rewire");
-const DiceUtils = rewire("../core/DiceUtils");
+const DiceUtils = rewire("../../core/utils/DiceUtils");
 const { DieType, RollType, Outcome } = require("../../core");
 
 // Get private methods using rewire
