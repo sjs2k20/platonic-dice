@@ -1,4 +1,8 @@
-const { RollRecord, Outcome } = require("../Types");
+const { Outcome } = require("../Types");
+
+/**
+ * @typedef {import("../core/Types").RollRecord} RollRecord
+ */
 
 /**
  * Default maximum number of roll records stored.
@@ -121,6 +125,7 @@ class RollRecordManager {
      * @returns {R[]} Array of RollRecords according to options.
      */
     report({ limit, verbose = false } = {}) {
+        if (this._records.length === 0) return []; // empty history - return gracefully
         let n;
 
         if (typeof limit === "number") {

@@ -1,5 +1,9 @@
-const { RollRecordManager } = require("../../core/utils/RollRecordManager");
-const { Outcome } = require("../../core/Types");
+const { Outcome, RollRecordManager } = require("../../core");
+
+/**
+ * @typedef {import("../../core/Types").RollRecord} RollRecord
+ * @typedef {import("../../core/Types").ModifiedDieRollRecord} ModifiedDieRollRecord
+ */
 
 describe("RollRecordManager", () => {
     let manager;
@@ -207,7 +211,10 @@ describe("RollRecordManager", () => {
     // ---------------------------------------------------------
     describe("toString()", () => {
         it("should return 'empty' message if no records", () => {
-            expect(manager.toString()).toBe("RollRecordManager: empty");
+            expect(manager.toString()).toBe(
+                "RollRecordManager: empty " +
+                    `(maxRecords=${manager._maxRecords})`
+            );
         });
 
         it("should include record count and last roll when not empty", () => {
@@ -215,7 +222,9 @@ describe("RollRecordManager", () => {
             manager.add(record);
 
             const str = manager.toString();
-            expect(str).toContain("RollRecordManager: 1 rolls");
+            expect(str).toContain(
+                "RollRecordManager: " + `1/${manager._maxRecords} rolls`
+            );
             expect(str).toContain("last: 7");
             expect(str).toContain(record.timestamp.toISOString());
         });
