@@ -3,9 +3,23 @@ const { Die, RollType, rollModDie } = require("../");
 /**
  * Represents a Die that supports result modification.
  * @extends {Die<number, ModifiedDieRollRecord, ModifiedDieReport>}
- * Uses the inherited RollRecordManager to store ModifiedDieRollRecord objects:
- *   { roll: <base>, modified: <modified>, timestamp: Date }
+ *
+ * Each unique modifier function maintains its own independent roll history,
+ * managed internally by a {@link RollHistoryCache}.
+ *
+ * This allows modifier-specific histories to persist without manual clearing
+ * when the modifier changes — supporting “history parking” behavior.
+ *
+ * Records take the form:
+ * ```js
+ * { roll: number, modified: number, timestamp: Date }
+ * ```
  */
+class ModifiedDie extends Die {
+    /**
+     * @param {DieType} type - Die type (e.g. "d6")
+     * @param {(roll:number)=>number} modifier - Modifier to apply to base rolls
+     */
 class ModifiedDie extends Die {
     /**
      * @param {DieType} type - Die type (e.g. "d6")
@@ -20,6 +34,29 @@ class ModifiedDie extends Die {
 
         this._modifier = modifier;
         this._modifiedResult = null;
+        
+        /**
+         * Override the inherited RollRecordManager with a RollHistoryCache.
+         * This enables modifier-specific roll histories.
+         *
+         * @private
+         * @type {RollHistoryCache<ModifiedDieRollRecord>}
+         */
+        this._rolls = new RollHistoryCache();
+
+        // Initialize the active modifier key
+        this._rolls.setActiveKey(this._modifierKey);
+    }
+
+    /**
+     * Returns a stable string key representation of the current modifier function.
+     * Used internally by RollHistoryCache to manage separate histories.
+     *
+     * @private
+     * @returns {string}
+     */
+    get _modifierKey() {
+        return this._modifier.toString();
     }
 
     /**
@@ -38,49 +75,53 @@ class ModifiedDie extends Die {
     }
 
     /**
-     * Replace modifier function and clear history (reset state).
+     * Replace the modifier function and switch to its associated history.
+     * If the modifier has not been used before, a new history is created.
+     *
      * @param {(roll:number)=>number} newModifier
+     * @throws {TypeError} If newModifier is not a function.
      */
     set modifier(newModifier) {
         if (typeof newModifier !== "function") {
             throw new TypeError("Modifier must be a function.");
         }
-        this._modifier = newModifier;
 
-        // Clear previous results/history to avoid confusion with new modifier
+        this._modifier = newModifier;
         this._modifiedResult = null;
-        this._reset(true); // reset and clear history via inherited method
+
+        // Switch to (or create) the new modifier’s history context
+        this._rolls.setActiveKey(this._modifierKey);
     }
 
     /**
-     * Rolls the die (uses rollModDie under the hood) and records a ModifiedDieRollRecord.
-     * @param {RollType|null} [rollType=null]
+     * Rolls the die, applies the modifier, and records the result
+     * in the history associated with the active modifier.
+     *
+     * @param {RollType|null} [rollType=null] - Optional roll context (e.g. advantage/disadvantage)
      * @returns {number} The modified roll result.
+     * @throws {Error} If rollType is invalid.
      */
     roll(rollType = null) {
         if (rollType !== null && !Object.values(RollType).includes(rollType)) {
             throw new Error(`Invalid roll type: ${rollType}`);
         }
 
-        // Keep behaviour consistent with Die: reset only result (not history)
+        // Reset result state but keep histories intact
         this._reset();
 
-        // Use shared utility that returns both base and modified
         const { base, modified } = rollModDie(
             this._type,
             this._modifier,
             rollType
         );
 
-        // Keep _result as base (compatible with previous implementation),
-        // but ModifiedDie exposes the modified value via overridden getter.
         this._result = base;
         this._modifiedResult = modified;
 
-        // Push a ModifiedDieRollRecord into the inherited RollRecordManager
+        // Record the result in the cache (active modifier)
         this._rolls.add({
-            roll: base, // base roll
-            modified: modified,
+            roll: base,
+            modified,
             timestamp: new Date(),
         });
 
@@ -88,46 +129,103 @@ class ModifiedDie extends Die {
     }
 
     /**
-     * Generate a report for this ModifiedDie.
+     * Returns the roll history for the active modifier.
+     * Mirrors `Die.history` behaviour.
+     *
+     * @returns {ModifiedDieRollRecord[]}
+     */
+    get history() {
+        return this._rolls.getAll(false);
+    }
+    
+    /**
+     * Returns the detailed history for the active modifier, optionally verbose.
+     * Mirrors `Die.historyDetailed(options)`.
+     *
+     * @param {Object} [options]
+     * @param {boolean} [options.verbose=false] - Include timestamps.
+     * @param {number} [options.limit] - Limit number of returned records.
+     * @returns {ModifiedDieRollRecord[]}
+     */
+    historyDetailed({ verbose = false, limit } = {}) {
+        const all = this._rolls.getAll(verbose);
+        return limit ? all.slice(-limit) : all;
+    }
+
+    /**
+     * Generate a report for the active modifier.
+     * Mirrors `Die.report()`.
+     *
      * @param {Object} [options]
      * @param {number} [options.limit]
-     * @param {boolean} [options.verbose=false] - include timestamps
+     * @param {boolean} [options.verbose=false]
      * @param {boolean} [options.includeHistory=false]
-     * @returns {Object}
+     * @returns {ModifiedDieReport}
      */
     report({ limit, verbose = false, includeHistory = false } = {}) {
-        // latest record from the manager (may be null)
-        const latestRecord =
-            this._rolls.report({ limit: 1, verbose })[0] || null;
+        const records = this._rolls.getAll(verbose);
+        const latest = records.length ? records[records.length - 1] : null;
 
-        const baseReport = {
+        const report = {
             type: this.type,
-            times_rolled: this._rolls.length,
-            latest_record: latestRecord,
+            times_rolled: records.length,
+            latest_record: latest,
             modifier: this._modifier.toString(),
         };
 
         if (includeHistory) {
-            baseReport.history = this._rolls.report({ limit, verbose });
+            report.history = limit ? records.slice(-limit) : records;
         }
 
-        return baseReport;
+        return report;
     }
 
+    /**
+     * Returns a combined report across all modifiers in this die’s history.
+     * Mirrors the underlying RollHistoryCache.report() API.
+     *
+     * @param {Object} [options]
+     * @param {number} [options.limit]
+     * @param {boolean} [options.verbose=false]
+     * @returns {Record<string, ModifiedDieRollRecord[]>}
+     */
+    reportAll({ limit, verbose = false } = {}) {
+        return this._rolls.report({ limit, verbose });
+    }
+
+    /**
+     * Clear all histories (for all modifiers).
+     */
+    clearAllHistories() {
+        this._rolls.clearAll();
+    }
+
+    /**
+     * Returns a human-readable string summary.
+     * @returns {string}
+     */
     toString() {
-        if (this._rolls.length === 0) {
-            return `${
-                this.type
-            }: not rolled yet (modifier=${this._modifier.toString()})`;
+        const records = this._rolls.getAll(true);
+        if (records.length === 0) {
+            return `${this.type}: not rolled yet (modifier=${this._modifier.toString()})`;
         }
 
-        const latest = this.historyDetailed({ verbose: true, limit: 1 })[0];
-
-        return `${this.type}: latest={ roll: ${latest.roll}, modified: ${
-            latest.modified
-        } }, total rolls=${
-            this._rolls.length
-        }, modifier=${this._modifier.toString()}`;
+        const latest = records[records.length - 1];
+        return `${this.type}: latest={ roll: ${latest.roll}, modified: ${latest.modified} }, total rolls=${records.length}, modifier=${this._modifier.toString()}`;
+    }
+    
+    /**
+     * Serializes the die, including all modifier histories.
+     * Overrides `Die.toJSON()`.
+     *
+     * @returns {Object}
+     */
+    toJSON() {
+        return {
+            type: this.type,
+            modifier: this._modifier.toString(),
+            rolls: this._rolls.toJSON(),
+        };
     }
 }
 
