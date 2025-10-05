@@ -1,4 +1,4 @@
-const { Die, RollType, rollModDie } = require("../");
+const { Die, RollHistoryCache, RollType, rollModDie } = require("../");
 
 /**
  * Represents a Die that supports result modification.
@@ -40,7 +40,7 @@ class ModifiedDie extends Die {
         this._rolls = new RollHistoryCache();
 
         // Initialize the active modifier key
-        this._rolls.setActiveKey(this._modifierKey);
+        this._rolls.setActiveKey(this._cacheKey);
     }
 
     /**
@@ -50,7 +50,7 @@ class ModifiedDie extends Die {
      * @private
      * @returns {string}
      */
-    get _modifierKey() {
+    get _cacheKey() {
         return this._modifier.toString();
     }
 
@@ -86,7 +86,7 @@ class ModifiedDie extends Die {
         this._modifiedResult = null;
 
         // Switch to (or create) the new modifier’s history context
-        this._rolls.setActiveKey(this._modifierKey);
+        this._rolls.setActiveKey(this._cacheKey);
     }
 
     /**
@@ -117,7 +117,7 @@ class ModifiedDie extends Die {
         // Record the result in the cache (active modifier)
         this._rolls.add({
             roll: base,
-            modified,
+            modified: modified,
             timestamp: new Date(),
         });
 
