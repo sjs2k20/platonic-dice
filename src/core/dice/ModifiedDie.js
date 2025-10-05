@@ -20,11 +20,6 @@ class ModifiedDie extends Die {
      * @param {DieType} type - Die type (e.g. "d6")
      * @param {(roll:number)=>number} modifier - Modifier to apply to base rolls
      */
-class ModifiedDie extends Die {
-    /**
-     * @param {DieType} type - Die type (e.g. "d6")
-     * @param {(roll:number)=>number} modifier - Modifier to apply to base rolls
-     */
     constructor(type, modifier) {
         super(type);
 
@@ -34,7 +29,7 @@ class ModifiedDie extends Die {
 
         this._modifier = modifier;
         this._modifiedResult = null;
-        
+
         /**
          * Override the inherited RollRecordManager with a RollHistoryCache.
          * This enables modifier-specific roll histories.
@@ -68,6 +63,7 @@ class ModifiedDie extends Die {
 
     /**
      * Returns the modified result (what the user cares about).
+     *
      * @returns {number|null}
      */
     get result() {
@@ -137,7 +133,7 @@ class ModifiedDie extends Die {
     get history() {
         return this._rolls.getAll(false);
     }
-    
+
     /**
      * Returns the detailed history for the active modifier, optionally verbose.
      * Mirrors `Die.historyDetailed(options)`.
@@ -202,29 +198,36 @@ class ModifiedDie extends Die {
 
     /**
      * Returns a human-readable string summary.
+     *
      * @returns {string}
      */
     toString() {
         const records = this._rolls.getAll(true);
         if (records.length === 0) {
-            return `${this.type}: not rolled yet (modifier=${this._modifier.toString()})`;
+            return `${
+                this.type
+            }: not rolled yet (modifier=${this._modifier.toString()})`;
         }
 
         const latest = records[records.length - 1];
-        return `${this.type}: latest={ roll: ${latest.roll}, modified: ${latest.modified} }, total rolls=${records.length}, modifier=${this._modifier.toString()}`;
+        return `${this.type}: latest={ roll: ${latest.roll}, modified: ${
+            latest.modified
+        } }, total rolls=${
+            records.length
+        }, modifier=${this._modifier.toString()}`;
     }
-    
+
     /**
      * Serializes the die, including all modifier histories.
-     * Overrides `Die.toJSON()`.
+     * Overrides `Die.toJSON()` to remain type-compatible with the base class.
      *
-     * @returns {Object}
+     * @returns {ModifiedDieReport}
      */
     toJSON() {
+        const report = this.report({ includeHistory: true, verbose: true });
         return {
-            type: this.type,
-            modifier: this._modifier.toString(),
-            rolls: this._rolls.toJSON(),
+            ...report,
+            rolls: this._rolls.toJSON(), // extra non-breaking property
         };
     }
 }

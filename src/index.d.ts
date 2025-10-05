@@ -319,37 +319,37 @@ declare module "platonic-dice" {
      * ```
      */
     export class ModifiedDie extends Die<
-    number,
-    ModifiedDieRollRecord,
-    ModifiedDieReport
+        number,
+        ModifiedDieRollRecord,
+        ModifiedDieReport
     > {
         protected _modifier: (roll: number) => number;
         protected _modifiedResult: number | null;
-        
+
         /**
          * @param type Die type (e.g. `"d6"`).
          * @param modifier Function that accepts a base roll and returns a modified result.
          * @throws {TypeError} If the modifier is not a function.
          */
         constructor(type: DieType, modifier: (roll: number) => number);
-        
+
         /**
          * The descriptive type string for this die, e.g. `"Modified_d6"`.
          */
         get type(): string;
-        
+
         /**
          * The last modified roll result.
          */
         get result(): number | null;
-        
+
         /**
          * Replace the modifier function and clear all history.
          * @param newModifier New modifier function.
          * @throws {TypeError} If `newModifier` is not a function.
          */
         set modifier(newModifier: (roll: number) => number);
-        
+
         /**
          * Rolls the die (via `rollModDie`), records a ModifiedDieRollRecord,
          * and returns the modified result.
@@ -358,7 +358,7 @@ declare module "platonic-dice" {
          * @throws {Error} If `rollType` is invalid.
          */
         roll(rollType?: RollType | null): number;
-        
+
         /**
          * Generate a report for this ModifiedDie.
          * @param options Report options.
@@ -373,28 +373,28 @@ declare module "platonic-dice" {
             verbose?: boolean;
             includeHistory?: boolean;
         }): ModifiedDieReport;
-        
+
         /**
          * String representation of this ModifiedDie.
          * Includes the latest roll, total rolls, and modifier function string.
          */
         toString(): string;
-        
+
         /**
          * JSON-friendly representation of this ModifiedDie.
          * Returns an object mapping active keys to arrays of roll records
          * (with timestamps) rather than a flat array.
          * This overrides {@link Die.toJSON} to reflect the internal RollHistoryCache structure.
          */
-        toJSON(): Record<string, ModifiedDieRollRecord[]>;
-        
+        toJSON(): ModifiedDieReport;
+
         /**
          * Internal RollHistoryCache storing ModifiedDieRollRecord objects.
          * Provides history management for multiple contexts if needed.
          */
         protected _historyCache: RollHistoryCache<ModifiedDieRollRecord>;
     }
-    
+
     /** Modified Die instance type definition */
     export type ModifiedDieInstance = Die<number, ModifiedDieRollRecord, ModifiedDieReport>;
 
