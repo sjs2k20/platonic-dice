@@ -1,0 +1,20 @@
+{
+  "name": "@platonic-dice/core",
+  "version": "0.1.0",
+  "main": "index.js",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./src": "./src/index.js",
+    "./entities": "./entities/index.js",
+    "./utils": "./utils/index.js",
+    "./validators": "./validators/index.js"
+  },
+  "imports": {
+    "#root/*": "./*",
+    "#src": "./src/index.js",
+    "#entities": "./entities/index.js",
+    "#utils": "./utils/index.js",
+    "#validators": "./validators/index.js"
+  }
+}
