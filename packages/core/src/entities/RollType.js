@@ -6,7 +6,7 @@
  * @readonly
  * @enum {string}
  */
-export const RollType = Object.freeze({
+const RollType = Object.freeze({
   Advantage: "advantage",
   Disadvantage: "disadvantage",
 });
@@ -15,3 +15,7 @@ export const RollType = Object.freeze({
  * @typedef {keyof typeof RollType} RollTypeKey
  * @typedef {typeof RollType[keyof typeof RollType]} RollTypeValue
  */
+
+module.exports = {
+  RollType,
+};

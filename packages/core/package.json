@@ -2,15 +2,7 @@
   "name": "@platonic-dice/core",
   "version": "0.1.0",
   "main": "index.js",
-  "type": "module",
-  "exports": {
-    ".": "./index.js",
-    "./src": "./src/index.js"
-  },
-  "imports": {
-    "#src": "./src/index.js",
-    "#entities": ".src/entities/index.js",
-    "#utils": ".src/utils/index.js",
-    "#validators": ".src/validators/index.js"
+  "scripts": {
+   "test": "jest"
   }
 }

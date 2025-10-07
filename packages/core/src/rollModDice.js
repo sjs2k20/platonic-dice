@@ -6,7 +6,7 @@
  *
  * @example
  * import { rollModDice, RollModifier } from "@dice/core";
- * import { DieType } from "#entities";
+ * import { DieType } from "@dice/core/src/entities";
  *
  * // Apply a flat +1 to each die, then a +2 net bonus
  * const result = rollModDice(DieType.D6, {
@@ -26,12 +26,12 @@
  * const bonus = new RollModifier((sum) => sum * 2);
  * const result2 = rollModDice(DieType.D6, bonus, { count: 3 });
  */
-import { DieType, normaliseRollModifier, RollModifier } from "#entities";
-import { rollDice } from "./rollDice.js";
+const { DieType, normaliseRollModifier, RollModifier } = require("./entities");
+const { rollDice } = require("./rollDice.js");
 
 /**
- * @typedef {import("#entities").DieType} DieType
- * @typedef {import("#entities").RollModifier} RollModifier
+ * @typedef {import("./entities").DieType} DieType
+ * @typedef {import("./entities").RollModifier} RollModifier
  */
 
 /**
@@ -58,7 +58,7 @@ import { rollDice } from "./rollDice.js";
  * @throws {TypeError} If `count` is invalid.
  * @throws {TypeError} If any modifier is invalid.
  */
-export function rollModDice(dieType, modifier = {}, { count = 1 } = {}) {
+function rollModDice(dieType, modifier = {}, { count = 1 } = {}) {
   // --- Validation ---
   if (typeof count !== "number" || !Number.isInteger(count) || count < 1) {
     throw new TypeError(`Invalid count: ${count}. Must be a positive integer.`);
@@ -124,5 +124,11 @@ function alias(key) {
 }
 
 // --- Exports ---
-export const rollModDiceArr = alias("eachArray");
-export const rollModDiceNet = alias("net");
+const rollModDiceArr = alias("eachArray");
+const rollModDiceNet = alias("net");
+
+module.exports = {
+  rollModDice,
+  rollModDiceArr,
+  rollModDiceNet,
+};

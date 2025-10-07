@@ -11,7 +11,7 @@
  * const result = bonus.apply(10); // 12
  */
 
-import { isRollModifier } from "#validators";
+const { isRollModifier } = require("../validators");
 
 /**
  * @typedef {(n: number) => number} RollModifierFunction
@@ -20,7 +20,7 @@ import { isRollModifier } from "#validators";
 /**
  * Represents a numeric modifier applied to dice rolls.
  */
-export class RollModifier {
+class RollModifier {
   /**
    * @param {RollModifierFunction} fn - Modifier function.
    * @throws {TypeError} If the function is not a valid roll modifier.
@@ -60,3 +60,7 @@ export class RollModifier {
 /**
  * @typedef {InstanceType<typeof RollModifier>} RollModifierInstance
  */
+
+module.exports = {
+  RollModifier,
+};

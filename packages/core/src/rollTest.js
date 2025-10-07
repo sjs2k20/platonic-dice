@@ -21,20 +21,20 @@
  *   RollType.Advantage
  * );
  */
-import {
+const {
   DieType,
   normaliseTestConditions,
   RollType,
   TestConditions,
-} from "#entities";
-import { determineOutcome } from "#utils";
-import { roll } from "./roll.js";
+} = require("./entities");
+const { determineOutcome } = "./utils";
+const { roll } = require("./roll.js");
 
 /**
- * @typedef {import("#entities").DieType} DieType
- * @typedef {import("#entities").RollType} RollType
- * @typedef {import("#entities").TestConditions} TestConditions
- * @typedef {import("#entities").Outcome} Outcome
+ * @typedef {import("./entities").DieType} DieType
+ * @typedef {import("./entities").RollType} RollType
+ * @typedef {import("./entities").TestConditions} TestConditions
+ * @typedef {import("./entities").Outcome} Outcome
  */
 
 /**
@@ -50,7 +50,7 @@ import { roll } from "./roll.js";
  * @returns {{ base: number, outcome: string }} The raw roll and its evaluated outcome.
  * @throws {TypeError} If `dieType` or `testConditions` are invalid.
  */
-export function rollTest(dieType, testConditions, rollType = null) {
+function rollTest(dieType, testConditions, rollType = null) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions
@@ -98,7 +98,8 @@ for (const dieKey of Object.keys(DieType)) {
 }
 
 // Export all generated aliases
-export const {
+module.exports = {
+  rollTest,
   rollD4AtLeast,
   rollD4AtMost,
   rollD4Exact,
@@ -117,4 +118,4 @@ export const {
   rollD20AtLeast,
   rollD20AtMost,
   rollD20Exact,
-} = aliases;
+};

@@ -17,18 +17,18 @@
  * const total = rollModP2(DieType.D20);
  */
 
-import {
+const {
   DieType,
   RollType,
   RollModifier,
   normaliseRollModifier,
-} from "#entities";
-import { roll } from "./roll.js";
+} = require("./entities");
+const { roll } = require("./roll.js");
 
 /**
- * @typedef {import("#entities").DieType} DieType
- * @typedef {import("#entities").RollType} RollType
- * @typedef {import("#entities").RollModifier} RollModifier
+ * @typedef {import("./entities").DieType} DieType
+ * @typedef {import("./entities").RollType} RollType
+ * @typedef {import("./entities").RollModifier} RollModifier
  */
 
 /**
@@ -60,7 +60,7 @@ import { roll } from "./roll.js";
  * @example
  * const result = rollMod(DieType.D10, (n) => Math.floor(n / 2), RollType.Advantage);
  */
-export function rollMod(dieType, modifier, rollType = null) {
+function rollMod(dieType, modifier, rollType = null) {
   const mod = normaliseRollModifier(modifier);
 
   const base = roll(dieType, rollType);
@@ -112,7 +112,8 @@ for (const die of Object.values(DieType)) {
 }
 
 // --- Export all aliases ---
-export const {
+module.exports = {
+  rollMod,
   // Flat bonuses +1..+10
   rollD4P1,
   rollD4P2,
@@ -274,4 +275,4 @@ export const {
   rollD20T10,
   rollD20T50,
   rollD20T100,
-} = dieTypeAliases;
+};

@@ -10,7 +10,7 @@
  * import { DieType } from "@dice/core/src/entities";
  * const result = roll(DieType.D20);
  */
-export const DieType = Object.freeze({
+const DieType = Object.freeze({
   D4: "d4",
   D6: "d6",
   D8: "d8",
@@ -23,3 +23,7 @@ export const DieType = Object.freeze({
  * @typedef {keyof typeof DieType} DieTypeKey
  * @typedef {typeof DieType[keyof typeof DieType]} DieTypeValue
  */
+
+module.exports = {
+  DieType,
+};

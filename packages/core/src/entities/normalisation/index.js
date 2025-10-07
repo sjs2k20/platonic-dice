@@ -9,10 +9,15 @@
  * @private
  *
  * @example
- * import { normaliseRollModifier } from "#entities/normalisation";
+ * import { normaliseRollModifier } from "@dice/core/src/entities/normalisation";
  *
  * const mod = normaliseRollModifier((n) => n + 2);
  */
 
-export { normaliseTestConditions } from "./normaliseTestConditions.js";
-export { normaliseRollModifier } from "./normaliseRollModifier.js";
+const { normaliseRollModifier } = require("./normaliseRollModifier.js");
+const { normaliseTestConditions } = require("./normaliseTestConditions.js");
+
+module.exports = {
+  normaliseRollModifier,
+  normaliseTestConditions,
+};

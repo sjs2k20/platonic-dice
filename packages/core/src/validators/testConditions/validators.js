@@ -4,16 +4,16 @@
  * Validation functions for dice roll test conditions.
  */
 
-import { numSides } from "#utils";
-import { isDieType } from "#validators";
-import * as helpers from "./helpers.js";
+const { numSides } = require("../../utils");
+const { isDieType } = require("../isDieType.js");
+const helpers = require("./helpers.js");
 
 /**
  * Validates a target-based condition.
  * @param {Object} c
  * @returns {boolean}
  */
-export function isValidTargetCondition(c) {
+function isValidTargetCondition(c) {
   if (!c || !isDieType(c.dieType)) return false;
   return helpers.isValidFaceValue(c.target, numSides(c.dieType));
 }
@@ -23,7 +23,7 @@ export function isValidTargetCondition(c) {
  * @param {Object} c
  * @returns {boolean}
  */
-export function isValidSkillTestCondition(c) {
+function isValidSkillTestCondition(c) {
   if (!c || !isDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
 
@@ -45,7 +45,7 @@ export function isValidSkillTestCondition(c) {
  * @param {Object} c
  * @returns {boolean}
  */
-export function isValidWithinCondition(c) {
+function isValidWithinCondition(c) {
   if (!c || !isDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
 
@@ -60,20 +60,11 @@ export function isValidWithinCondition(c) {
  * @param {Object} c
  * @returns {boolean}
  */
-export function isValidSpecificListCondition(c) {
+function isValidSpecificListCondition(c) {
   if (!c || !isDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
   if (!Array.isArray(c.values) || c.values.length === 0) return false;
   return c.values.every((v) => helpers.isValidFaceValue(v, sides));
-}
-
-/**
- * Validates an "odd" or "even" condition.
- * @param {Object} c
- * @returns {boolean}
- */
-export function isValidOddEvenCondition(c) {
-  return c && isDieType(c.dieType) && numSides(c.dieType) >= 1;
 }
 
 /**
@@ -82,22 +73,30 @@ export function isValidOddEvenCondition(c) {
  * @param {string} testType
  * @returns {boolean}
  */
-export function isValidTestCondition(c, testType) {
+function isValidTestCondition(c, testType) {
   switch (testType) {
-    case "atLeast":
-    case "atMost":
+    case "at_least":
+    case "at_most":
     case "exact":
       return isValidTargetCondition(c);
     case "within":
       return isValidWithinCondition(c);
-    case "specificList":
+    case "in_list":
       return isValidSpecificListCondition(c);
-    case "odd":
-    case "even":
-      return isValidOddEvenCondition(c);
+    // case "odd":
+    // case "even":
+    //   return isValidOddEvenCondition(c);
     case "skill":
       return isValidSkillTestCondition(c);
     default:
       return false;
   }
 }
+
+module.exports = {
+  isValidTestCondition,
+  isValidTargetCondition,
+  isValidSkillTestCondition,
+  isValidWithinCondition,
+  isValidSpecificListCondition,
+};

@@ -9,21 +9,20 @@
  * const result = rollTest(DieType.D20, tc);
  */
 
-import { DieType, TestType } from "#entities";
-import { isTestType } from "#validators";
-import { isValidTestCondition } from "#validators/test_conditions";
+const { DieType, TestType } = require("../entities");
+const { isTestType, isValidTestCondition } = require("../validators");
 
 /**
- * @typedef {import("#entities").DieType} DieType
- * @typedef {import("#entities").TestType} TestType
- * @typedef {import("#entities").TestTypeValue} TestTypeValue
- * @typedef {import("#entities").DieTypeValue} DieTypeValue
+ * @typedef {import("../entities").DieType} DieType
+ * @typedef {import("../entities").TestType} TestType
+ * @typedef {import("../entities").TestTypeValue} TestTypeValue
+ * @typedef {import("../entities").DieTypeValue} DieTypeValue
  */
 
 /**
  * Represents a set of conditions for a dice roll test.
  */
-export class TestConditions {
+class TestConditions {
   /**
    * @param {TestTypeValue} testType - The test type.
    * @param {object} conditions - The test conditions object.
@@ -46,8 +45,8 @@ export class TestConditions {
     // Validate conditions immediately
     if (!isValidTestCondition({ ...conditions, dieType }, testType)) {
       switch (testType) {
-        case "atLeast":
-        case "atMost":
+        case "at_least":
+        case "at_most":
         case "exact":
           throw new RangeError(
             `Invalid ${testType} condition for die type ${dieType}: target must be an integer within valid die faces.`
@@ -56,14 +55,9 @@ export class TestConditions {
           throw new RangeError(
             `Invalid 'within' condition for die type ${dieType}: min must be ≤ max and both valid face values.`
           );
-        case "specificList":
+        case "in_list":
           throw new RangeError(
             `Invalid 'specificList' condition for die type ${dieType}: values must be a non-empty array of valid face values.`
-          );
-        case "odd":
-        case "even":
-          throw new RangeError(
-            `Invalid '${testType}' condition for die type ${dieType}.`
           );
         case "skill":
           throw new RangeError(
@@ -89,7 +83,10 @@ export class TestConditions {
    */
   validate() {
     if (
-      !isValidTestCondition({ ...this.conditions, ...this.dieType }, testType)
+      !isValidTestCondition(
+        { ...this.conditions, ...this.dieType },
+        this.testType
+      )
     ) {
       throw new TypeError("Invalid test conditions shape.");
     }
@@ -99,3 +96,7 @@ export class TestConditions {
 /**
  * @typedef {InstanceType<typeof TestConditions>} TestConditionsInstance
  */
+
+module.exports = {
+  TestConditions,
+};

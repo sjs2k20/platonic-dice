@@ -4,13 +4,17 @@
  * Checks whether a given value is a valid `RollType`.
  */
 
-import { RollType } from "#entities";
+const { RollType } = require("../entities");
 
 /**
  * @param {string | null} rollType
  * @returns {boolean}
  */
-export function isRollType(rollType) {
+function isRollType(rollType) {
   if (!rollType) return false;
   return Object.values(RollType).includes(rollType);
 }
+
+module.exports = {
+  isRollType,
+};

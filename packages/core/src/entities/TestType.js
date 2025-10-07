@@ -6,7 +6,7 @@
  * @readonly
  * @enum {string}
  */
-export const TestType = Object.freeze({
+const TestType = Object.freeze({
   Exact: "exact", // Must roll exactly this number
   AtLeast: "at_least", // Roll ≥ target
   AtMost: "at_most", // Roll ≤ target
@@ -19,3 +19,7 @@ export const TestType = Object.freeze({
  * @typedef {keyof typeof TestType} TestTypeKey
  * @typedef {typeof TestType[keyof typeof TestType]} TestTypeValue
  */
+
+module.exports = {
+  TestType,
+};

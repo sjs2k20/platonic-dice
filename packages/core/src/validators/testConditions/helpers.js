@@ -13,7 +13,7 @@
  * @param {number} sides
  * @returns {boolean}
  */
-export function isValidFaceValue(n, sides) {
+function isValidFaceValue(n, sides) {
   return Number.isInteger(n) && n >= 1 && n <= sides;
 }
 
@@ -25,7 +25,7 @@ export function isValidFaceValue(n, sides) {
  * @param {string[]} keys
  * @returns {boolean}
  */
-export function areValidFaceValues(obj, sides, keys) {
+function areValidFaceValues(obj, sides, keys) {
   return keys.every(
     (key) => obj[key] == null || isValidFaceValue(obj[key], sides)
   );
@@ -37,12 +37,14 @@ export function areValidFaceValues(obj, sides, keys) {
  * @param {Thresholds} thresholds
  * @returns {boolean}
  */
-export function isValidThresholdOrder({
-  target,
-  critical_success,
-  critical_failure,
-}) {
+function isValidThresholdOrder({ target, critical_success, critical_failure }) {
   if (critical_failure != null && critical_failure >= target) return false;
   if (critical_success != null && critical_success < target) return false;
   return true;
 }
+
+module.exports = {
+  isValidFaceValue,
+  areValidFaceValues,
+  isValidThresholdOrder,
+};

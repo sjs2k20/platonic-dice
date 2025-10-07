@@ -8,7 +8,17 @@
  * import { roll, rollMod, rollDice } from "@dice/core";
  */
 
-export * from "./rollDice.js";
-export * from "./roll.js";
-export * from "./rollMod.js";
-export * from "./rollModDice.js";
+const rollDice = require("./rollDice.js");
+const roll = require("./roll.js");
+const rollMod = require("./rollMod.js");
+const rollModDice = require("./rollModDice.js");
+
+module.exports = {
+  ...roll,
+  ...rollDice,
+  ...rollMod,
+  ...rollModDice,
+};
+
+// --- For TypeScript users ---
+module.exports.default = module.exports;

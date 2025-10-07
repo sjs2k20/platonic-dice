@@ -10,11 +10,19 @@
  * @private
  *
  * @example
- * import { isDieType, isRollType } from "#validators";
+ * import { isDieType, isRollType } from "@dice/core/src/validators";
  * if (!isDieType("D8")) throw new TypeError("Invalid die type");
  */
-export { isDieType } from "./isDieType.js";
-export { isRollModifier } from "./isRollModifier.js";
-export { isRollType } from "./isRollType.js";
-export { isTestType } from "./isTestType.js";
-export * as testConditions from "./testConditions/index.js";
+const { isDieType } = require("./isDieType.js");
+const { isRollModifier } = require("./isRollModifier.js");
+const { isRollType } = require("./isRollType.js");
+const { isTestType } = require("./isTestType.js");
+const { isValidTestCondition } = require("./testConditions/validators.js");
+
+module.exports = {
+  isDieType,
+  isRollModifier,
+  isRollType,
+  isTestType,
+  isValidTestCondition,
+};

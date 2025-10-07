@@ -16,11 +16,11 @@
  * const conditions2 = normaliseTestConditions(existing, 'd6');
  */
 
-import { TestConditions } from "#entities";
+const { TestConditions } = require("../../entities");
 
 /**
- * @typedef {import("#entities").DieType} DieType
- * @typedef {import("#entities").TestConditions} TestConditions
+ * @typedef {import("../..entities").DieType} DieType
+ * @typedef {import("../..entities").TestConditions} TestConditions
  */
 
 /**
@@ -33,7 +33,7 @@ import { TestConditions } from "#entities";
  * @throws {TypeError}
  *   If the input is neither a TestConditions instance nor a plain object.
  */
-export function normaliseTestConditions(tc, dieType) {
+function normaliseTestConditions(tc, dieType) {
   if (tc instanceof TestConditions) return tc;
   if (tc && typeof tc === "object") {
     const { testType, ...conditions } = tc;
@@ -43,3 +43,7 @@ export function normaliseTestConditions(tc, dieType) {
     `Invalid TestConditions: must be a TestConditions instance or a plain object.`
   );
 }
+
+module.exports = {
+  normaliseTestConditions,
+};

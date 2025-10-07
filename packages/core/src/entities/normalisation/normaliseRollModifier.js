@@ -14,11 +14,11 @@
  * const rm3 = normaliseRollModifier(new RollModifier(x => x * 2)); // → same instance
  */
 
-import { RollModifier } from "#entities";
-import { isRollModifier } from "#validators";
+const { RollModifier } = require("../RollModifier.js");
+const { isRollModifier } = require("../../validators");
 
 /**
- * @typedef {import("#entities").RollModifier} RollModifier
+ * @typedef {import("../../entities").RollModifier} RollModifier
  */
 
 /**
@@ -29,9 +29,13 @@ import { isRollModifier } from "#validators";
  * @throws {TypeError}
  *   If the input is invalid (not a RollModifier, function, or null/undefined).
  */
-export function normaliseRollModifier(m) {
+function normaliseRollModifier(m) {
   if (!m) return new RollModifier((n) => n); // identity modifier
   if (m instanceof RollModifier) return m;
   if (typeof m === "function" && isRollModifier(m)) return new RollModifier(m);
   throw new TypeError("Invalid RollModifier");
 }
+
+module.exports = {
+  normaliseRollModifier,
+};

@@ -4,12 +4,12 @@
  * Determines the outcome of a roll based on provided test conditions.
  */
 
-import { Outcome, TestType, TestConditions } from "#entities";
+const { Outcome, TestType, TestConditions } = require("../entities");
 
 /**
- * @typedef {import("#entities").Outcome} Outcome
- * @typedef {import("#entities").TestType} TestType
- * @typedef {import("#entities").TestConditions} TestConditions
+ * @typedef {import("../entities").Outcome} Outcome
+ * @typedef {import("../entities").TestType} TestType
+ * @typedef {import("../entities").TestConditions} TestConditions
  */
 
 /**
@@ -35,15 +35,15 @@ import { Outcome, TestType, TestConditions } from "#entities";
  * });
  * console.log(determineOutcome(1, skill)); // "critical_failure"
  */
-export function determineOutcome(value, testConditions) {
+function determineOutcome(value, testConditions) {
   if (typeof value !== "number" || Number.isNaN(value)) {
     throw new TypeError("value must be a valid number.");
   }
 
   // Normalise plain object input into a TestConditions instance
   if (!(testConditions instanceof TestConditions)) {
-    const { testType, ...conditions } = testConditions;
-    testConditions = new TestConditions(testType, conditions);
+    const { testType, dieType, ...conditions } = testConditions;
+    testConditions = new TestConditions(testType, conditions, dieType);
   }
 
   const { testType, conditions } = testConditions;
@@ -69,12 +69,6 @@ export function determineOutcome(value, testConditions) {
         ? Outcome.Success
         : Outcome.Failure;
 
-    case TestType.Odd:
-      return value % 2 === 1 ? Outcome.Success : Outcome.Failure;
-
-    case TestType.Even:
-      return value % 2 === 0 ? Outcome.Success : Outcome.Failure;
-
     case TestType.Skill: {
       const { target, critical_success, critical_failure } = conditions;
 
@@ -91,3 +85,7 @@ export function determineOutcome(value, testConditions) {
       throw new TypeError(`Unknown or unsupported testType '${testType}'.`);
   }
 }
+
+module.exports = {
+  determineOutcome,
+};

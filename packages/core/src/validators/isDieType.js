@@ -4,13 +4,17 @@
  * Checks whether a given value is a valid `DieType`.
  */
 
-import { DieType } from "#entities";
+const { DieType } = require("../entities");
 
 /**
  * @param {string | null} dieType
  * @returns {boolean}
  */
-export function isDieType(dieType) {
+function isDieType(dieType) {
   if (!dieType) return false;
   return Object.values(DieType).includes(dieType);
 }
+
+module.exports = {
+  isDieType,
+};

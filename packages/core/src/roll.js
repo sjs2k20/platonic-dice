@@ -19,13 +19,13 @@
  * const six = rollD6();
  */
 
-import { DieType, RollType } from "#entities";
-import { generateDieResult } from "#utils";
-import { isDieType, isRollType } from "#validators";
+const { DieType, RollType } = require("./entities");
+const { generateDieResult } = require("./utils");
+const { isDieType, isRollType } = require("./validators");
 
 /**
- * @typedef {import("#entities").DieType} DieType
- * @typedef {import("#entities").RollType} RollType
+ * @typedef {import("./entities").DieType} DieType
+ * @typedef {import("./entities").RollType} RollType
  */
 
 /**
@@ -40,7 +40,7 @@ import { isDieType, isRollType } from "#validators";
  * @example
  * const result = roll(DieType.D20, RollType.Advantage);
  */
-export function roll(dieType, rollType = null) {
+function roll(dieType, rollType = null) {
   // --- Validation ---
   if (!isDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
@@ -71,7 +71,7 @@ export function roll(dieType, rollType = null) {
  * @example
  * const result = rollAdv(DieType.D10);
  */
-export const rollAdv = (dieType) => roll(dieType, RollType.Advantage);
+const rollAdv = (dieType) => roll(dieType, RollType.Advantage);
 
 /**
  * Rolls a die with disadvantage.
@@ -80,40 +80,52 @@ export const rollAdv = (dieType) => roll(dieType, RollType.Advantage);
  * @example
  * const result = rollDis(DieType.D10);
  */
-export const rollDis = (dieType) => roll(dieType, RollType.Disadvantage);
+const rollDis = (dieType) => roll(dieType, RollType.Disadvantage);
 
 /**
  * Rolls a D4 die.
  * @type {(rollType?: RollType | null) => number}
  */
-export const rollD4 = (rollType = null) => roll(DieType.D4, rollType);
+const rollD4 = (rollType = null) => roll(DieType.D4, rollType);
 
 /**
  * Rolls a D6 die.
  * @type {(rollType?: RollType | null) => number}
  */
-export const rollD6 = (rollType = null) => roll(DieType.D6, rollType);
+const rollD6 = (rollType = null) => roll(DieType.D6, rollType);
 
 /**
  * Rolls a D8 die.
  * @type {(rollType?: RollType | null) => number}
  */
-export const rollD8 = (rollType = null) => roll(DieType.D8, rollType);
+const rollD8 = (rollType = null) => roll(DieType.D8, rollType);
 
 /**
  * Rolls a D10 die.
  * @type {(rollType?: RollType | null) => number}
  */
-export const rollD10 = (rollType = null) => roll(DieType.D10, rollType);
+const rollD10 = (rollType = null) => roll(DieType.D10, rollType);
 
 /**
  * Rolls a D12 die.
  * @type {(rollType?: RollType | null) => number}
  */
-export const rollD12 = (rollType = null) => roll(DieType.D12, rollType);
+const rollD12 = (rollType = null) => roll(DieType.D12, rollType);
 
 /**
  * Rolls a D20 die.
  * @type {(rollType?: RollType | null) => number}
  */
-export const rollD20 = (rollType = null) => roll(DieType.D20, rollType);
+const rollD20 = (rollType = null) => roll(DieType.D20, rollType);
+
+module.exports = {
+  roll,
+  rollAdv,
+  rollDis,
+  rollD4,
+  rollD6,
+  rollD8,
+  rollD10,
+  rollD12,
+  rollD20,
+};

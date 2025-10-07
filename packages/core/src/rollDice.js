@@ -16,12 +16,12 @@
  * console.log(rolls); // [2, 5, 4]
  */
 
-import { DieType } from "#entities";
-import { isDieType } from "#validators";
-import { roll } from "./roll.js";
+const { DieType } = require("./entities");
+const { isDieType } = require("./validators");
+const { roll } = require("./roll.js");
 
 /**
- * @typedef {import("#entities").DieType} DieType
+ * @typedef {import("./entities").DieType} DieType
  */
 
 /**
@@ -50,7 +50,7 @@ import { roll } from "./roll.js";
  * // Roll 3d6
  * const result = rollDice(DieType.D6, { count: 3 });
  */
-export function rollDice(dieType, { count = 1 } = {}) {
+function rollDice(dieType, { count = 1 } = {}) {
   // --- Validation ---
   if (!isDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
@@ -81,7 +81,8 @@ for (const count of counts) {
   rollDiceAliases[`roll${count}x`] = (dieType) => rollDice(dieType, { count });
 }
 
-export const {
+module.exports = {
+  rollDice,
   roll2x,
   roll3x,
   roll4x,
@@ -94,4 +95,4 @@ export const {
   roll25x,
   roll50x,
   roll100x,
-} = rollDiceAliases;
+};

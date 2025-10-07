@@ -14,8 +14,14 @@
  *
  * @example
  * // Internal usage only — not part of the public API
- * import { generateDieResult, determineOutcome } from "#utils";
+ * import { generateDieResult, determineOutcome } from "../utils";
  */
-export { determineOutcome } from "./determineOutcome.js";
-export { generateDieResult } from "./generateResult.js";
-export { numSides } from "./numSides.js";
+const { determineOutcome } = require("./determineOutcome.js");
+const { generateResult } = require("./generateResult.js");
+const { numSides } = require("./numSides.js");
+
+module.exports = {
+  determineOutcome,
+  generateResult,
+  numSides,
+};

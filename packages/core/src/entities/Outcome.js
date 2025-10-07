@@ -6,7 +6,7 @@
  * @readonly
  * @enum {string}
  */
-export const Outcome = Object.freeze({
+const Outcome = Object.freeze({
   Success: "success",
   Failure: "failure",
   Critical_Success: "critical_success",
@@ -17,3 +17,7 @@ export const Outcome = Object.freeze({
  * @typedef {keyof typeof Outcome} OutcomeKey
  * @typedef {typeof Outcome[keyof typeof Outcome]} OutcomeValue
  */
+
+module.exports = {
+  Outcome,
+};
