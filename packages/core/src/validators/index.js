@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/validators
+ * @module @dice/core/src/validators
  * @description
  * Validation utilities for verifying dice-related types and entities.
  *

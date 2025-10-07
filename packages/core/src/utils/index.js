@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/utils
+ * @module @dice/core/src/utils
  * @description
  * Internal utility functions for core dice logic.
  *

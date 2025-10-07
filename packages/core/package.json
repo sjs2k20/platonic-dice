@@ -5,16 +5,12 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./src": "./src/index.js",
-    "./entities": "./entities/index.js",
-    "./utils": "./utils/index.js",
-    "./validators": "./validators/index.js"
+    "./src": "./src/index.js"
   },
   "imports": {
-    "#root/*": "./*",
     "#src": "./src/index.js",
-    "#entities": "./entities/index.js",
-    "#utils": "./utils/index.js",
-    "#validators": "./validators/index.js"
+    "#entities": ".src/entities/index.js",
+    "#utils": ".src/utils/index.js",
+    "#validators": ".src/validators/index.js"
   }
 }

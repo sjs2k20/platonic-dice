@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/utils/numSides
+ * @module @dice/core/src/utils/numSides
  * @description
  * Returns the number of sides on a die given its {@link DieType}.
  */

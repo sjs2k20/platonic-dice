@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/validators/isRollModifier
+ * @module @dice/core/src/validators/isRollModifier
  * @description
  * Checks whether a given function is a valid roll modifier.
  */

@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/validators/testConditions
+ * @module @dice/core/src/validators/testConditions
  * @description
  * Validation helpers for {@link TestConditions}.
  *

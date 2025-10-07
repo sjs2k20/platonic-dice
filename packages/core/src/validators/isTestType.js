@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/validators/isTestType
+ * @module @dice/core/src/validators/isTestType
  * @description
  * Checks whether a given value is a valid `TestType`.
  */

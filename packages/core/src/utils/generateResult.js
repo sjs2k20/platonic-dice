@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/utils/generateDieResult
+ * @module @dice/core/src/utils/generateDieResult
  * @description
  * Generates a single roll result for a given die type.
  */

@@ -1,9 +1,7 @@
 /**
- * @module @dice/core/utils/determineOutcome
+ * @module @dice/core/src/utils/determineOutcome
  * @description
- * Determines the outcome of a roll based on provided {@link TestConditions}.
- *
- * Returns standard {@link Outcome} values including success, failure, and criticals.
+ * Determines the outcome of a roll based on provided test conditions.
  */
 
 import { Outcome, TestType, TestConditions } from "#entities";
@@ -15,7 +13,8 @@ import { Outcome, TestType, TestConditions } from "#entities";
  */
 
 /**
- * Determines the outcome of a roll based on provided test conditions.
+ * Determines the outcome of a roll based on provided {@link TestConditions}.
+ * Returns standard {@link Outcome} values including success, failure, and criticals.
  *
  * @function determineOutcome
  * @param {number} value - The rolled (possibly modified) result.

@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/validators/isDieType
+ * @module @dice/core/src/validators/isDieType
  * @description
  * Checks whether a given value is a valid `DieType`.
  */

@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/validators/isRollType
+ * @module @dice/core/src/validators/isRollType
  * @description
  * Checks whether a given value is a valid `RollType`.
  */
