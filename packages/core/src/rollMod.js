@@ -69,83 +69,209 @@ export function rollMod(dieType, modifier, rollType = null) {
   return { base, modified };
 }
 
-/**
- * @private
- * Wraps a rollMod alias so it returns only the modified result.
- *
- * @param {(dieType: DieType, rollType?: RollType | null) => { base: number, modified: number }} fn
- * @returns {(dieType: DieType, rollType?: RollType | null) => number}
- */
-function modifiedOnly(fn) {
-  return (dieType, rollType = null) => fn(dieType, rollType).modified;
-}
-
 //
+// --- Convenience Aliases ---
+//
+
+/**
+ * @typedef {(rollType?: RollType | null) => number} DieModifierAlias
+ */
+
+/**
+ * @description
+ * Container for all die-type-specific flat bonus and multiplicative aliases.
+ * Generated dynamically from DieType values.
+ *
+ * @type {Record<string, DieModifierAlias>}
+ */
+const dieTypeAliases = {};
+
 // --- Flat Bonus Aliases ---
-//
+// Flat modifiers from -10 to +10 for each die type
+for (const die of Object.values(DieType)) {
+  for (let i = 1; i <= 10; i++) {
+    /** @type {DieModifierAlias} */
+    dieTypeAliases[`roll${die}P${i}`] = (rollType = null) =>
+      rollMod(die, (n) => n + i, rollType).modified;
 
-/**
- * Flat modifiers from -10 to +10.
- *
- * @type {Record<string, (dieType: DieType, rollType?: RollType | null) => number>}
- */
-const flatBonuses = {};
-
-for (let i = 1; i <= 10; i++) {
-  flatBonuses[`rollModP${i}`] = modifiedOnly((dieType, rollType) =>
-    rollMod(dieType, (n) => n + i, rollType)
-  );
-  flatBonuses[`rollModM${i}`] = modifiedOnly((dieType, rollType) =>
-    rollMod(dieType, (n) => n - i, rollType)
-  );
+    /** @type {DieModifierAlias} */
+    dieTypeAliases[`roll${die}M${i}`] = (rollType = null) =>
+      rollMod(die, (n) => n - i, rollType).modified;
+  }
 }
 
-export const {
-  rollModP1,
-  rollModP2,
-  rollModP3,
-  rollModP4,
-  rollModP5,
-  rollModP6,
-  rollModP7,
-  rollModP8,
-  rollModP9,
-  rollModP10,
-  rollModM1,
-  rollModM2,
-  rollModM3,
-  rollModM4,
-  rollModM5,
-  rollModM6,
-  rollModM7,
-  rollModM8,
-  rollModM9,
-  rollModM10,
-} = flatBonuses;
-
-//
 // --- Multiplicative Aliases ---
-//
-
-/**
- * Multiplicative modifiers such as `×2`, `×10`, `×100`, etc.
- *
- * @type {Record<string, (dieType: DieType, rollType?: RollType | null) => number>}
- */
-const timesAliases = {};
-
+// Multiplicative modifiers such as ×2, ×10, ×100
 const multipliers = [2, 3, 5, 10, 50, 100];
-for (const m of multipliers) {
-  timesAliases[`rollModT${m}`] = modifiedOnly((dieType, rollType) =>
-    rollMod(dieType, (n) => n * m, rollType)
-  );
+for (const die of Object.values(DieType)) {
+  for (const m of multipliers) {
+    /** @type {DieModifierAlias} */
+    dieTypeAliases[`roll${die}T${m}`] = (rollType = null) =>
+      rollMod(die, (n) => n * m, rollType).modified;
+  }
 }
 
+// --- Export all aliases ---
 export const {
-  rollModT2,
-  rollModT3,
-  rollModT5,
-  rollModT10,
-  rollModT50,
-  rollModT100,
-} = timesAliases;
+  // Flat bonuses +1..+10
+  rollD4P1,
+  rollD4P2,
+  rollD4P3,
+  rollD4P4,
+  rollD4P5,
+  rollD4P6,
+  rollD4P7,
+  rollD4P8,
+  rollD4P9,
+  rollD4P10,
+  rollD6P1,
+  rollD6P2,
+  rollD6P3,
+  rollD6P4,
+  rollD6P5,
+  rollD6P6,
+  rollD6P7,
+  rollD6P8,
+  rollD6P9,
+  rollD6P10,
+  rollD8P1,
+  rollD8P2,
+  rollD8P3,
+  rollD8P4,
+  rollD8P5,
+  rollD8P6,
+  rollD8P7,
+  rollD8P8,
+  rollD8P9,
+  rollD8P10,
+  rollD10P1,
+  rollD10P2,
+  rollD10P3,
+  rollD10P4,
+  rollD10P5,
+  rollD10P6,
+  rollD10P7,
+  rollD10P8,
+  rollD10P9,
+  rollD10P10,
+  rollD12P1,
+  rollD12P2,
+  rollD12P3,
+  rollD12P4,
+  rollD12P5,
+  rollD12P6,
+  rollD12P7,
+  rollD12P8,
+  rollD12P9,
+  rollD12P10,
+  rollD20P1,
+  rollD20P2,
+  rollD20P3,
+  rollD20P4,
+  rollD20P5,
+  rollD20P6,
+  rollD20P7,
+  rollD20P8,
+  rollD20P9,
+  rollD20P10,
+
+  // Flat bonuses -1..-10
+  rollD4M1,
+  rollD4M2,
+  rollD4M3,
+  rollD4M4,
+  rollD4M5,
+  rollD4M6,
+  rollD4M7,
+  rollD4M8,
+  rollD4M9,
+  rollD4M10,
+  rollD6M1,
+  rollD6M2,
+  rollD6M3,
+  rollD6M4,
+  rollD6M5,
+  rollD6M6,
+  rollD6M7,
+  rollD6M8,
+  rollD6M9,
+  rollD6M10,
+  rollD8M1,
+  rollD8M2,
+  rollD8M3,
+  rollD8M4,
+  rollD8M5,
+  rollD8M6,
+  rollD8M7,
+  rollD8M8,
+  rollD8M9,
+  rollD8M10,
+  rollD10M1,
+  rollD10M2,
+  rollD10M3,
+  rollD10M4,
+  rollD10M5,
+  rollD10M6,
+  rollD10M7,
+  rollD10M8,
+  rollD10M9,
+  rollD10M10,
+  rollD12M1,
+  rollD12M2,
+  rollD12M3,
+  rollD12M4,
+  rollD12M5,
+  rollD12M6,
+  rollD12M7,
+  rollD12M8,
+  rollD12M9,
+  rollD12M10,
+  rollD20M1,
+  rollD20M2,
+  rollD20M3,
+  rollD20M4,
+  rollD20M5,
+  rollD20M6,
+  rollD20M7,
+  rollD20M8,
+  rollD20M9,
+  rollD20M10,
+
+  // Multiplicative
+  rollD4T2,
+  rollD4T3,
+  rollD4T5,
+  rollD4T10,
+  rollD4T50,
+  rollD4T100,
+  rollD6T2,
+  rollD6T3,
+  rollD6T5,
+  rollD6T10,
+  rollD6T50,
+  rollD6T100,
+  rollD8T2,
+  rollD8T3,
+  rollD8T5,
+  rollD8T10,
+  rollD8T50,
+  rollD8T100,
+  rollD10T2,
+  rollD10T3,
+  rollD10T5,
+  rollD10T10,
+  rollD10T50,
+  rollD10T100,
+  rollD12T2,
+  rollD12T3,
+  rollD12T5,
+  rollD12T10,
+  rollD12T50,
+  rollD12T100,
+  rollD20T2,
+  rollD20T3,
+  rollD20T5,
+  rollD20T10,
+  rollD20T50,
+  rollD20T100,
+} = dieTypeAliases;

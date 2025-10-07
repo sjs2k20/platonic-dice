@@ -64,3 +64,57 @@ export function rollTest(dieType, testConditions, rollType = null) {
 
   return { base, outcome };
 }
+
+//
+// --- Convenience Aliases ---
+//
+
+/**
+ * Generates a DieType + TestType-specific alias for `rollTest`.
+ *
+ * @private
+ * @param {DieType} dieType
+ * @param {TestType} testType
+ * @returns {function(number, RollType=): { base: number, outcome: string }}
+ */
+function alias(dieType, testType) {
+  return (target, rollType = null) =>
+    rollTest(dieType, { testType, target }, rollType);
+}
+
+/**
+ * @type {Record<string, function(number, RollType=): { base: number, outcome: string }>}
+ */
+const aliases = {};
+
+// Dynamically generate aliases for all DieTypes × TestTypes
+for (const dieKey of Object.keys(DieType)) {
+  const dieValue = DieType[dieKey];
+  for (const testKey of Object.keys(TestType)) {
+    const testValue = TestType[testKey];
+    const aliasName = `roll${dieKey}${testKey}`; // e.g., rollD20AtLeast
+    aliases[aliasName] = alias(dieValue, testValue);
+  }
+}
+
+// Export all generated aliases
+export const {
+  rollD4AtLeast,
+  rollD4AtMost,
+  rollD4Exact,
+  rollD6AtLeast,
+  rollD6AtMost,
+  rollD6Exact,
+  rollD8AtLeast,
+  rollD8AtMost,
+  rollD8Exact,
+  rollD10AtLeast,
+  rollD10AtMost,
+  rollD10Exact,
+  rollD12AtLeast,
+  rollD12AtMost,
+  rollD12Exact,
+  rollD20AtLeast,
+  rollD20AtMost,
+  rollD20Exact,
+} = aliases;

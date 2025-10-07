@@ -99,3 +99,30 @@ export function rollModDice(dieType, modifier = {}, { count = 1 } = {}) {
     },
   };
 }
+
+//
+// --- Convenience Aliases ---
+//
+
+/**
+ * @private
+ * Generates a simple accessor alias for `rollModDice`.
+ *
+ * @param {"eachArray"|"net"} key - Which piece of the result to return
+ * @returns {(dieType: DieType, modifier?: RollModifier | Function | { each?: RollModifier | Function, net?: RollModifier | Function }, options?: { count?: number }) => number | number[]}
+ */
+function alias(key) {
+  return (dieType, modifier = {}, options = {}) => {
+    const result = rollModDice(dieType, modifier, options);
+    switch (key) {
+      case "eachArray":
+        return result.modified.each.array;
+      case "net":
+        return result.modified.net.value;
+    }
+  };
+}
+
+// --- Exports ---
+export const rollModDiceArr = alias("eachArray");
+export const rollModDiceNet = alias("net");
