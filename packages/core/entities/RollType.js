@@ -1,5 +1,8 @@
 /**
- * Enum for roll types (advantage/disadvantage).
+ * @module @dice/core/entities/RollType
+ * @description
+ * Enum for roll modes (normal, advantage, disadvantage).
+ *
  * @readonly
  * @enum {string}
  */
@@ -7,3 +10,8 @@ export const RollType = Object.freeze({
   Advantage: "advantage",
   Disadvantage: "disadvantage",
 });
+
+/**
+ * @typedef {keyof typeof RollType} RollTypeKey
+ * @typedef {typeof RollType[keyof typeof RollType]} RollTypeValue
+ */

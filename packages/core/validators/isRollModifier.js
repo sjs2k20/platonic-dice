@@ -1,6 +1,12 @@
 /**
- * @param {Function | null} m - Function to modify the roll of a die.
- * @returns {boolean} - true if the provided 'value' is a valid roll modifier.
+ * @module @dice/core/validators/isRollModifier
+ * @description
+ * Checks whether a given function is a valid roll modifier.
+ */
+
+/**
+ * @param {Function | null} m
+ * @returns {boolean}
  */
 export function isRollModifier(m) {
   if (!m || typeof m !== "function") return false;
@@ -8,7 +14,7 @@ export function isRollModifier(m) {
   /** ---Validate modifier shape --- */
   if (m.length !== 1) return false; // Must declare exactly 1 parameter
 
-  // Quick runtime check: apply to a number and verify return is number
-  const testValue = modifier(1);
-  return typeof testValue === "number" && !Number.isNaN(testValue);
+  // Quick runtime check: apply to a number and verify return is an integer.
+  const testValue = m(1);
+  return typeof testValue === "number" && !Number.isInteger(testValue);
 }

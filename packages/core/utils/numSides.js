@@ -1,11 +1,26 @@
-import { DieType } from "#root";
+/**
+ * @module @dice/core/utils/numSides
+ * @description
+ * Returns the number of sides on a die given its {@link DieType}.
+ */
+
+import { DieType } from "#entities";
 import { isDieType } from "#validators";
 
 /**
- * Gets the number of sides on a die given its type.
- * @param {DieType} dieType - e.g. "d6", "d20"
- * @returns {number}
+ * @typedef {import("#entities").DieType} DieType
+ */
+
+/**
+ * Returns the number of sides on a die given its type.
+ *
+ * @function numSides
+ * @param {DieType} dieType - The die type (e.g., "d6", "d20").
+ * @returns {number} Number of sides.
  * @throws {TypeError} If the die type is invalid.
+ *
+ * @example
+ * console.log(numSides("d6")); // 6
  */
 export function numSides(dieType) {
   if (!isDieType(dieType)) {

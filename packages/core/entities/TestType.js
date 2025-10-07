@@ -1,5 +1,8 @@
 /**
- * Enum for test evaluation types.
+ * @module @dice/core/entities/TestType
+ * @description
+ * Enum for test evaluation types (used in {@link TestConditions}).
+ *
  * @readonly
  * @enum {string}
  */
@@ -11,3 +14,8 @@ export const TestType = Object.freeze({
   InList: "in_list", // Roll in array of valid values
   Skill: "skill", // Classic skill/threshold test (with crits)
 });
+
+/**
+ * @typedef {keyof typeof TestType} TestTypeKey
+ * @typedef {typeof TestType[keyof typeof TestType]} TestTypeValue
+ */

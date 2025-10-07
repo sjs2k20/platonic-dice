@@ -1,14 +1,29 @@
+/**
+ * @module @dice/core/entities/RollModifier
+ * @description
+ * Represents a numeric modifier applied to dice rolls.
+ *
+ * A `RollModifier` wraps a pure function `(n: number) => number`
+ * that takes a base roll and returns a modified value.
+ *
+ * @example
+ * const bonus = new RollModifier(n => n + 2);
+ * const result = bonus.apply(10); // 12
+ */
+
 import { isRollModifier } from "#validators";
 
 /**
+ * @typedef {(n: number) => number} RollModifierFunction
+ */
+
+/**
  * Represents a numeric modifier applied to dice rolls.
- *
- * A RollModifier wraps a pure function `(n: number) => number`
- * that takes a base roll and returns a modified value.
  */
 export class RollModifier {
   /**
-   * @param {Function} fn - The modifier function `(n: number) => number`.
+   * @param {RollModifierFunction} fn - Modifier function.
+   * @throws {TypeError} If the function is not a valid roll modifier.
    */
   constructor(fn) {
     if (!isRollModifier(fn)) {
@@ -17,6 +32,7 @@ export class RollModifier {
       );
     }
 
+    /** @type {RollModifierFunction} */
     this.fn = fn;
   }
 
@@ -32,6 +48,7 @@ export class RollModifier {
   /**
    * Validates that this modifier still conforms to spec.
    * (Useful if modifiers are loaded dynamically or serialized.)
+   * @throws {TypeError} If the modifier is invalid.
    */
   validate() {
     if (!isRollModifier(this.fn)) {
@@ -39,3 +56,7 @@ export class RollModifier {
     }
   }
 }
+
+/**
+ * @typedef {InstanceType<typeof RollModifier>} RollModifierInstance
+ */

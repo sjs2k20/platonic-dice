@@ -1,38 +1,59 @@
-import { DieType, RollType } from "#entities";
-import { isDieType, isRollType } from "#validators";
+/**
+ * @module @dice/core/src/rollDice
+ * @description
+ * Rolls one or more dice of a given type, returning both the individual rolls
+ * and their total sum. Includes convenient aliases for common counts (e.g., `roll3x` for 3 dice).
+ *
+ * @example
+ * import { rollDice, roll3x } from "@dice/core";
+ *
+ * // Roll a single d20
+ * const result = rollDice(DieType.D20);
+ * console.log(result.array, result.sum);
+ *
+ * // Roll 3d6 using an alias
+ * const rolls = roll3x(DieType.D6);
+ * console.log(rolls); // [2, 5, 4]
+ */
+
+import { DieType } from "#entities";
+import { isDieType } from "#validators";
 import { roll } from "./roll.js";
 
 /**
- * Rolls one or more dice of the specified type, with optional advantage/disadvantage.
+ * @typedef {import("#entities").DieType} DieType
+ */
+
+/**
+ * Rolls one or more dice of the specified type.
  *
+ * @function rollDice
  * @param {DieType} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
- * @param {Object} [options] - Optional roll configuration.
- * @param {number} [options.count=1] - Number of dice to roll. Default is 1.
- * @param {RollType} [options.rollType=null] - Roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
- * @returns {number[]} An array of roll results. Always returns an array, even if only one die is rolled.
- * @throws {TypeError} If `dieType` or `rollType` are invalid.
- * @throws {TypeError} If `count` is not a number or less than 1.
+ * @param {Object} [options] - Optional configuration.
+ * @param {number} [options.count=1] - Number of dice to roll. Must be a positive integer.
+ * @returns {{ array: number[], sum: number }} An object containing:
+ *   - `array`: an array of individual die rolls.
+ *   - `sum`: the total sum of all rolls.
+ * @throws {TypeError} If `dieType` is invalid.
+ * @throws {TypeError} If `count` is not a positive integer.
+ *
+ * @example
+ * const result = rollDice(DieType.D6, { count: 5 });
+ * console.log(result.sum);   // e.g., 18
+ * console.log(result.array); // e.g., [2, 5, 3, 1, 7]
  *
  * @example
  * // Roll a single d20
- * const [result] = rollDice(DieType.D20);
+ * const result = rollDice(DieType.D20);
  *
  * @example
- * // Roll 3 d6 dice
- * const results = rollDice(DieType.D6, { count: 3 });
- *
- * @example
- * // Roll 2 d20 dice with advantage
- * const results = rollDice(DieType.D20, { count: 2, rollType: RollType.Advantage });
+ * // Roll 3d6
+ * const result = rollDice(DieType.D6, { count: 3 });
  */
-export function rollDice(dieType, { count = 1, rollType = null } = {}) {
+export function rollDice(dieType, { count = 1 } = {}) {
   // --- Validation ---
   if (!isDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
-  }
-
-  if (rollType !== null && !isRollType(rollType)) {
-    throw new TypeError(`Invalid roll type: ${rollType}`);
   }
 
   if (typeof count !== "number" || !Number.isInteger(count) || count < 1) {
@@ -42,10 +63,13 @@ export function rollDice(dieType, { count = 1, rollType = null } = {}) {
   }
 
   // --- Core logic ---
-  return Array.from({ length: count }, () => roll(dieType, rollType));
+  const array = Array.from({ length: count }, () => roll(dieType));
+  const sum = array.reduce((total, n) => total + n, 0);
+
+  return { array, sum };
 }
 
-/** --- Friendly alias generation --- */
+/** --- Friendly alias generation for convenience --- */
 const counts = [2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 100];
 
 /**
@@ -55,10 +79,6 @@ const rollDiceAliases = {};
 
 for (const count of counts) {
   rollDiceAliases[`roll${count}x`] = (dieType) => rollDice(dieType, { count });
-  rollDiceAliases[`roll${count}xAdv`] = (dieType) =>
-    rollDice(dieType, { count, rollType: RollType.Advantage });
-  rollDiceAliases[`roll${count}xDis`] = (dieType) =>
-    rollDice(dieType, { count, rollType: RollType.Disadvantage });
 }
 
 export const {
@@ -74,41 +94,4 @@ export const {
   roll25x,
   roll50x,
   roll100x,
-  roll2xAdv,
-  roll3xAdv,
-  roll4xAdv,
-  roll5xAdv,
-  roll6xAdv,
-  roll7xAdv,
-  roll8xAdv,
-  roll9xAdv,
-  roll10xAdv,
-  roll25xAdv,
-  roll50xAdv,
-  roll100xAdv,
-  roll2xDis,
-  roll3xDis,
-  roll4xDis,
-  roll5xDis,
-  roll6xDis,
-  roll7xDis,
-  roll8xDis,
-  roll9xDis,
-  roll10xDis,
-  roll25xDis,
-  roll50xDis,
-  roll100xDis,
 } = rollDiceAliases;
-
-// Many rolls with advantage/disadvantage.
-
-/**
- * @type {(dieType: DieType, count: number) => number[]}
- */
-export const rollManyAdv = (dieType, count) =>
-  rollDice(dieType, { count, rollType: RollType.Advantage });
-/**
- * @type {(dieType: DieType, count: number) => number[]}
- */
-export const rollManyDis = (dieType, count) =>
-  rollDice(dieType, { count, rollType: RollType.Disadvantage });

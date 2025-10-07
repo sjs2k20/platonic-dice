@@ -1,8 +1,14 @@
+/**
+ * @module @dice/core/validators/isRollType
+ * @description
+ * Checks whether a given value is a valid `RollType`.
+ */
+
 import { RollType } from "#entities";
 
 /**
- * @param {string | null} rollType - Advantage/Disadvantage rolling.
- * @returns {boolean} - true if the provided 'value' is a valid RollType.
+ * @param {string | null} rollType
+ * @returns {boolean}
  */
 export function isRollType(rollType) {
   if (!rollType) return false;

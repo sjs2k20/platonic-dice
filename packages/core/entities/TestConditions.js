@@ -1,41 +1,56 @@
-import { isValidTestCondition } from "#validators/test_conditions/index.js";
+/**
+ * @module @dice/core/entities/TestConditions
+ * @description
+ * This class validates the test type and associated conditions
+ * against the provided {@link DieType} during construction.
+ *
+ * @example
+ * const tc = new TestConditions(TestType.AtLeast, { target: 15 }, DieType.D20);
+ * const result = rollTest(DieType.D20, tc);
+ */
+
+import { DieType, TestType } from "#entities";
+import { isTestType } from "#validators";
+import { isValidTestCondition } from "#validators/test_conditions";
+
+/**
+ * @typedef {import("#entities").DieType} DieType
+ * @typedef {import("#entities").TestType} TestType
+ * @typedef {import("#entities").TestTypeValue} TestTypeValue
+ * @typedef {import("#entities").DieTypeValue} DieTypeValue
+ */
 
 /**
  * Represents a set of conditions for a dice roll test.
  */
 export class TestConditions {
   /**
-   * @param {string} testType - The type of test ('atLeast', 'atMost', 'exact', 'within', 'specificList', 'odd', 'even', 'skill').
-   * @param {object} conditions - The test conditions object (target, min/max, values, critical thresholds, etc.).
+   * @param {TestTypeValue} testType - The test type.
+   * @param {object} conditions - The test conditions object.
+   * @param {DieTypeValue} dieType - The die type to validate numeric ranges.
+   * @throws {TypeError|RangeError} If the test type or conditions are invalid.
    */
-  constructor(testType, conditions) {
-    if (typeof testType !== "string") {
-      throw new TypeError("testType must be a string.");
+  constructor(testType, conditions, dieType) {
+    if (!isTestType(testType)) {
+      throw new TypeError(`Invalid test type: ${testType}`);
     }
 
     if (!conditions || typeof conditions !== "object") {
       throw new TypeError("conditions must be an object.");
     }
 
-    this.testType = testType;
-    this.conditions = conditions;
-  }
+    if (!dieType) {
+      throw new TypeError("dieType is required to validate TestConditions.");
+    }
 
-  /**
-   * Validates this TestConditions instance against a given die type.
-   * Throws if invalid.
-   * @param {string} dieType - The die type to validate against (e.g., 'd6', 'd20').
-   * @throws {TypeError|RangeError} If the conditions are invalid.
-   */
-  validate(dieType) {
-    if (!isValidTestCondition({ ...this.conditions, dieType }, this.testType)) {
-      // Compose meaningful error messages based on testType
-      switch (this.testType) {
+    // Validate conditions immediately
+    if (!isValidTestCondition({ ...conditions, dieType }, testType)) {
+      switch (testType) {
         case "atLeast":
         case "atMost":
         case "exact":
           throw new RangeError(
-            `Invalid ${this.testType} condition for die type ${dieType}: target must be an integer within valid die faces.`
+            `Invalid ${testType} condition for die type ${dieType}: target must be an integer within valid die faces.`
           );
         case "within":
           throw new RangeError(
@@ -48,25 +63,39 @@ export class TestConditions {
         case "odd":
         case "even":
           throw new RangeError(
-            `Invalid '${this.testType}' condition for die type ${dieType}.`
+            `Invalid '${testType}' condition for die type ${dieType}.`
           );
         case "skill":
           throw new RangeError(
             `Invalid 'skill' condition for die type ${dieType}: target, critical_success, and critical_failure must be valid and logically ordered.`
           );
         default:
-          throw new TypeError(`Unknown testType '${this.testType}'.`);
+          throw new TypeError(`Unknown testType '${testType}'.`);
       }
     }
+
+    /** @type {TestTypeValue} */
+    this.testType = testType;
+    /** @type {object} */
+    this.conditions = conditions;
+    /** @type {DieTypeValue} */
+    this.dieType = dieType;
   }
 
   /**
-   * Returns a plain object suitable for passing to a rollTest method.
-   * Includes only the relevant condition fields.
-   * @returns {object}
+   * Validates that the test conditions still conforms to spec.
+   * (Useful if they are loaded dynamically or serialized.)
+   * @throws {TypeError} If the test conditions are invalid.
    */
-  toObject() {
-    // Return a shallow copy to avoid mutation
-    return { ...this.conditions };
+  validate() {
+    if (
+      !isValidTestCondition({ ...this.conditions, ...this.dieType }, testType)
+    ) {
+      throw new TypeError("Invalid test conditions shape.");
+    }
   }
 }
+
+/**
+ * @typedef {InstanceType<typeof TestConditions>} TestConditionsInstance
+ */
