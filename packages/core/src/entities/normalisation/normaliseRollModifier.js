@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities/normalisation/normaliseRollModifier
+ * @module @dice/core/src/entities/normalisation/normaliseRollModifier
  * @description
  * Normalises any roll modifier input into a {@link RollModifier} instance.
  *

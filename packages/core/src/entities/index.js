@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities
+ * @module @dice/core/src/entities
  * @description
  * Core entity definitions for the `@dice/core` package.
  *
@@ -7,7 +7,7 @@
  * the dice logic system.
  *
  * @example
- * import { DieType, RollType, RollModifier } from "@dice/core/entities";
+ * import { DieType, RollType, RollModifier } from "@dice/core/src/entities";
  *
  * const mod = new RollModifier((n) => n + 2);
  * const result = roll(DieType.D20, RollType.Advantage);

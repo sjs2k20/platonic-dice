@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities/TestConditions
+ * @module @dice/core/src/entities/TestConditions
  * @description
  * This class validates the test type and associated conditions
  * against the provided {@link DieType} during construction.

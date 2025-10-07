@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities/RollType
+ * @module @dice/core/src/entities/RollType
  * @description
  * Enum for roll modes (normal, advantage, disadvantage).
  *

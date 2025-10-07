@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities/normalisation
+ * @module @dice/core/src/entities/normalisation
  * @description
  * Internal normalisation utilities for `@dice/core` entities.
  *

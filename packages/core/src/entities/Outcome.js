@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities/Outcome
+ * @module @dice/core/src/entities/Outcome
  * @description
  * Enum for possible roll outcomes.
  *

@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/entities/normalisation/normaliseTestConditions
+ * @module @dice/core/src/entities/normalisation/normaliseTestConditions
  * @description
  * Normalises any input into a {@link TestConditions} instance.
  *
