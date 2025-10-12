@@ -1,3 +1,4 @@
+"use strict";
 /**
  * @module @dice/core/src/entities/TestType
  * @description
