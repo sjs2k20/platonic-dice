@@ -1,0 +1,38 @@
+{
+  "name": "@platonic-dice/core",
+  "version": "1.0.0",
+  "description": "Core JavaScript logic for simulating TTRPG dice rolls.",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "keywords": [
+    "dice",
+    "TTRPG",
+    "random",
+    "game",
+    "d20",
+    "dnd",
+    "core"
+  ],
+  "author": "Stephen James Saunders",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjs2k20/platonic-dice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sjs2k20/platonic-dice.git/issues"
+  },
+  "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
+  "scripts": {
+    "test": "jest",
+    "test:types": "tsd"
+  },
+  "tsd": {
+    "directory": "src/test-d"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "rewire": "^7.0.0",
+    "tsd": "^0.31.2"
+  }
+}
