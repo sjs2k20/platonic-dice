@@ -11,8 +11,6 @@
  * const result = bonus.apply(10); // 12
  */
 
-const { isRollModifier } = require("../validators");
-
 /**
  * @typedef {(n: number) => number} RollModifierFunction
  */
@@ -26,7 +24,7 @@ class RollModifier {
    * @throws {TypeError} If the function is not a valid roll modifier.
    */
   constructor(fn) {
-    if (!isRollModifier(fn)) {
+    if (!isValidRollModifier(fn)) {
       throw new TypeError(
         "Invalid roll modifier: must be a function accepting one numeric argument and returning a number."
       );
@@ -51,10 +49,55 @@ class RollModifier {
    * @throws {TypeError} If the modifier is invalid.
    */
   validate() {
-    if (!isRollModifier(this.fn)) {
+    if (!isValidRollModifier(this.fn)) {
       throw new TypeError("Invalid roll modifier function shape.");
     }
   }
+}
+
+/**
+ * Checks whether a given function is a valid roll modifier.
+ *
+ * @function isValidRollModifier
+ * @param {Function | null} m
+ * @returns {boolean}
+ */
+function isValidRollModifier(m) {
+  if (!m || typeof m !== "function") return false;
+
+  /** ---Validate modifier shape --- */
+  if (m.length !== 1) return false; // Must declare exactly 1 parameter
+
+  // Quick runtime check: apply to a number and verify return is an integer.
+  const testValue = m(1);
+  return typeof testValue === "number" && Number.isInteger(testValue);
+}
+
+/**
+ * This function ensures all modifiers conform to the correct structure:
+ *  - A {@link RollModifier} instance → returned as-is.
+ *  - A function `(n: number) => number` → wrapped in a new {@link RollModifier}.
+ *  - `null` or `undefined` → treated as an identity modifier.
+ *
+ * @function normaliseRollModifier
+ * @param {RollModifier | ((n: number) => number) | null | undefined} m
+ *   The input modifier to normalise.
+ * @returns {RollModifier}
+ *   A valid {@link RollModifier} instance.
+ * @throws {TypeError}
+ *   If the input is invalid (not a RollModifier, function, or null/undefined).
+ *
+ * @example
+ * const rm1 = normaliseRollModifier(); // → identity modifier
+ * const rm2 = normaliseRollModifier(x => x + 1); // → RollModifier wrapping function
+ * const rm3 = normaliseRollModifier(new RollModifier(x => x * 2)); // → same instance
+ */
+function normaliseRollModifier(m) {
+  if (!m) return new RollModifier((n) => n); // identity modifier
+  if (m instanceof RollModifier) return m;
+  if (typeof m === "function" && isValidRollModifier(m))
+    return new RollModifier(m);
+  throw new TypeError("Invalid RollModifier");
 }
 
 /**
@@ -63,4 +106,6 @@ class RollModifier {
 
 module.exports = {
   RollModifier,
+  isValidRollModifier,
+  normaliseRollModifier,
 };

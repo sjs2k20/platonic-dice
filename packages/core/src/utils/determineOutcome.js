@@ -7,9 +7,8 @@
 const { Outcome, TestType, TestConditions } = require("../entities");
 
 /**
- * @typedef {import("../entities").Outcome} Outcome
- * @typedef {import("../entities").TestType} TestType
- * @typedef {import("../entities").TestConditions} TestConditions
+ * @typedef {import("../entities/Outcome").OutcomeValue} OutcomeValue
+ * @typedef {import("../entities/TestConditions").TestConditionsInstance} TestConditionsInstance
  */
 
 /**
@@ -18,8 +17,8 @@ const { Outcome, TestType, TestConditions } = require("../entities");
  *
  * @function determineOutcome
  * @param {number} value - The rolled (possibly modified) result.
- * @param {TestConditions|Object} testConditions - The conditions defining success/failure thresholds.
- * @returns {Outcome} The resulting outcome.
+ * @param {TestConditionsInstance|Object} testConditions - The conditions defining success/failure thresholds.
+ * @returns {OutcomeValue} The resulting outcome.
  * @throws {TypeError} If the provided conditions or test type are invalid.
  *
  * @example

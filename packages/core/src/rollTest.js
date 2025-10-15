@@ -21,33 +21,28 @@
  *   RollType.Advantage
  * );
  */
-const {
-  DieType,
-  normaliseTestConditions,
-  RollType,
-  TestConditions,
-} = require("./entities");
-const { determineOutcome } = "./utils";
+const { DieType, normaliseTestConditions } = require("./entities");
+const { determineOutcome } = require("./utils");
 const { roll } = require("./roll.js");
 
 /**
- * @typedef {import("./entities").DieType} DieType
- * @typedef {import("./entities").RollType} RollType
- * @typedef {import("./entities").TestConditions} TestConditions
- * @typedef {import("./entities").Outcome} Outcome
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("./entities/Outcome").OutcomeValue} OutcomeValue
+ * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
+ * @typedef {import("./entities/TestConditions").TestConditionsInstance} TestConditionsInstance
  */
 
 /**
  * Rolls a die and evaluates it against specified test conditions.
  *
  * @function rollTest
- * @param {DieType} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
- * @param {TestConditions|Object} testConditions - Conditions to evaluate the roll against.
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
+ * @param {TestConditionsInstance|Object} testConditions - Conditions to evaluate the roll against.
  *   Can be:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
- * @param {RollType} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
- * @returns {{ base: number, outcome: string }} The raw roll and its evaluated outcome.
+ * @param {RollTypeValue} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @returns {{ base: number, outcome: OutcomeValue }} The raw roll and its evaluated outcome.
  * @throws {TypeError} If `dieType` or `testConditions` are invalid.
  */
 function rollTest(dieType, testConditions, rollType = null) {
@@ -73,9 +68,9 @@ function rollTest(dieType, testConditions, rollType = null) {
  * Generates a DieType + TestType-specific alias for `rollTest`.
  *
  * @private
- * @param {DieType} dieType
+ * @param {DieTypeValue} dieType
  * @param {TestType} testType
- * @returns {function(number, RollType=): { base: number, outcome: string }}
+ * @returns {(target: number, rollType?: RollTypeValue|null) => { base: number, outcome: OutcomeValue }}
  */
 function alias(dieType, testType) {
   return (target, rollType = null) =>
@@ -83,7 +78,8 @@ function alias(dieType, testType) {
 }
 
 /**
- * @type {Record<string, function(number, RollType=): { base: number, outcome: string }>}
+ * Container for all dynamically generated aliases.
+ * @type {Record<string, (target: number, rollType?: RollTypeValue|null) => { base: number, outcome: OutcomeValue }>}
  */
 const aliases = {};
 
@@ -100,22 +96,5 @@ for (const dieKey of Object.keys(DieType)) {
 // Export all generated aliases
 module.exports = {
   rollTest,
-  rollD4AtLeast,
-  rollD4AtMost,
-  rollD4Exact,
-  rollD6AtLeast,
-  rollD6AtMost,
-  rollD6Exact,
-  rollD8AtLeast,
-  rollD8AtMost,
-  rollD8Exact,
-  rollD10AtLeast,
-  rollD10AtMost,
-  rollD10Exact,
-  rollD12AtLeast,
-  rollD12AtMost,
-  rollD12Exact,
-  rollD20AtLeast,
-  rollD20AtMost,
-  rollD20Exact,
+  ...aliases,
 };

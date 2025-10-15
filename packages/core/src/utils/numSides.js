@@ -4,18 +4,17 @@
  * Returns the number of sides on a die given its {@link DieType}.
  */
 
-const { DieType } = require("../entities");
-const { isDieType } = require("../validators");
+const { DieType, isValidDieType } = require("../entities");
 
 /**
- * @typedef {import("../entities").DieType} DieType
+ * @typedef {import("../entities/DieType").DieTypeValue} DieTypeValue
  */
 
 /**
  * Returns the number of sides on a die given its type.
  *
  * @function numSides
- * @param {DieType} dieType - The die type (e.g., "d6", "d20").
+ * @param {DieTypeValue} dieType - The die type (e.g., "d6", "d20").
  * @returns {number} Number of sides.
  * @throws {TypeError} If the die type is invalid.
  *
@@ -23,7 +22,7 @@ const { isDieType } = require("../validators");
  * console.log(numSides("d6")); // 6
  */
 function numSides(dieType) {
-  if (!isDieType(dieType)) {
+  if (!isValidDieType(dieType)) {
     throw new TypeError(
       `Cannot parse the number of sides: Invalid die type - ${dieType}`
     );

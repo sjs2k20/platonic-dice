@@ -13,25 +13,33 @@
  * const result = roll(DieType.D20, RollType.Advantage);
  */
 
-const { DieType } = require("./DieType.js");
+const { DieType, isValidDieType } = require("./DieType.js");
 const { Outcome } = require("./Outcome.js");
-const { RollModifier } = require("./RollModifier.js");
-const { RollType } = require("./RollType.js");
-const { TestConditions } = require("./TestConditions.js");
-const { TestType } = require("./TestType.js");
-
-/**
- * Internal submodule for entity input normalisation.
- * @private
- */
-const normalisation = require("./normalisation/index.js");
+const {
+  RollModifier,
+  isValidRollModifier,
+  normaliseRollModifier,
+} = require("./RollModifier.js");
+const { RollType, isValidRollType } = require("./RollType.js");
+const {
+  TestConditions,
+  areValidTestConditions,
+  normaliseTestConditions,
+} = require("./TestConditions.js");
+const { TestType, isValidTestType } = require("./TestType.js");
 
 module.exports = {
   DieType,
-  normalisation,
+  isValidDieType,
   Outcome,
   RollModifier,
+  isValidRollModifier,
+  normaliseRollModifier,
   RollType,
+  isValidRollType,
   TestConditions,
+  areValidTestConditions,
+  normaliseTestConditions,
   TestType,
+  isValidTestType,
 };

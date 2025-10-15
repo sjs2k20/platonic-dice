@@ -13,10 +13,23 @@ const RollType = Object.freeze({
 });
 
 /**
+ * Checks whether a given value is a valid `RollType`.
+ *
+ * @function isValidRollType
+ * @param {string | null} rollType
+ * @returns {boolean}
+ */
+function isValidRollType(rollType) {
+  if (!rollType) return false;
+  return Object.values(RollType).includes(rollType);
+}
+
+/**
  * @typedef {keyof typeof RollType} RollTypeKey
  * @typedef {typeof RollType[keyof typeof RollType]} RollTypeValue
  */
 
 module.exports = {
   RollType,
+  isValidRollType,
 };

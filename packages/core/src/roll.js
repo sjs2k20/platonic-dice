@@ -19,21 +19,25 @@
  * const six = rollD6();
  */
 
-const { DieType, RollType } = require("./entities");
-const { generateDieResult } = require("./utils");
-const { isDieType, isRollType } = require("./validators");
+const {
+  DieType,
+  isValidDieType,
+  RollType,
+  isValidRollType,
+} = require("./entities");
+const { generateResult } = require("./utils");
 
 /**
- * @typedef {import("./entities").DieType} DieType
- * @typedef {import("./entities").RollType} RollType
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
  */
 
 /**
  * Rolls a single die of the specified type, optionally applying advantage or disadvantage.
  *
  * @function roll
- * @param {DieType} dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param {RollType | null} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
+ * @param {RollTypeValue | null} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
  * @returns {number} The rolled value (integer between 1 and the die's maximum face).
  * @throws {TypeError} If `dieType` or `rollType` are invalid.
  *
@@ -42,19 +46,19 @@ const { isDieType, isRollType } = require("./validators");
  */
 function roll(dieType, rollType = null) {
   // --- Validation ---
-  if (!isDieType(dieType)) {
+  if (!isValidDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
   }
 
-  if (rollType !== null && !isRollType(rollType)) {
+  if (rollType !== null && !isValidRollType(rollType)) {
     throw new TypeError(`Invalid roll type: ${rollType}`);
   }
 
   // --- Core Logic ---
-  const roll1 = generateDieResult(dieType);
+  const roll1 = generateResult(dieType);
   if (rollType === null) return roll1;
 
-  const roll2 = generateDieResult(dieType);
+  const roll2 = generateResult(dieType);
   return rollType === RollType.Advantage
     ? Math.max(roll1, roll2)
     : Math.min(roll1, roll2);
@@ -66,7 +70,7 @@ function roll(dieType, rollType = null) {
 
 /**
  * Rolls a die with advantage.
- * @type {(dieType: DieType) => number}
+ * @type {(dieType: DieTypeValue) => number}
  *
  * @example
  * const result = rollAdv(DieType.D10);
@@ -75,7 +79,7 @@ const rollAdv = (dieType) => roll(dieType, RollType.Advantage);
 
 /**
  * Rolls a die with disadvantage.
- * @type {(dieType: DieType) => number}
+ * @type {(dieType: DieTypeValue) => number}
  *
  * @example
  * const result = rollDis(DieType.D10);
@@ -84,37 +88,37 @@ const rollDis = (dieType) => roll(dieType, RollType.Disadvantage);
 
 /**
  * Rolls a D4 die.
- * @type {(rollType?: RollType | null) => number}
+ * @type {(rollType?: RollTypeValue | null) => number}
  */
 const rollD4 = (rollType = null) => roll(DieType.D4, rollType);
 
 /**
  * Rolls a D6 die.
- * @type {(rollType?: RollType | null) => number}
+ * @type {(rollType?: RollTypeValue | null) => number}
  */
 const rollD6 = (rollType = null) => roll(DieType.D6, rollType);
 
 /**
  * Rolls a D8 die.
- * @type {(rollType?: RollType | null) => number}
+ * @type {(rollType?: RollTypeValue | null) => number}
  */
 const rollD8 = (rollType = null) => roll(DieType.D8, rollType);
 
 /**
  * Rolls a D10 die.
- * @type {(rollType?: RollType | null) => number}
+ * @type {(rollType?: RollTypeValue | null) => number}
  */
 const rollD10 = (rollType = null) => roll(DieType.D10, rollType);
 
 /**
  * Rolls a D12 die.
- * @type {(rollType?: RollType | null) => number}
+ * @type {(rollType?: RollTypeValue | null) => number}
  */
 const rollD12 = (rollType = null) => roll(DieType.D12, rollType);
 
 /**
  * Rolls a D20 die.
- * @type {(rollType?: RollType | null) => number}
+ * @type {(rollType?: RollTypeValue | null) => number}
  */
 const rollD20 = (rollType = null) => roll(DieType.D20, rollType);
 

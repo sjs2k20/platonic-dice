@@ -16,19 +16,18 @@
  * console.log(rolls); // [2, 5, 4]
  */
 
-const { DieType } = require("./entities");
-const { isDieType } = require("./validators");
+const { isValidDieType } = require("./entities");
 const { roll } = require("./roll.js");
 
 /**
- * @typedef {import("./entities").DieType} DieType
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  */
 
 /**
  * Rolls one or more dice of the specified type.
  *
  * @function rollDice
- * @param {DieType} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
  * @param {Object} [options] - Optional configuration.
  * @param {number} [options.count=1] - Number of dice to roll. Must be a positive integer.
  * @returns {{ array: number[], sum: number }} An object containing:
@@ -52,7 +51,7 @@ const { roll } = require("./roll.js");
  */
 function rollDice(dieType, { count = 1 } = {}) {
   // --- Validation ---
-  if (!isDieType(dieType)) {
+  if (!isValidDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
   }
 
@@ -70,12 +69,18 @@ function rollDice(dieType, { count = 1 } = {}) {
 }
 
 /** --- Friendly alias generation for convenience --- */
-const counts = [2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 100];
 
 /**
- * @type {Object<string, (dieType: DieType) => number[]>}
+ * @typedef {(dieType: import("./entities/DieType").DieTypeValue) => { array: number[], sum: number }} RollDiceAlias
+ */
+
+/**
+ * A collection of preconfigured dice roll functions like `roll2x`, `roll3x`, etc.
+ * @type {Record<string, RollDiceAlias>}
  */
 const rollDiceAliases = {};
+
+const counts = [2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 100];
 
 for (const count of counts) {
   rollDiceAliases[`roll${count}x`] = (dieType) => rollDice(dieType, { count });
@@ -83,16 +88,5 @@ for (const count of counts) {
 
 module.exports = {
   rollDice,
-  roll2x,
-  roll3x,
-  roll4x,
-  roll5x,
-  roll6x,
-  roll7x,
-  roll8x,
-  roll9x,
-  roll10x,
-  roll25x,
-  roll50x,
-  roll100x,
+  ...rollDiceAliases,
 };

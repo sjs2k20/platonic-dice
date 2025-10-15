@@ -26,35 +26,33 @@
  * const bonus = new RollModifier((sum) => sum * 2);
  * const result2 = rollModDice(DieType.D6, bonus, { count: 3 });
  */
-const { DieType, normaliseRollModifier, RollModifier } = require("./entities");
+const { normaliseRollModifier, RollModifier } = require("./entities");
 const { rollDice } = require("./rollDice.js");
 
 /**
- * @typedef {import("./entities").DieType} DieType
- * @typedef {import("./entities").RollModifier} RollModifier
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("./entities/RollModifier").RollModifierFunction} RollModifierFunction
+ * @typedef {import("./entities/RollModifier").RollModifierInstance} RollModifierInstance
+ */
+
+/**
+ * @typedef {RollModifierInstance | RollModifierFunction | { each?: RollModifierInstance | RollModifierFunction, net?: RollModifierInstance | RollModifierFunction }} RollModDiceModifier
  */
 
 /**
  * Rolls multiple dice with optional per-die and net modifiers.
  *
  * @function rollModDice
- * @param {DieType} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
- * @param {Function|RollModifier|Object} [modifier={}] - Modifiers to apply:
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
+ * @param {RollModDiceModifier} [modifier={}] - Modifiers to apply:
  *   - A single function or `RollModifier` → treated as a `net` modifier.
  *   - An object `{ each?: Function|RollModifier, net?: Function|RollModifier }`.
  *     Both `each` and `net` are optional (default: identity).
- * @param {Object} [options] - Optional configuration.
- * @param {number} [options.count=1] - Number of dice to roll. Must be a positive integer.
- * @returns {Object} Structured results:
- *   ```
- *   {
- *     base: { array: number[], sum: number },
- *     modified: {
- *       each: { array: number[], sum: number },
- *       net: { value: number }
- *     }
- *   }
- *   ```
+ * @param {{ count?: number }} [options={}]
+ * @returns {{
+ *   base: { array: number[], sum: number },
+ *   modified: { each: { array: number[], sum: number }, net: { value: number } }
+ * }}
  * @throws {TypeError} If `count` is invalid.
  * @throws {TypeError} If any modifier is invalid.
  */
@@ -109,7 +107,7 @@ function rollModDice(dieType, modifier = {}, { count = 1 } = {}) {
  * Generates a simple accessor alias for `rollModDice`.
  *
  * @param {"eachArray"|"net"} key - Which piece of the result to return
- * @returns {(dieType: DieType, modifier?: RollModifier | Function | { each?: RollModifier | Function, net?: RollModifier | Function }, options?: { count?: number }) => number | number[]}
+ * @returns {(dieType: DieTypeValue, modifier?: RollModDiceModifier, options?: { count?: number }) => number | number[]}
  */
 function alias(key) {
   return (dieType, modifier = {}, options = {}) => {
@@ -124,7 +122,11 @@ function alias(key) {
 }
 
 // --- Exports ---
+
+/** @type {(dieType: DieTypeValue, modifier?: RollModDiceModifier, options?: { count?: number }) => number[]} */
 const rollModDiceArr = alias("eachArray");
+
+/** @type {(dieType: DieTypeValue, modifier?: RollModDiceModifier, options?: { count?: number }) => number} */
 const rollModDiceNet = alias("net");
 
 module.exports = {

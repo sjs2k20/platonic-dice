@@ -21,10 +21,23 @@ const DieType = Object.freeze({
 });
 
 /**
+ * Checks whether a given value is a valid `DieType`.
+ *
+ * @function isValidDieType
+ * @param {string | null} dieType
+ * @returns {boolean}
+ */
+function isValidDieType(dieType) {
+  if (!dieType) return false;
+  return Object.values(DieType).includes(dieType);
+}
+
+/**
  * @typedef {keyof typeof DieType} DieTypeKey
  * @typedef {typeof DieType[keyof typeof DieType]} DieTypeValue
  */
 
 module.exports = {
   DieType,
+  isValidDieType,
 };

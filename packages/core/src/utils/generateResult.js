@@ -5,17 +5,16 @@
  */
 
 const { numSides } = require("./numSides.js");
-const { DieType } = require("../entities");
 
 /**
- * @typedef {import("../entities").DieType} DieType
+ * @typedef {import("../entities/DieType").DieTypeValue} DieTypeValue
  */
 
 /**
  * Generates a single roll result for a given die type.
  *
  * @function generateResult
- * @param {DieType} dieType - The type of die to roll (e.g., "d6", "d20").
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., "d6", "d20").
  * @returns {number} The result of rolling the die.
  * @throws {TypeError} If the die type is invalid.
  *

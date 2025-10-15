@@ -17,10 +17,23 @@ const TestType = Object.freeze({
 });
 
 /**
+ * Checks whether a given value is a valid `TestType`.
+ *
+ * @function isValidTestType
+ * @param {string | null} testType
+ * @returns {boolean}
+ */
+function isValidTestType(testType) {
+  if (!testType) return false;
+  return Object.values(TestType).includes(testType);
+}
+
+/**
  * @typedef {keyof typeof TestType} TestTypeKey
  * @typedef {typeof TestType[keyof typeof TestType]} TestTypeValue
  */
 
 module.exports = {
   TestType,
+  isValidTestType,
 };
