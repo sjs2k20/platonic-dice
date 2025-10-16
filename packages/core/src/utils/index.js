@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/src/utils
+ * @module @platonic-dice/core/src/utils
  * @description
  * Internal utility functions for core dice logic.
  *
@@ -7,7 +7,7 @@
  * generating random die results, computing number of sides,
  * and evaluating roll outcomes.
  *
- * They are used internally by the `@dice/core/src` roll functions
+ * They are used internally by the `@platonic-dice/core/src` roll functions
  * and entity validation routines.
  *
  * @private

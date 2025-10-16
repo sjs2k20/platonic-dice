@@ -10,7 +10,7 @@ import { DieTypeValue, RollTypeValue } from "./entities";
  *
  * @example
  * ```ts
- * import { roll, DieType, RollType } from "@dice/core";
+ * import { roll, DieType, RollType } from "@platonic-dice/core";
  *
  * const normal = roll(DieType.D20);
  * const adv = roll(DieType.D20, RollType.Advantage);

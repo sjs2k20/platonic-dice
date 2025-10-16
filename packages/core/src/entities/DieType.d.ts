@@ -4,7 +4,7 @@
  * Represents common polyhedral dice (D4–D20) used in tabletop systems.
  *
  * @example
- * import { DieType } from "@dice/core";
+ * import { DieType } from "@platonic-dice/core";
  * const result = roll(DieType.D20);
  */
 export enum DieType {

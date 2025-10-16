@@ -12,7 +12,7 @@
 
 const { TestType, isValidTestType } = require("../../src/entities/TestType.js");
 
-describe("@dice/core/entities/TestType", () => {
+describe("@platonic-dice/core/entities/TestType", () => {
   // ─────────────────────────────
   // TestType enum
   // ─────────────────────────────

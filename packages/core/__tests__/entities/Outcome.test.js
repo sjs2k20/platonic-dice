@@ -12,7 +12,7 @@
 
 const { Outcome, isValidOutcome } = require("../../src/entities/Outcome.js");
 
-describe("@dice/core/entities/Outcome", () => {
+describe("@platonic-dice/core/entities/Outcome", () => {
   // ─────────────────────────────
   // Outcome enum
   // ─────────────────────────────

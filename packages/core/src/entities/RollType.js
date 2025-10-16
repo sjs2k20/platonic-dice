@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @module @dice/core/src/entities/RollType
+ * @module @platonic-dice/core/src/entities/RollType
  * @description
  * Enum for roll modes (normal, advantage, disadvantage).
  *

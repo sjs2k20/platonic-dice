@@ -12,7 +12,7 @@
 
 const { DieType, isValidDieType } = require("../../src/entities/DieType.js");
 
-describe("@dice/core/entities/DieType", () => {
+describe("@platonic-dice/core/entities/DieType", () => {
   // ─────────────────────────────
   // DieType enum
   // ─────────────────────────────

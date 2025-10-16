@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @module @dice/core/src/entities/Outcome
+ * @module @platonic-dice/core/src/entities/Outcome
  * @description
  * Enum for possible roll outcomes.
  *

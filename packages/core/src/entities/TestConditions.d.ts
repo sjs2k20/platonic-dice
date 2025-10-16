@@ -78,5 +78,48 @@ export function normaliseTestConditions(
   dieType: DieTypeValue
 ): TestConditions;
 
+/** --- Private subtypes --- */
+interface BaseTestCondition {
+  dieType: DieTypeValue;
+}
+interface TargetConditions extends BaseTestCondition {
+  target: number;
+}
+interface SkillConditions extends BaseTestCondition {
+  target: number;
+  critical_success?: number;
+  critical_failure?: number;
+}
+interface WithinConditions extends BaseTestCondition {
+  min: number;
+  max: number;
+}
+interface SpecificListConditions extends BaseTestCondition {
+  values: number[];
+}
+
+/**
+ * Public union of all valid test condition shapes.
+ *
+ * This is a union type of all the internal test condition shapes:
+ * - `TargetConditions` – single target value
+ * - `SkillConditions` – target with optional critical thresholds
+ * - `WithinConditions` – min/max range
+ * - `SpecificListConditions` – array of specific allowed values
+ *
+ * Use this type when normalising or working with raw condition objects.
+ *
+ * @example
+ * const c1: Conditions = { dieType: 'd6', target: 4 };
+ * const c2: Conditions = { dieType: 'd20', min: 5, max: 15 };
+ * const c3: Conditions = { dieType: 'd12', values: [1, 4, 7] };
+ * const c4: Conditions = { dieType: 'd20', target: 10, critical_success: 20 };
+ */
+export type Conditions =
+  | TargetConditions
+  | SkillConditions
+  | WithinConditions
+  | SpecificListConditions;
+
 /** Alias for instances of {@link TestConditions}. */
 export type TestConditionsInstance = InstanceType<typeof TestConditions>;

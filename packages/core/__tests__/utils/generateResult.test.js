@@ -2,7 +2,7 @@
 
 /**
  * @file
- * @module @dice/core/__tests__/utils/generateResult.test.js
+ * @module @platonic-dice/core/__tests__/utils/generateResult.test.js
  * @description
  * Comprehensive test suite for the `generateResult` utility.
  * Ensures correctness of returned values, validation of die types,
@@ -12,7 +12,7 @@
 const { DieType } = require("../../src/entities");
 const { generateResult } = require("../../src/utils/generateResult");
 
-describe("@dice/core/utils/generateResult", () => {
+describe("@platonic-dice/core/utils/generateResult", () => {
   beforeEach(() => {
     jest.restoreAllMocks();
   });

@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/src/rollMod
+ * @module @platonic-dice/core/src/rollMod
  * @description
  * Core logic for rolling a single die and applying a numeric or functional modifier.
  *
@@ -8,7 +8,7 @@
  * or `rollModT2` for fast use in common tabletop scenarios.
  *
  * @example
- * import { rollMod, rollModP2, rollModT2 } from "@dice/core";
+ * import { rollMod, rollModP2, rollModT2 } from "@platonic-dice/core";
  *
  * // Roll a D20 with a +2 bonus
  * const result = rollMod(DieType.D20, (n) => n + 2);

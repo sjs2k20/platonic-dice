@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/src/utils/determineOutcome
+ * @module @platonic-dice/core/src/utils/determineOutcome
  * @description
  * Determines the outcome of a roll based on provided test conditions.
  */
@@ -9,6 +9,14 @@ const { Outcome, TestType, TestConditions } = require("../entities");
 /**
  * @typedef {import("../entities/Outcome").OutcomeValue} OutcomeValue
  * @typedef {import("../entities/TestConditions").TestConditionsInstance} TestConditionsInstance
+ * @typedef {import("../entities/TestConditions").Conditions} Conditions
+ * @typedef {import("../entities/TestType").TestTypeValue} TestTypeValue
+ * @typedef {import("../entities/DieType").DieTypeValue} DieTypeValue
+ */
+
+/**
+ * @private
+ * @typedef {{ testType: TestTypeValue, dieType: DieTypeValue } & Conditions} TestConditionsLike
  */
 
 /**
@@ -17,7 +25,7 @@ const { Outcome, TestType, TestConditions } = require("../entities");
  *
  * @function determineOutcome
  * @param {number} value - The rolled (possibly modified) result.
- * @param {TestConditionsInstance|Object} testConditions - The conditions defining success/failure thresholds.
+ * @param {TestConditionsInstance|TestConditionsLike} testConditions - The conditions defining success/failure thresholds.
  * @returns {OutcomeValue} The resulting outcome.
  * @throws {TypeError} If the provided conditions or test type are invalid.
  *
@@ -41,42 +49,50 @@ function determineOutcome(value, testConditions) {
 
   // Normalise plain object input into a TestConditions instance
   if (!(testConditions instanceof TestConditions)) {
-    const { testType, dieType, ...conditions } = testConditions;
+    const { testType, dieType, ...conditions } =
+      /** @type {TestConditionsLike} */ (testConditions);
     testConditions = new TestConditions(testType, conditions, dieType);
   }
 
+  /** @type {TestConditionsInstance} */
   const { testType, conditions } = testConditions;
 
   switch (testType) {
     case TestType.AtLeast:
-      return value >= conditions.target ? Outcome.Success : Outcome.Failure;
-
     case TestType.AtMost:
-      return value <= conditions.target ? Outcome.Success : Outcome.Failure;
+    case TestType.Exact: {
+      const { target } = /** @type {{ target: number }} */ (conditions);
+      if (testType === TestType.AtLeast)
+        return value >= target ? Outcome.Success : Outcome.Failure;
+      if (testType === TestType.AtMost)
+        return value <= target ? Outcome.Success : Outcome.Failure;
+      return value === target ? Outcome.Success : Outcome.Failure;
+    }
 
-    case TestType.Exact:
-      return value === conditions.target ? Outcome.Success : Outcome.Failure;
+    case TestType.Within: {
+      const { min, max } = /** @type {{ min: number, max: number }} */ (
+        conditions
+      );
+      return value >= min && value <= max ? Outcome.Success : Outcome.Failure;
+    }
 
-    case TestType.Within:
-      return value >= conditions.min && value <= conditions.max
+    case TestType.InList: {
+      const { values } = /** @type {{ values: number[] }} */ (conditions);
+      return Array.isArray(values) && values.includes(value)
         ? Outcome.Success
         : Outcome.Failure;
-
-    case TestType.InList:
-      return Array.isArray(conditions.values) &&
-        conditions.values.includes(value)
-        ? Outcome.Success
-        : Outcome.Failure;
+    }
 
     case TestType.Skill: {
-      const { target, critical_success, critical_failure } = conditions;
+      const { target, critical_success, critical_failure } =
+        /** @type {{ target: number, critical_success?: number, critical_failure?: number }} */ (
+          conditions
+        );
 
       if (critical_failure != null && value <= critical_failure)
         return Outcome.CriticalFailure;
-
       if (critical_success != null && value >= critical_success)
         return Outcome.CriticalSuccess;
-
       return value >= target ? Outcome.Success : Outcome.Failure;
     }
 

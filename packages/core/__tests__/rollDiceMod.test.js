@@ -1,7 +1,7 @@
 /**
  * @file rollDiceMod.test.js
  * @description
- * Unit tests for @dice/core/src/rollDiceMod.
+ * Unit tests for @platonic-dice/core/src/rollDiceMod.
  *
  * Covers validation, core roll-modifier logic, handling of `each` and `net`
  * modifiers, and convenience aliases (`rollDiceModArr`, `rollDiceModNet`).
@@ -15,7 +15,7 @@ const {
   normaliseRollModifier,
 } = require("../src/entities/index.js");
 
-describe("@dice/core/rollDiceMod", () => {
+describe("@platonic-dice/core/rollDiceMod", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });

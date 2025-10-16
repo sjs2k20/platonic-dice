@@ -8,7 +8,7 @@
  *  - Internal condition validation logic
  *  - Normalisation behaviour
  *
- * @module @dice/core/__tests__/entities/TestConditions
+ * @module @platonic-dice/core/__tests__/entities/TestConditions
  */
 
 const {
@@ -26,7 +26,7 @@ const { DieType } = require("../../src/entities/DieType");
 // ────────────────────────────────────────────────────────────────
 //
 
-describe("@dice/core/entities/TestConditions", () => {
+describe("@platonic-dice/core/entities/TestConditions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * @module @dice/core/__tests__/utils/determineOutcome.test.js
+ * @module @platonic-dice/core/__tests__/utils/determineOutcome.test.js
  * @description
  * Comprehensive test suite for the `determineOutcome` utility.
  * Covers validation, behaviour across all supported TestTypes,
@@ -17,7 +17,7 @@ const {
   DieType,
 } = require("../../src/entities");
 
-describe("@dice/core/utils/determineOutcome", () => {
+describe("@platonic-dice/core/utils/determineOutcome", () => {
   describe("validation", () => {
     it("should throw a TypeError if value is not a number", () => {
       expect(() => determineOutcome("not-a-number", {})).toThrow(TypeError);

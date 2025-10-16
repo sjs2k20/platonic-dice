@@ -1,11 +1,11 @@
 /**
- * @module @dice/core/src/rollDice
+ * @module @platonic-dice/core/src/rollDice
  * @description
  * Rolls one or more dice of a given type, returning both the individual rolls
  * and their total sum. Includes convenient aliases for common counts (e.g., `roll3x` for 3 dice).
  *
  * @example
- * import { rollDice, roll3x } from "@dice/core";
+ * import { rollDice, roll3x } from "@platonic-dice/core";
  *
  * // Roll a single d20
  * const result = rollDice(DieType.D20);

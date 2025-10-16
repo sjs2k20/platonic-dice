@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @module @dice/core/src/entities/TestType
+ * @module @platonic-dice/core/src/entities/TestType
  * @description
  * Enum for test evaluation types (used in {@link TestConditions}).
  *

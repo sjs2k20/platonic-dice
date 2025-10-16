@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/src/entities/RollModifier
+ * @module @platonic-dice/core/src/entities/RollModifier
  * @description
  * Represents a numeric modifier applied to dice rolls.
  *

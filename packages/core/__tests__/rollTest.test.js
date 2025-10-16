@@ -1,7 +1,7 @@
 /**
  * @file rollTest.test.js
  * @description
- * Unit tests for @dice/core/src/rollTest.
+ * Unit tests for @platonic-dice/core/src/rollTest.
  *
  * Covers validation, core roll-test logic, and representative
  * alias functionality across multiple die types and test types.
@@ -13,7 +13,7 @@ const rollTestModule = require("../src/rollTest.js");
 const { DieType, TestType } = require("../src/entities");
 const utils = require("../src/utils");
 
-describe("@dice/core/rollTest", () => {
+describe("@platonic-dice/core/rollTest", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });

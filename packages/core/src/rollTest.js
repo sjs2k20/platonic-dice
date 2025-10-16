@@ -1,12 +1,12 @@
 /**
- * @module @dice/core/src/rollTest
+ * @module @platonic-dice/core/src/rollTest
  * @description
  * Rolls a die and evaluates it against a set of test conditions.
  * Supports either a `TestConditions` instance or a plain object
  * with `{ testType, ...conditions }`.
  *
  * @example
- * import { rollTest, TestType, DieType, RollType } from "@dice/core";
+ * import { rollTest, TestType, DieType, RollType } from "@platonic-dice/core";
  *
  * // Basic "at least" test
  * const result = rollTest(DieType.D20, { testType: TestType.AtLeast, target: 15 });

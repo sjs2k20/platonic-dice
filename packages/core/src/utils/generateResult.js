@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/src/utils/generateResult
+ * @module @platonic-dice/core/src/utils/generateResult
  * @description
  * Generates a single roll result for a given die type.
  */

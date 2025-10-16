@@ -5,7 +5,7 @@
  * Re-exports all main rolling functions and modifiers.
  *
  * @example
- * import { roll, rollMod, rollDice, rollDiceMod } from "@dice/core";
+ * import { roll, rollMod, rollDice, rollDiceMod } from "@platonic-dice/core";
  */
 
 // --- Core modules ---
@@ -14,12 +14,16 @@ const roll = require("./roll.js");
 const rollMod = require("./rollMod.js");
 const rollDiceMod = require("./rollDiceMod.js");
 
+// --- Entities (public API) ---
+const entities = require("./entities");
+
 /**
  * Combined exports for Node and TypeScript users.
  * @type {typeof import("./roll") &
  *        typeof import("./rollDice") &
  *        typeof import("./rollMod") &
  *        typeof import("./rollDiceMod") &
+ *        typeof import("./entities") &
  *        { default: any }}
  */
 module.exports = {
@@ -27,6 +31,7 @@ module.exports = {
   ...rollDice,
   ...rollMod,
   ...rollDiceMod,
+  ...entities,
   default: undefined, // placeholder; will be overwritten
 };
 

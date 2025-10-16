@@ -12,7 +12,7 @@
 
 const { RollType, isValidRollType } = require("../../src/entities/RollType.js");
 
-describe("@dice/core/entities/RollType", () => {
+describe("@platonic-dice/core/entities/RollType", () => {
   // ─────────────────────────────
   // RollType enum
   // ─────────────────────────────

@@ -1,5 +1,5 @@
 /**
- * @module @dice/core/src/roll
+ * @module @platonic-dice/core/src/roll
  * @description
  * Core logic for rolling a single die, with support for advantage/disadvantage
  * and convenience aliases for common dice.
@@ -7,7 +7,7 @@
  * Provides the fundamental random roll mechanism used throughout the library.
  *
  * @example
- * import { roll, rollAdv, rollD20 } from "@dice/core";
+ * import { roll, rollAdv, rollD20 } from "@platonic-dice/core";
  *
  * // Roll a d20 normally
  * const result = roll(DieType.D20);

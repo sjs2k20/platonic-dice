@@ -16,7 +16,7 @@ const {
   isValidRollModifier,
 } = require("../../src/entities/RollModifier.js");
 
-describe("@dice/core/entities/RollModifier", () => {
+describe("@platonic-dice/core/entities/RollModifier", () => {
   // ─────────────────────────────
   // Constructor
   // ─────────────────────────────

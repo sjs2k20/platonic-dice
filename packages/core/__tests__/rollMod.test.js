@@ -1,7 +1,7 @@
 /**
  * @file rollMod.test.js
  * @description
- * Unit tests for @dice/core/src/rollMod.
+ * Unit tests for @platonic-dice/core/src/rollMod.
  *
  * Covers validation, core roll-modifier logic, and representative
  * alias functionality (flat bonus, flat penalty, multiplicative),
@@ -12,7 +12,7 @@ const r = require("../src/roll.js"); // same reference as used inside rollMod.js
 const rollModModule = require("../src/rollMod.js");
 const { DieType, RollModifier } = require("../src/entities");
 
-describe("@dice/core/rollMod", () => {
+describe("@platonic-dice/core/rollMod", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });

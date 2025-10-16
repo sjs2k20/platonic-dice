@@ -1,13 +1,13 @@
 /**
- * @module @dice/core/src/entities
+ * @module @platonic-dice/core/src/entities
  * @description
- * Core entity definitions for the `@dice/core` package.
+ * Core entity definitions for the `@platonic-dice/core` package.
  *
  * Exports all primary enumerations, classes, and data types used throughout
  * the dice logic system.
  *
  * @example
- * import { DieType, RollType, RollModifier } from "@dice/core/src/entities";
+ * import { DieType, RollType, RollModifier } from "@platonic-dice/core/src/entities";
  *
  * const mod = new RollModifier((n) => n + 2);
  * const result = roll(DieType.D20, RollType.Advantage);

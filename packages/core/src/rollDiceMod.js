@@ -1,12 +1,12 @@
 /**
- * @module @dice/core/src/rollDiceMod
+ * @module @platonic-dice/core/src/rollDiceMod
  * @description
  * Rolls multiple dice with optional per-die (`each`) and total (`net`) modifiers.
  * Returns structured results containing both the raw dice and all modified values.
  *
  * @example
- * import { rollDiceMod, RollModifier } from "@dice/core";
- * import { DieType } from "@dice/core/src/entities";
+ * import { rollDiceMod, RollModifier } from "@platonic-dice/core";
+ * import { DieType } from "@platonic-dice/core/src/entities";
  *
  * // Apply a flat +1 to each die, then a +2 net bonus
  * const result = rollDiceMod(DieType.D6, {

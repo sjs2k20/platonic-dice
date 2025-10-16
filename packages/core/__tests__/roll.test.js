@@ -4,7 +4,7 @@ const { DieType, RollType } = require("../src/entities");
 const utils = require("../src/utils");
 const rollModule = require("../src/roll");
 
-describe("@dice/core/roll", () => {
+describe("@platonic-dice/core/roll", () => {
   beforeEach(() => {
     jest.restoreAllMocks();
   });
