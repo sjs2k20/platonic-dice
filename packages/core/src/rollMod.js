@@ -18,7 +18,7 @@
  */
 
 const { DieType, RollModifier, normaliseRollModifier } = require("./entities");
-const { roll } = require("./roll.js");
+const r = require("./roll.js");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -59,7 +59,7 @@ const { roll } = require("./roll.js");
 function rollMod(dieType, modifier, rollType = null) {
   const mod = normaliseRollModifier(modifier);
 
-  const base = roll(dieType, rollType);
+  const base = r.roll(dieType, rollType);
   const modified = mod.apply(base);
 
   return { base, modified };
@@ -84,26 +84,26 @@ const dieTypeAliases = {};
 
 // --- Flat Bonus Aliases ---
 // Flat modifiers from -10 to +10 for each die type
-for (const die of Object.values(DieType)) {
+for (const [dieKey, dieValue] of Object.entries(DieType)) {
   for (let i = 1; i <= 10; i++) {
     /** @type {DieModifierAlias} */
-    dieTypeAliases[`roll${die}P${i}`] = (rollType = null) =>
-      rollMod(die, (n) => n + i, rollType).modified;
+    dieTypeAliases[`roll${dieKey}P${i}`] = (rollType = null) =>
+      rollMod(dieValue, (n) => n + i, rollType).modified;
 
     /** @type {DieModifierAlias} */
-    dieTypeAliases[`roll${die}M${i}`] = (rollType = null) =>
-      rollMod(die, (n) => n - i, rollType).modified;
+    dieTypeAliases[`roll${dieKey}M${i}`] = (rollType = null) =>
+      rollMod(dieValue, (n) => n - i, rollType).modified;
   }
 }
 
 // --- Multiplicative Aliases ---
 // Multiplicative modifiers such as ×2, ×10, ×100
 const multipliers = [2, 3, 5, 10, 50, 100];
-for (const die of Object.values(DieType)) {
+for (const [dieKey, dieValue] of Object.entries(DieType)) {
   for (const m of multipliers) {
     /** @type {DieModifierAlias} */
-    dieTypeAliases[`roll${die}T${m}`] = (rollType = null) =>
-      rollMod(die, (n) => n * m, rollType).modified;
+    dieTypeAliases[`roll${dieKey}T${m}`] = (rollType = null) =>
+      rollMod(dieValue, (n) => n * m, rollType).modified;
   }
 }
 

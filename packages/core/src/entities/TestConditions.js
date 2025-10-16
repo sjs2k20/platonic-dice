@@ -9,7 +9,9 @@
  * const result = rollTest(DieType.D20, tc);
  */
 
-const { isValidTestType } = require(".");
+const { isValidDieType } = require("./DieType");
+const { isValidTestType } = require("./TestType");
+const { numSides } = require("../utils");
 
 /**
  * @typedef {import("./TestType").TestTypeValue} TestTypeValue
@@ -81,7 +83,7 @@ class TestConditions {
   validate() {
     if (
       !areValidTestConditions(
-        { ...this.conditions, ...this.dieType },
+        { ...this.conditions, dieType: this.dieType },
         this.testType
       )
     ) {
@@ -227,7 +229,7 @@ function isValidThresholdOrder({ target, critical_success, critical_failure }) {
  * @returns {boolean}
  */
 function isValidTargetCondition(c) {
-  if (!c || !isDieType(c.dieType)) return false;
+  if (!c || !isValidDieType(c.dieType)) return false;
   return isValidFaceValue(c.target, numSides(c.dieType));
 }
 
@@ -240,7 +242,7 @@ function isValidTargetCondition(c) {
  * @returns {boolean}
  */
 function isValidSkillTestCondition(c) {
-  if (!c || !isDieType(c.dieType)) return false;
+  if (!c || !isValidDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
 
   if (
@@ -265,7 +267,7 @@ function isValidSkillTestCondition(c) {
  * @returns {boolean}
  */
 function isValidWithinCondition(c) {
-  if (!c || !isDieType(c.dieType)) return false;
+  if (!c || !isValidDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
 
   if (!areValidFaceValues(c, sides, ["min", "max"])) return false;
@@ -283,7 +285,7 @@ function isValidWithinCondition(c) {
  * @returns {boolean}
  */
 function isValidSpecificListCondition(c) {
-  if (!c || !isDieType(c.dieType)) return false;
+  if (!c || !isValidDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
   if (!Array.isArray(c.values) || c.values.length === 0) return false;
   return c.values.every((v) => isValidFaceValue(v, sides));

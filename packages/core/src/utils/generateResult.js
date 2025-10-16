@@ -4,11 +4,29 @@
  * Generates a single roll result for a given die type.
  */
 
-const { numSides } = require("./numSides.js");
+const { isValidDieType } = require("../entities/DieType");
 
 /**
  * @typedef {import("../entities/DieType").DieTypeValue} DieTypeValue
  */
+
+/**
+ * Returns the number of sides on a die given its type.
+ *
+ * @function numSides
+ * @param {DieTypeValue} dieType - The die type (e.g., "d6", "d20").
+ * @returns {number} Number of sides.
+ * @throws {TypeError} If the die type is invalid.
+ *
+ * @example
+ * console.log(numSides("d6")); // 6
+ */
+function numSides(dieType) {
+  if (!isValidDieType(dieType)) {
+    throw new TypeError(`Invalid die type: ${dieType}`);
+  }
+  return parseInt(dieType.slice(1));
+}
 
 /**
  * Generates a single roll result for a given die type.
@@ -19,7 +37,7 @@ const { numSides } = require("./numSides.js");
  * @throws {TypeError} If the die type is invalid.
  *
  * @example
- * const result = generateDieResult("d6");
+ * const result = generateResult("d6");
  * console.log(result); // 1..6
  */
 function generateResult(dieType) {
@@ -29,4 +47,5 @@ function generateResult(dieType) {
 
 module.exports = {
   generateResult,
+  numSides,
 };

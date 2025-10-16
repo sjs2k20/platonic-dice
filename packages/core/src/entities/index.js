@@ -14,7 +14,7 @@
  */
 
 const { DieType, isValidDieType } = require("./DieType.js");
-const { Outcome } = require("./Outcome.js");
+const { Outcome, isValidOutcome } = require("./Outcome.js");
 const {
   RollModifier,
   isValidRollModifier,
@@ -32,6 +32,7 @@ module.exports = {
   DieType,
   isValidDieType,
   Outcome,
+  isValidOutcome,
   RollModifier,
   isValidRollModifier,
   normaliseRollModifier,

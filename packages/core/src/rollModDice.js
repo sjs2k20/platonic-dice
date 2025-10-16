@@ -27,7 +27,7 @@
  * const result2 = rollModDice(DieType.D6, bonus, { count: 3 });
  */
 const { normaliseRollModifier, RollModifier } = require("./entities");
-const { rollDice } = require("./rollDice.js");
+const rd = require("./rollDice.js");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -80,7 +80,7 @@ function rollModDice(dieType, modifier = {}, { count = 1 } = {}) {
   }
 
   // --- Roll dice ---
-  const base = rollDice(dieType, { count }); // { array, sum }
+  const base = rd.rollDice(dieType, { count }); // { array, sum }
 
   // --- Apply 'each' modifier ---
   const eachArray = base.array.map((n) => eachMod.apply(n));

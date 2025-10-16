@@ -72,10 +72,10 @@ function determineOutcome(value, testConditions) {
       const { target, critical_success, critical_failure } = conditions;
 
       if (critical_failure != null && value <= critical_failure)
-        return Outcome.Critical_Failure;
+        return Outcome.CriticalFailure;
 
       if (critical_success != null && value >= critical_success)
-        return Outcome.Critical_Success;
+        return Outcome.CriticalSuccess;
 
       return value >= target ? Outcome.Success : Outcome.Failure;
     }

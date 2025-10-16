@@ -17,8 +17,8 @@
 //   export enum Outcome {
 //     Success = "success",
 //     Failure = "failure",
-//     Critical_Success = "critical_success",
-//     Critical_Failure = "critical_failure",
+//     CriticalSuccess = "critical_success",
+//     CriticalFailure = "critical_failure",
 //   }
 
 //   // Interface for platonicDice module

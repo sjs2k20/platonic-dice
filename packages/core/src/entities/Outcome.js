@@ -10,9 +10,21 @@
 const Outcome = Object.freeze({
   Success: "success",
   Failure: "failure",
-  Critical_Success: "critical_success",
-  Critical_Failure: "critical_failure",
+  CriticalSuccess: "critical_success",
+  CriticalFailure: "critical_failure",
 });
+
+/**
+ * Checks whether a given value is a valid `Outcome`.
+ *
+ * @function isValidOutcome
+ * @param {string | null} outcome
+ * @returns {boolean}
+ */
+function isValidOutcome(outcome) {
+  if (!outcome) return false;
+  return Object.values(Outcome).includes(outcome);
+}
 
 /**
  * @typedef {keyof typeof Outcome} OutcomeKey
@@ -21,4 +33,5 @@ const Outcome = Object.freeze({
 
 module.exports = {
   Outcome,
+  isValidOutcome,
 };

@@ -25,7 +25,7 @@ const {
   RollType,
   isValidRollType,
 } = require("./entities");
-const { generateResult } = require("./utils");
+const utils = require("./utils");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -55,10 +55,10 @@ function roll(dieType, rollType = null) {
   }
 
   // --- Core Logic ---
-  const roll1 = generateResult(dieType);
+  const roll1 = utils.generateResult(dieType);
   if (rollType === null) return roll1;
 
-  const roll2 = generateResult(dieType);
+  const roll2 = utils.generateResult(dieType);
   return rollType === RollType.Advantage
     ? Math.max(roll1, roll2)
     : Math.min(roll1, roll2);

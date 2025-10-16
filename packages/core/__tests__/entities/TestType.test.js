@@ -1,47 +1,102 @@
-// "use strict";
-// const { TestType } = require("../../src/entities/TestType.js");
+"use strict";
+/**
+ * @file TestType.test.js
+ * @description
+ * Comprehensive tests for the TestType entity module:
+ * - TestType enum
+ * - isValidTestType() validator
+ *
+ * These tests ensure that all exported values and helper functions behave
+ * consistently and robustly across edge cases.
+ */
 
-// describe("@dice/core/entities/TestType", () => {
-//   it("should be an object", () => {
-//     expect(typeof TestType).toBe("object");
-//   });
+const { TestType, isValidTestType } = require("../../src/entities/TestType.js");
 
-//   it("should be frozen (immutable)", () => {
-//     expect(Object.isFrozen(TestType)).toBe(true);
-//   });
+describe("@dice/core/entities/TestType", () => {
+  // ─────────────────────────────
+  // TestType enum
+  // ─────────────────────────────
+  describe("TestType enum", () => {
+    it("should expose exactly the expected keys", () => {
+      const keys = Object.keys(TestType);
+      expect(keys.sort()).toEqual(
+        ["Exact", "AtLeast", "AtMost", "Within", "InList", "Skill"].sort()
+      );
+    });
 
-//   it("should contain all expected test types", () => {
-//     const expected = {
-//       Exact: "exact",
-//       AtLeast: "at_least",
-//       AtMost: "at_most",
-//       Within: "within",
-//       InList: "in_list",
-//       Skill: "skill",
-//     };
-//     expect(TestType).toEqual(expected);
-//   });
+    it("should expose exactly the expected values", () => {
+      const values = Object.values(TestType);
+      expect(values.sort()).toEqual(
+        ["exact", "at_least", "at_most", "within", "in_list", "skill"].sort()
+      );
+    });
 
-//   it("should have PascalCase keys and lowercase/underscored string values", () => {
-//     for (const [key, value] of Object.entries(TestType)) {
-//       expect(key).toMatch(/^[A-Z][a-zA-Z]+$/);
-//       expect(value).toMatch(/^[a-z_]+$/);
-//     }
-//   });
+    it("should be deeply frozen (immutable)", () => {
+      expect(Object.isFrozen(TestType)).toBe(true);
 
-//   it("should not allow adding new properties", () => {
-//     expect(() => {
-//       // @ts-ignore
-//       TestType.NewType = "new_type";
-//     }).toThrow();
-//     expect(TestType.NewType).toBeUndefined();
-//   });
+      // Attempt mutation
+      expect(() => {
+        TestType.Exact = "changed";
+      }).toThrow();
 
-//   it("should not allow modification of existing values", () => {
-//     expect(() => {
-//       // @ts-ignore
-//       TestType.AtLeast = "modified";
-//     }).toThrow();
-//     expect(TestType.AtLeast).toBe("at_least");
-//   });
-// });
+      // Ensure it didn't change
+      expect(TestType.Exact).toBe("exact");
+    });
+  });
+
+  // ─────────────────────────────
+  // isValidTestType()
+  // ─────────────────────────────
+  describe("isValidTestType", () => {
+    it("returns true for valid test types", () => {
+      expect(isValidTestType("exact")).toBe(true);
+      expect(isValidTestType("at_least")).toBe(true);
+      expect(isValidTestType("at_most")).toBe(true);
+      expect(isValidTestType("within")).toBe(true);
+      expect(isValidTestType("in_list")).toBe(true);
+      expect(isValidTestType("skill")).toBe(true);
+
+      // Also check direct enum references
+      expect(isValidTestType(TestType.Exact)).toBe(true);
+      expect(isValidTestType(TestType.AtLeast)).toBe(true);
+      expect(isValidTestType(TestType.AtMost)).toBe(true);
+      expect(isValidTestType(TestType.Within)).toBe(true);
+      expect(isValidTestType(TestType.InList)).toBe(true);
+      expect(isValidTestType(TestType.Skill)).toBe(true);
+    });
+
+    it("returns false for invalid strings", () => {
+      expect(isValidTestType("normal")).toBe(false);
+      expect(isValidTestType("EXACT")).toBe(false);
+      expect(isValidTestType("")).toBe(false);
+      expect(isValidTestType("none")).toBe(false);
+    });
+
+    it("returns false for null, undefined, or non-strings", () => {
+      expect(isValidTestType(null)).toBe(false);
+      expect(isValidTestType(undefined)).toBe(false);
+      expect(isValidTestType(42)).toBe(false);
+      expect(isValidTestType({})).toBe(false);
+      expect(isValidTestType([])).toBe(false);
+      expect(isValidTestType(() => "advantage")).toBe(false);
+    });
+  });
+
+  // ─────────────────────────────
+  // Integration sanity checks
+  // ─────────────────────────────
+  describe("integration behavior", () => {
+    it("should validate all values from TestType successfully", () => {
+      for (const value of Object.values(TestType)) {
+        expect(isValidTestType(value)).toBe(true);
+      }
+    });
+
+    it("should reject any value not included in TestType", () => {
+      const invalid = ["foo", "bar", "EXACT", null, undefined];
+      for (const v of invalid) {
+        expect(isValidTestType(v)).toBe(false);
+      }
+    });
+  });
+});

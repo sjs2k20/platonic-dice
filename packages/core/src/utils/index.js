@@ -17,8 +17,7 @@
  * import { generateDieResult, determineOutcome } from "../utils";
  */
 const { determineOutcome } = require("./determineOutcome.js");
-const { generateResult } = require("./generateResult.js");
-const { numSides } = require("./numSides.js");
+const { generateResult, numSides } = require("./generateResult.js");
 
 module.exports = {
   determineOutcome,

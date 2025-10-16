@@ -21,14 +21,16 @@
  *   RollType.Advantage
  * );
  */
-const { DieType, normaliseTestConditions } = require("./entities");
-const { determineOutcome } = require("./utils");
-const { roll } = require("./roll.js");
+const { DieType, TestType } = require("./entities");
+const td = require("./entities/TestConditions.js");
+const r = require("./roll.js");
+const utils = require("./utils");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/Outcome").OutcomeValue} OutcomeValue
  * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
+ * @typedef {import("./entities/TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./entities/TestConditions").TestConditionsInstance} TestConditionsInstance
  */
 
@@ -49,13 +51,13 @@ function rollTest(dieType, testConditions, rollType = null) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions
-  const conditionSet = normaliseTestConditions(testConditions, dieType);
+  const conditionSet = td.normaliseTestConditions(testConditions, dieType);
 
   // Perform the roll
-  const base = roll(dieType, rollType);
+  const base = r.roll(dieType, rollType);
 
   // Determine the outcome using centralized logic
-  const outcome = determineOutcome(base, testConditions);
+  const outcome = utils.determineOutcome(base, testConditions);
 
   return { base, outcome };
 }
@@ -69,7 +71,7 @@ function rollTest(dieType, testConditions, rollType = null) {
  *
  * @private
  * @param {DieTypeValue} dieType
- * @param {TestType} testType
+ * @param {TestTypeValue} testType
  * @returns {(target: number, rollType?: RollTypeValue|null) => { base: number, outcome: OutcomeValue }}
  */
 function alias(dieType, testType) {
@@ -84,10 +86,8 @@ function alias(dieType, testType) {
 const aliases = {};
 
 // Dynamically generate aliases for all DieTypes × TestTypes
-for (const dieKey of Object.keys(DieType)) {
-  const dieValue = DieType[dieKey];
-  for (const testKey of Object.keys(TestType)) {
-    const testValue = TestType[testKey];
+for (const [dieKey, dieValue] of Object.entries(DieType)) {
+  for (const [testKey, testValue] of Object.entries(TestType)) {
     const aliasName = `roll${dieKey}${testKey}`; // e.g., rollD20AtLeast
     aliases[aliasName] = alias(dieValue, testValue);
   }

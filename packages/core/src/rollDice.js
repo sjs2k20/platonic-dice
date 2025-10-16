@@ -17,7 +17,7 @@
  */
 
 const { isValidDieType } = require("./entities");
-const { roll } = require("./roll.js");
+const r = require("./roll.js");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -62,7 +62,7 @@ function rollDice(dieType, { count = 1 } = {}) {
   }
 
   // --- Core logic ---
-  const array = Array.from({ length: count }, () => roll(dieType));
+  const array = Array.from({ length: count }, () => r.roll(dieType));
   const sum = array.reduce((total, n) => total + n, 0);
 
   return { array, sum };
