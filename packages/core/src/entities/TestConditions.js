@@ -24,7 +24,7 @@ const { numSides } = require("../utils");
 class TestConditions {
   /**
    * @param {TestTypeValue} testType - The test type.
-   * @param {object} conditions - The test conditions object.
+   * @param {Conditions} conditions - The test conditions object.
    * @param {DieTypeValue} dieType - The die type to validate numeric ranges.
    * @throws {TypeError|RangeError} If the test type or conditions are invalid.
    */
@@ -69,7 +69,7 @@ class TestConditions {
 
     /** @type {TestTypeValue} */
     this.testType = testType;
-    /** @type {object} */
+    /** @type {Conditions} */
     this.conditions = conditions;
     /** @type {DieTypeValue} */
     this.dieType = dieType;
@@ -96,7 +96,7 @@ class TestConditions {
  * Master validation function for all test conditions.
  *
  * @function areValidTestConditions
- * @param {Object} c
+ * @param {Conditions} c
  * @param {TestTypeValue} testType
  * @returns {boolean}
  */
@@ -105,15 +105,19 @@ function areValidTestConditions(c, testType) {
     case "at_least":
     case "at_most":
     case "exact":
-      return isValidTargetCondition(c);
+      // @ts-expect-error: we know c is TargetConditions for these test types
+      return isValidTargetConditions(c);
     case "within":
-      return isValidWithinCondition(c);
+      // @ts-expect-error: we know c is WithinConditions for this test type
+      return isValidWithinConditions(c);
     case "in_list":
-      return isValidSpecificListCondition(c);
+      // @ts-expect-error: we know c is SpecificListConditions
+      return isValidSpecificListConditions(c);
     // case "odd":
     // case "even":
     //   return isValidOddEvenCondition(c);
     case "skill":
+      // @ts-expect-error: we know c is SkillConditions
       return isValidSkillTestCondition(c);
     default:
       return false;
@@ -126,7 +130,7 @@ function areValidTestConditions(c, testType) {
  * Automatically validates all conditions for the specified die type.
  *
  * @function normaliseTestConditions
- * @param {TestConditions | { testType: string, [key: string]: any }} tc
+ * @param {TestConditions | { testType: TestTypeValue, [key: string]: any }} tc
  *   A {@link TestConditions} instance or plain object with `testType` and other fields.
  * @param {DieTypeValue} dieType
  *   The die type (e.g., `'d6'`, `'d20'`) used for validation.
@@ -147,8 +151,11 @@ function areValidTestConditions(c, testType) {
 function normaliseTestConditions(tc, dieType) {
   if (tc instanceof TestConditions) return tc;
   if (tc && typeof tc === "object") {
-    const { testType, ...conditions } = tc;
-    return new TestConditions(testType, conditions, dieType);
+    const { testType, ...rest } = tc;
+
+    // @ts-expect-error: we are asserting that the rest of the object plus dieType
+    // will conform to the Conditions union when passed to the constructor
+    return new TestConditions(testType, { ...rest }, dieType);
   }
   throw new TypeError(
     `Invalid TestConditions: must be a TestConditions instance or a plain object.`
@@ -156,15 +163,19 @@ function normaliseTestConditions(tc, dieType) {
 }
 
 /**
- * @typedef {InstanceType<typeof TestConditions>} TestConditionsInstance
+ * Represents any valid dice roll test condition.
+ *
+ * This is a union type of all the internal test condition shapes:
+ * - `TargetConditions` – single target value
+ * - `SkillConditions` – target with optional critical thresholds
+ * - `WithinConditions` – min/max range
+ * - `SpecificListConditions` – array of specific allowed values
+ *
+ * @typedef {TargetConditions | SkillConditions | WithinConditions | SpecificListConditions} Conditions
  */
 
 /**
- * @private
- * @typedef {Object} Thresholds
- * @property {number} target
- * @property {number} [critical_success]
- * @property {number} [critical_failure]
+ * @typedef {InstanceType<typeof TestConditions>} TestConditionsInstance
  */
 
 module.exports = {
@@ -176,6 +187,23 @@ module.exports = {
 //
 // PRIVATE HELPER FUNCTIONS
 //
+
+/**
+ * @private
+ * @typedef {Object} BaseTestCondition
+ * @property {DieTypeValue} dieType
+ */
+
+/**
+ * @private
+ * @typedef {BaseTestCondition & { target: number }} TargetConditions
+ * @private
+ * @typedef {BaseTestCondition & { min: number, max: number }} WithinConditions
+ * @private
+ * @typedef {BaseTestCondition & { values: number[] }} SpecificListConditions
+ * @private
+ * @typedef {BaseTestCondition & { target: number, critical_success?: number, critical_failure?: number }} SkillConditions
+ */
 
 /**
  * Checks if a number is a valid face value for a die with the given sides.
@@ -195,15 +223,19 @@ function isValidFaceValue(n, sides) {
  *
  * @private
  * @function areValidFaceValues
- * @param {Object} obj
+ * @template T
+ * @param {T} obj
  * @param {number} sides
- * @param {string[]} keys
+ * @param {(keyof T)[]} keys
  * @returns {boolean}
  */
 function areValidFaceValues(obj, sides, keys) {
-  return keys.every(
-    (key) => obj[key] == null || isValidFaceValue(obj[key], sides)
-  );
+  return keys.every((key) => {
+    const value = obj[key];
+    return (
+      value == null || isValidFaceValue(/** @type {number} */ (value), sides)
+    );
+  });
 }
 
 /**
@@ -211,7 +243,7 @@ function areValidFaceValues(obj, sides, keys) {
  *
  * @private
  * @function isValidThresholdOrder
- * @param {Thresholds} thresholds
+ * @param {SkillConditions} thresholds
  * @returns {boolean}
  */
 function isValidThresholdOrder({ target, critical_success, critical_failure }) {
@@ -224,11 +256,11 @@ function isValidThresholdOrder({ target, critical_success, critical_failure }) {
  * Validates a target-based condition.
  *
  * @private
- * @function isValidTargetCondition
- * @param {Object} c
+ * @function isValidTargetConditions
+ * @param {TargetConditions} c
  * @returns {boolean}
  */
-function isValidTargetCondition(c) {
+function isValidTargetConditions(c) {
   if (!c || !isValidDieType(c.dieType)) return false;
   return isValidFaceValue(c.target, numSides(c.dieType));
 }
@@ -238,7 +270,7 @@ function isValidTargetCondition(c) {
  *
  * @private
  * @function isValidSkillTestCondition
- * @param {Object} c
+ * @param {SkillConditions} c
  * @returns {boolean}
  */
 function isValidSkillTestCondition(c) {
@@ -262,11 +294,11 @@ function isValidSkillTestCondition(c) {
  * Validates a "within" range condition.
  *
  * @private
- * @function isValidWithinCondition
- * @param {Object} c
+ * @function isValidWithinConditions
+ * @param {WithinConditions} c
  * @returns {boolean}
  */
-function isValidWithinCondition(c) {
+function isValidWithinConditions(c) {
   if (!c || !isValidDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
 
@@ -280,11 +312,11 @@ function isValidWithinCondition(c) {
  * Validates a "specific list" condition.
  *
  * @private
- * @function isValidSpecificListCondition
- * @param {Object} c
+ * @function isValidSpecificListConditions
+ * @param {SpecificListConditions} c
  * @returns {boolean}
  */
-function isValidSpecificListCondition(c) {
+function isValidSpecificListConditions(c) {
   if (!c || !isValidDieType(c.dieType)) return false;
   const sides = numSides(c.dieType);
   if (!Array.isArray(c.values) || c.values.length === 0) return false;

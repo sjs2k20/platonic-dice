@@ -22,7 +22,10 @@ describe("@dice/core/rollTest", () => {
   describe("validation", () => {
     it("should throw TypeError if dieType is missing", () => {
       expect(() =>
-        rollTestModule.rollTest(null, { testType: TestType.AtLeast, target: 5 })
+        rollTestModule.rollTest(undefined, {
+          testType: TestType.AtLeast,
+          target: 5,
+        })
       ).toThrow(TypeError);
     });
 
@@ -49,7 +52,7 @@ describe("@dice/core/rollTest", () => {
 
       expect(result.base).toBe(5);
       expect(result.outcome).toBe("success");
-      expect(r.roll).toHaveBeenCalledWith(dieType, null);
+      expect(r.roll).toHaveBeenCalledWith(dieType, undefined);
       expect(utils.determineOutcome).toHaveBeenCalledWith(5, testConditions);
     });
 
@@ -115,17 +118,17 @@ describe("@dice/core/rollTest", () => {
       });
     });
 
-    it("should work with default rollType (null)", () => {
+    it("should work with default rollType (undefined)", () => {
       const aliasFn = rollTestModule.rollD6AtLeast;
 
       jest.spyOn(r, "roll").mockReturnValue(5);
       jest.spyOn(utils, "determineOutcome").mockReturnValue("success");
 
-      const result = aliasFn(4); // default rollType = null
+      const result = aliasFn(4); // default rollType = undefined
 
       expect(result.base).toBe(5);
       expect(result.outcome).toBe("success");
-      expect(r.roll).toHaveBeenCalledWith(DieType.D6, null);
+      expect(r.roll).toHaveBeenCalledWith(DieType.D6, undefined);
       expect(utils.determineOutcome).toHaveBeenCalledWith(5, {
         testType: TestType.AtLeast,
         target: 4,

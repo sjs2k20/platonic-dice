@@ -20,7 +20,7 @@ const TestType = Object.freeze({
  * Checks whether a given value is a valid `TestType`.
  *
  * @function isValidTestType
- * @param {string | null} testType
+ * @param {TestTypeValue | null | undefined} testType
  * @returns {boolean}
  */
 function isValidTestType(testType) {

@@ -24,7 +24,7 @@ const DieType = Object.freeze({
  * Checks whether a given value is a valid `DieType`.
  *
  * @function isValidDieType
- * @param {string | null} dieType
+ * @param {DieTypeValue | null | undefined} dieType
  * @returns {boolean}
  */
 function isValidDieType(dieType) {

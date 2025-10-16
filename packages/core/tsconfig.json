@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020", // Output ES2020-compatible code
+    "module": "CommonJS", // JS modules
+    "strict": true, // Enable all strict type checks
+    "esModuleInterop": true, // Allow default imports from CommonJS
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true, // Generate .d.ts files
+    "declarationMap": true, // Generate .d.ts.map files
+    "emitDeclarationOnly": true, // Only emit types, not JS
+    "outDir": "dist/types", // Output directory for .d.ts files
+    "rootDir": "src", // Root of source files
+    "allowJs": true, // Process JS files
+    "checkJs": true, // Enable type checking for JS
+    "noEmitOnError": true, // Prevent declaration emit if errors
+    "moduleResolution": "Node",
+    "baseUrl": ".", // Required for relative path aliases
+    "paths": {
+      "@dice/core/*": ["src/*"] // Supports internal module imports
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

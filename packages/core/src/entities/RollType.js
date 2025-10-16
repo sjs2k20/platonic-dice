@@ -16,7 +16,7 @@ const RollType = Object.freeze({
  * Checks whether a given value is a valid `RollType`.
  *
  * @function isValidRollType
- * @param {string | null} rollType
+ * @param {RollTypeValue | null | undefined} rollType
  * @returns {boolean}
  */
 function isValidRollType(rollType) {

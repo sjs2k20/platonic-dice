@@ -38,7 +38,7 @@ describe("@dice/core/rollMod", () => {
       const spy = jest.spyOn(r, "roll").mockReturnValue(4);
       const result = rollModModule.rollMod(DieType.D6, (n) => n + 3);
       expect(result).toEqual({ base: 4, modified: 7 });
-      expect(spy).toHaveBeenCalledWith(DieType.D6, null);
+      expect(spy).toHaveBeenCalledWith(DieType.D6, undefined);
     });
 
     it("should apply RollModifier instances correctly", () => {
@@ -46,7 +46,7 @@ describe("@dice/core/rollMod", () => {
       const modifier = new RollModifier((n) => n * 2);
       const result = rollModModule.rollMod(DieType.D6, modifier);
       expect(result).toEqual({ base: 6, modified: 12 });
-      expect(spy).toHaveBeenCalledWith(DieType.D6, null);
+      expect(spy).toHaveBeenCalledWith(DieType.D6, undefined);
     });
 
     it("should support advantage/disadvantage", () => {
@@ -77,14 +77,14 @@ describe("@dice/core/rollMod", () => {
       expect(resultDis.base).toBe(1);
       expect(resultDis.modified).toBe(3);
 
-      // normal roll (null)
+      // normal roll (undefined)
       const resultNormal = rollModModule.rollMod(DieType.D6, (n) => n + 4);
       expect(resultNormal.base).toBe(3);
       expect(resultNormal.modified).toBe(7);
 
       expect(mockRoll).toHaveBeenCalledWith(DieType.D6, "advantage");
       expect(mockRoll).toHaveBeenCalledWith(DieType.D6, "disadvantage");
-      expect(mockRoll).toHaveBeenCalledWith(DieType.D6, null);
+      expect(mockRoll).toHaveBeenCalledWith(DieType.D6, undefined);
     });
   });
 
@@ -97,7 +97,7 @@ describe("@dice/core/rollMod", () => {
       const alias = rollModModule["rollD6P5"]; // +5 bonus alias
       const modified = alias();
       expect(modified).toBe(8);
-      expect(spy).toHaveBeenCalledWith(DieType.D6, null);
+      expect(spy).toHaveBeenCalledWith(DieType.D6, undefined);
     });
 
     it("flat negative alias (M) should apply penalty correctly", () => {
@@ -105,7 +105,7 @@ describe("@dice/core/rollMod", () => {
       const alias = rollModModule["rollD6M2"]; // -2 penalty alias
       const modified = alias();
       expect(modified).toBe(4);
-      expect(spy).toHaveBeenCalledWith(DieType.D6, null);
+      expect(spy).toHaveBeenCalledWith(DieType.D6, undefined);
     });
 
     it("multiplicative alias (T) should multiply correctly", () => {
@@ -113,7 +113,7 @@ describe("@dice/core/rollMod", () => {
       const alias = rollModModule["rollD6T10"]; // ×10
       const modified = alias();
       expect(modified).toBe(40);
-      expect(spy).toHaveBeenCalledWith(DieType.D6, null);
+      expect(spy).toHaveBeenCalledWith(DieType.D6, undefined);
     });
 
     it("should respect rollType parameter in alias", () => {

@@ -13,6 +13,42 @@
 
 /**
  * @typedef {(n: number) => number} RollModifierFunction
+ * @description
+ * A function that takes a single numeric input (the base roll or the total sum)
+ * and returns a numeric result. Implementations SHOULD:
+ *  - declare exactly one parameter (helps static checks: `fn.length === 1`)
+ *  - accept a number and return a number (ideally integer for dice use-cases)
+ *
+ * Examples:
+ * - Per-die modifier: `(n) => n + 1`
+ * - Net modifier: `(sum) => Math.floor(sum * 1.5)`
+ *
+ * Notes:
+ * - The runtime `isValidRollModifier` performs a light validation:
+ *   checks the function arity and performs a test call `fn(1)` to ensure
+ *   a numeric, integer-like result is returned. Keep modifiers pure.
+ */
+
+/**
+ * @typedef {Object} DiceModifier
+ * @property {RollModifierFunction | RollModifier | null | undefined} [each]
+ *   Function or {@link RollModifier} applied to each individual die.
+ * @property {RollModifierFunction | RollModifier | null | undefined} [net]
+ *   Function or {@link RollModifier} applied to the total (sum) of all dice.
+ *
+ * @description
+ * Represents the composite modifier structure used by {@link rollDiceMod}.
+ * Each field is optional and defaults to the identity modifier if omitted.
+ *
+ * @example
+ * const modifier = {
+ *   each: (n) => n + 1,
+ *   net: (sum) => sum + 2,
+ * };
+ *
+ * const mod2 = {
+ *   each: new RollModifier((n) => n * 2),
+ * };
  */
 
 /**

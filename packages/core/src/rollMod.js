@@ -40,7 +40,7 @@ const r = require("./roll.js");
  *   Can be either:
  *   - A RollModifierFunction `(n: number) => number`
  *   - A {@link RollModifier} instance
- * @param {RollTypeValue | null} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param {RollTypeValue | undefined} [rollType=undefined] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
  * @returns {{ base: number, modified: number }} - The unmodified roll (`base`) and the modified result (`modified`).
  * @throws {TypeError} If the modifier is invalid (not a function or RollModifier).
  * @throws {TypeError} If the `dieType` or `rollType` are invalid (delegated to {@link roll}).
@@ -56,7 +56,7 @@ const r = require("./roll.js");
  * @example
  * const result = rollMod(DieType.D10, (n) => Math.floor(n / 2), RollType.Advantage);
  */
-function rollMod(dieType, modifier, rollType = null) {
+function rollMod(dieType, modifier, rollType = undefined) {
   const mod = normaliseRollModifier(modifier);
 
   const base = r.roll(dieType, rollType);
@@ -70,7 +70,7 @@ function rollMod(dieType, modifier, rollType = null) {
 //
 
 /**
- * @typedef {(rollType?: RollTypeValue | null) => number} DieModifierAlias
+ * @typedef {(rollType?: RollTypeValue | undefined) => number} DieModifierAlias
  */
 
 /**
@@ -87,11 +87,11 @@ const dieTypeAliases = {};
 for (const [dieKey, dieValue] of Object.entries(DieType)) {
   for (let i = 1; i <= 10; i++) {
     /** @type {DieModifierAlias} */
-    dieTypeAliases[`roll${dieKey}P${i}`] = (rollType = null) =>
+    dieTypeAliases[`roll${dieKey}P${i}`] = (rollType = undefined) =>
       rollMod(dieValue, (n) => n + i, rollType).modified;
 
     /** @type {DieModifierAlias} */
-    dieTypeAliases[`roll${dieKey}M${i}`] = (rollType = null) =>
+    dieTypeAliases[`roll${dieKey}M${i}`] = (rollType = undefined) =>
       rollMod(dieValue, (n) => n - i, rollType).modified;
   }
 }
@@ -102,7 +102,7 @@ const multipliers = [2, 3, 5, 10, 50, 100];
 for (const [dieKey, dieValue] of Object.entries(DieType)) {
   for (const m of multipliers) {
     /** @type {DieModifierAlias} */
-    dieTypeAliases[`roll${dieKey}T${m}`] = (rollType = null) =>
+    dieTypeAliases[`roll${dieKey}T${m}`] = (rollType = undefined) =>
       rollMod(dieValue, (n) => n * m, rollType).modified;
   }
 }

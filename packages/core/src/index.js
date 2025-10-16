@@ -5,20 +5,30 @@
  * Re-exports all main rolling functions and modifiers.
  *
  * @example
- * import { roll, rollMod, rollDice } from "@dice/core";
+ * import { roll, rollMod, rollDice, rollDiceMod } from "@dice/core";
  */
 
+// --- Core modules ---
 const rollDice = require("./rollDice.js");
 const roll = require("./roll.js");
 const rollMod = require("./rollMod.js");
-const rollModDice = require("./rollModDice.js");
+const rollDiceMod = require("./rollDiceMod.js");
 
+/**
+ * Combined exports for Node and TypeScript users.
+ * @type {typeof import("./roll") &
+ *        typeof import("./rollDice") &
+ *        typeof import("./rollMod") &
+ *        typeof import("./rollDiceMod") &
+ *        { default: any }}
+ */
 module.exports = {
   ...roll,
   ...rollDice,
   ...rollMod,
-  ...rollModDice,
+  ...rollDiceMod,
+  default: undefined, // placeholder; will be overwritten
 };
 
-// --- For TypeScript users ---
+// assign default at runtime
 module.exports.default = module.exports;

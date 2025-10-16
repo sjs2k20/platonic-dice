@@ -22,7 +22,7 @@
  * );
  */
 const { DieType, TestType } = require("./entities");
-const td = require("./entities/TestConditions.js");
+const tc = require("./entities/TestConditions.js");
 const r = require("./roll.js");
 const utils = require("./utils");
 
@@ -39,19 +39,19 @@ const utils = require("./utils");
  *
  * @function rollTest
  * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
- * @param {TestConditionsInstance|Object} testConditions - Conditions to evaluate the roll against.
+ * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
  *   Can be:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
- * @param {RollTypeValue} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param {RollTypeValue} [rollType=undefined] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
  * @returns {{ base: number, outcome: OutcomeValue }} The raw roll and its evaluated outcome.
  * @throws {TypeError} If `dieType` or `testConditions` are invalid.
  */
-function rollTest(dieType, testConditions, rollType = null) {
+function rollTest(dieType, testConditions, rollType = undefined) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions
-  const conditionSet = td.normaliseTestConditions(testConditions, dieType);
+  const conditionSet = tc.normaliseTestConditions(testConditions, dieType);
 
   // Perform the roll
   const base = r.roll(dieType, rollType);
@@ -72,16 +72,16 @@ function rollTest(dieType, testConditions, rollType = null) {
  * @private
  * @param {DieTypeValue} dieType
  * @param {TestTypeValue} testType
- * @returns {(target: number, rollType?: RollTypeValue|null) => { base: number, outcome: OutcomeValue }}
+ * @returns {(target: number, rollType?: RollTypeValue|undefined) => { base: number, outcome: OutcomeValue }}
  */
 function alias(dieType, testType) {
-  return (target, rollType = null) =>
+  return (target, rollType = undefined) =>
     rollTest(dieType, { testType, target }, rollType);
 }
 
 /**
  * Container for all dynamically generated aliases.
- * @type {Record<string, (target: number, rollType?: RollTypeValue|null) => { base: number, outcome: OutcomeValue }>}
+ * @type {Record<string, (target: number, rollType?: RollTypeValue|undefined) => { base: number, outcome: OutcomeValue }>}
  */
 const aliases = {};
 

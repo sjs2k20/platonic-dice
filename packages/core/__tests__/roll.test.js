@@ -44,9 +44,9 @@ describe("@dice/core/roll", () => {
       expect(val).toBe(2);
     });
 
-    it("should return a single roll when rollType is null", () => {
+    it("should return a single roll when rollType is undefined", () => {
       jest.spyOn(utils, "generateResult").mockReturnValue(6);
-      const val = rollModule.roll(DieType.D6, null);
+      const val = rollModule.roll(DieType.D6, undefined);
       expect(val).toBe(6);
     });
   });

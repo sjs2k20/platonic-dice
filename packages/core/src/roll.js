@@ -37,26 +37,26 @@ const utils = require("./utils");
  *
  * @function roll
  * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param {RollTypeValue | null} [rollType=null] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param {RollTypeValue | undefined} [rollType=undefined] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
  * @returns {number} The rolled value (integer between 1 and the die's maximum face).
  * @throws {TypeError} If `dieType` or `rollType` are invalid.
  *
  * @example
  * const result = roll(DieType.D20, RollType.Advantage);
  */
-function roll(dieType, rollType = null) {
+function roll(dieType, rollType = undefined) {
   // --- Validation ---
   if (!isValidDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
   }
 
-  if (rollType !== null && !isValidRollType(rollType)) {
+  if (rollType !== undefined && !isValidRollType(rollType)) {
     throw new TypeError(`Invalid roll type: ${rollType}`);
   }
 
   // --- Core Logic ---
   const roll1 = utils.generateResult(dieType);
-  if (rollType === null) return roll1;
+  if (rollType === undefined) return roll1;
 
   const roll2 = utils.generateResult(dieType);
   return rollType === RollType.Advantage
@@ -88,39 +88,39 @@ const rollDis = (dieType) => roll(dieType, RollType.Disadvantage);
 
 /**
  * Rolls a D4 die.
- * @type {(rollType?: RollTypeValue | null) => number}
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD4 = (rollType = null) => roll(DieType.D4, rollType);
+const rollD4 = (rollType = undefined) => roll(DieType.D4, rollType);
 
 /**
  * Rolls a D6 die.
- * @type {(rollType?: RollTypeValue | null) => number}
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD6 = (rollType = null) => roll(DieType.D6, rollType);
+const rollD6 = (rollType = undefined) => roll(DieType.D6, rollType);
 
 /**
  * Rolls a D8 die.
- * @type {(rollType?: RollTypeValue | null) => number}
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD8 = (rollType = null) => roll(DieType.D8, rollType);
+const rollD8 = (rollType = undefined) => roll(DieType.D8, rollType);
 
 /**
  * Rolls a D10 die.
- * @type {(rollType?: RollTypeValue | null) => number}
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD10 = (rollType = null) => roll(DieType.D10, rollType);
+const rollD10 = (rollType = undefined) => roll(DieType.D10, rollType);
 
 /**
  * Rolls a D12 die.
- * @type {(rollType?: RollTypeValue | null) => number}
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD12 = (rollType = null) => roll(DieType.D12, rollType);
+const rollD12 = (rollType = undefined) => roll(DieType.D12, rollType);
 
 /**
  * Rolls a D20 die.
- * @type {(rollType?: RollTypeValue | null) => number}
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD20 = (rollType = null) => roll(DieType.D20, rollType);
+const rollD20 = (rollType = undefined) => roll(DieType.D20, rollType);
 
 module.exports = {
   roll,

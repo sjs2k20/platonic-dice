@@ -1,21 +1,21 @@
 /**
- * @file rollModDice.test.js
+ * @file rollDiceMod.test.js
  * @description
- * Unit tests for @dice/core/src/rollModDice.
+ * Unit tests for @dice/core/src/rollDiceMod.
  *
  * Covers validation, core roll-modifier logic, handling of `each` and `net`
- * modifiers, and convenience aliases (`rollModDiceArr`, `rollModDiceNet`).
+ * modifiers, and convenience aliases (`rollDiceModArr`, `rollDiceModNet`).
  */
 
 const rd = require("../src/rollDice.js");
-const rollModDiceModule = require("../src/rollModDice.js");
+const rollDiceModModule = require("../src/rollDiceMod.js");
 const {
   DieType,
   RollModifier,
   normaliseRollModifier,
-} = require("../src/entities");
+} = require("../src/entities/index.js");
 
-describe("@dice/core/rollModDice", () => {
+describe("@dice/core/rollDiceMod", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -24,37 +24,37 @@ describe("@dice/core/rollModDice", () => {
   describe("validation", () => {
     it("should throw TypeError if count is invalid", () => {
       expect(() =>
-        rollModDiceModule.rollModDice(DieType.D6, {}, { count: 0 })
+        rollDiceModModule.rollDiceMod(DieType.D6, {}, { count: 0 })
       ).toThrow(TypeError);
       expect(() =>
-        rollModDiceModule.rollModDice(DieType.D6, {}, { count: -3 })
+        rollDiceModModule.rollDiceMod(DieType.D6, {}, { count: -3 })
       ).toThrow(TypeError);
       expect(() =>
-        rollModDiceModule.rollModDice(DieType.D6, {}, { count: 1.5 })
+        rollDiceModModule.rollDiceMod(DieType.D6, {}, { count: 1.5 })
       ).toThrow(TypeError);
       expect(() =>
-        rollModDiceModule.rollModDice(DieType.D6, {}, { count: "3" })
+        rollDiceModModule.rollDiceMod(DieType.D6, {}, { count: "3" })
       ).toThrow(TypeError);
     });
 
     it("should throw TypeError if modifier is invalid type", () => {
       expect(() =>
-        rollModDiceModule.rollModDice(DieType.D6, "invalid")
+        rollDiceModModule.rollDiceMod(DieType.D6, "invalid")
       ).toThrow(TypeError);
-      expect(() => rollModDiceModule.rollModDice(DieType.D6, 42)).toThrow(
+      expect(() => rollDiceModModule.rollDiceMod(DieType.D6, 42)).toThrow(
         TypeError
       );
     });
   });
 
-  // --- Core rollModDice behavior ---
-  describe("core rollModDice behavior", () => {
+  // --- Core rollDiceMod behavior ---
+  describe("core rollDiceMod behavior", () => {
     const mockBase = { array: [2, 4, 6], sum: 12 };
 
     it("should roll dice and apply identity modifiers by default", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
 
-      const result = rollModDiceModule.rollModDice(
+      const result = rollDiceModModule.rollDiceMod(
         DieType.D6,
         {},
         { count: 3 }
@@ -71,7 +71,7 @@ describe("@dice/core/rollModDice", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
 
       const modifier = { each: (n) => n + 1 };
-      const result = rollModDiceModule.rollModDice(DieType.D6, modifier, {
+      const result = rollDiceModModule.rollDiceMod(DieType.D6, modifier, {
         count: 3,
       });
 
@@ -84,7 +84,7 @@ describe("@dice/core/rollModDice", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
 
       const modifier = { net: (sum) => sum * 2 };
-      const result = rollModDiceModule.rollModDice(DieType.D6, modifier, {
+      const result = rollDiceModModule.rollDiceMod(DieType.D6, modifier, {
         count: 3,
       });
 
@@ -101,7 +101,7 @@ describe("@dice/core/rollModDice", () => {
         net: (sum) => sum * 2,
       };
 
-      const result = rollModDiceModule.rollModDice(DieType.D6, modifier, {
+      const result = rollDiceModModule.rollDiceMod(DieType.D6, modifier, {
         count: 3,
       });
 
@@ -114,7 +114,7 @@ describe("@dice/core/rollModDice", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
 
       const netMod = new RollModifier((sum) => sum + 5);
-      const result = rollModDiceModule.rollModDice(DieType.D6, netMod, {
+      const result = rollDiceModModule.rollDiceMod(DieType.D6, netMod, {
         count: 3,
       });
 
@@ -126,7 +126,7 @@ describe("@dice/core/rollModDice", () => {
     it("should support single function as net modifier", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
 
-      const result = rollModDiceModule.rollModDice(
+      const result = rollDiceModModule.rollDiceMod(
         DieType.D6,
         (sum) => sum * 3,
         { count: 3 }
@@ -144,11 +144,11 @@ describe("@dice/core/rollModDice", () => {
 
     afterEach(() => jest.restoreAllMocks());
 
-    it("rollModDiceArr should return modified 'each' array", () => {
+    it("rollDiceModArr should return modified 'each' array", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
       const modifier = { each: (n) => n + 1 };
 
-      const arr = rollModDiceModule.rollModDiceArr(DieType.D6, modifier, {
+      const arr = rollDiceModModule.rollDiceModArr(DieType.D6, modifier, {
         count: 3,
       });
 
@@ -156,11 +156,11 @@ describe("@dice/core/rollModDice", () => {
       expect(rd.rollDice).toHaveBeenCalledWith(DieType.D6, { count: 3 });
     });
 
-    it("rollModDiceNet should return modified 'net' value", () => {
+    it("rollDiceModNet should return modified 'net' value", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
       const modifier = { net: (sum) => sum * 2 };
 
-      const net = rollModDiceModule.rollModDiceNet(DieType.D6, modifier, {
+      const net = rollDiceModModule.rollDiceModNet(DieType.D6, modifier, {
         count: 3,
       });
 
@@ -171,12 +171,12 @@ describe("@dice/core/rollModDice", () => {
     it("aliases should work with default identity modifiers", () => {
       jest.spyOn(rd, "rollDice").mockReturnValue(mockBase);
 
-      const arr = rollModDiceModule.rollModDiceArr(
+      const arr = rollDiceModModule.rollDiceModArr(
         DieType.D6,
         {},
         { count: 3 }
       );
-      const net = rollModDiceModule.rollModDiceNet(
+      const net = rollDiceModModule.rollDiceModNet(
         DieType.D6,
         {},
         { count: 3 }

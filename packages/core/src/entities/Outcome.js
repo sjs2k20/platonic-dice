@@ -18,7 +18,7 @@ const Outcome = Object.freeze({
  * Checks whether a given value is a valid `Outcome`.
  *
  * @function isValidOutcome
- * @param {string | null} outcome
+ * @param {OutcomeValue | null | undefined} outcome
  * @returns {boolean}
  */
 function isValidOutcome(outcome) {

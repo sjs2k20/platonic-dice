@@ -1,26 +1,38 @@
 import platonicDice, {
-    DieType,
-    Outcome,
-    RollType,
-    DieFaceResult,
-    DieFaceMapping,
-    DieFaceResultMap,
+  DieType,
+  Outcome,
+  RollType,
+  DieFaceResult,
+  DieFaceMapping,
+  DieFaceResultMap,
 } from "platonic-dice";
 
 // Test basic dice rolls
 const singleRoll: number = platonicDice.rollDie(DieType.D20);
-const advantageRoll: number = platonicDice.rollDie(DieType.D20, RollType.Advantage);
-const multipleRolls: number[] | number = platonicDice.rollDice(DieType.D6, { count: 3 });
+const advantageRoll: number = platonicDice.rollDie(
+  DieType.D20,
+  RollType.Advantage
+);
+const multipleRolls: number[] | number = platonicDice.rollDice(DieType.D6, {
+  count: 3,
+});
 
 // Test modified rolls
 const modifiedRoll = platonicDice.rollModDie(DieType.D10, (roll) => roll + 2);
-const modifiedMultiRoll = platonicDice.rollModDice(DieType.D8, (roll) => roll * 2, { count: 2 });
+const modifiedMultiRoll = platonicDice.rollDiceMod(
+  DieType.D8,
+  (roll) => roll * 2,
+  { count: 2 }
+);
 
 // Test target dice
 const targetDieRoll = platonicDice.rollTargetDie(DieType.D6, [1, 6]);
 
 // Test test die with conditions
-const testDieRoll = platonicDice.rollTestDie(DieType.D20, 10, { critical_success: 20, critical_failure: 1 });
+const testDieRoll = platonicDice.rollTestDie(DieType.D20, 10, {
+  critical_success: 20,
+  critical_failure: 1,
+});
 
 // Verify enums
 const dieType: DieType = DieType.D12;
@@ -42,13 +54,17 @@ const targetOutcomeHistory = targetDie.getHistory();
 // --- CustomDie Tests ---
 // Define valid mappings
 const mappings: DieFaceResultMap = [
-    { face: 1, result: "Gain 10 Gold" },
-    { face: 2, result: (n: number) => n + 5 },
-    { face: 3, result: 42 },
+  { face: 1, result: "Gain 10 Gold" },
+  { face: 2, result: (n: number) => n + 5 },
+  { face: 3, result: 42 },
 ];
 const defaultOutcome: DieFaceResult = "No effect";
 
-const customDie = new platonicDice.CustomDie(DieType.D8, mappings, defaultOutcome);
+const customDie = new platonicDice.CustomDie(
+  DieType.D8,
+  mappings,
+  defaultOutcome
+);
 customDie.roll();
 const customOutcome: number | string | null = customDie.getOutcome();
 const customHistory: (number | string | null)[] = customDie.getOutcomeHistory();
