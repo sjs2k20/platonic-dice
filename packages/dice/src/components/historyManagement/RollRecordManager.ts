@@ -126,10 +126,12 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     verbose?: boolean;
   }): (R | Omit<R, "timestamp">)[] {
     const { limit, verbose = false } = options || {};
-    const n = limit
-      ? Math.min(limit, this.records.length)
-      : this.records.length;
-    return this.last(n, verbose);
+
+    // Ensure n is at least 1 if there are records, otherwise return []
+    const n = Math.max(1, limit ?? this.records.length);
+    return this.records.length === 0
+      ? []
+      : this.last(Math.min(n, this.records.length), verbose);
   }
 
   /**

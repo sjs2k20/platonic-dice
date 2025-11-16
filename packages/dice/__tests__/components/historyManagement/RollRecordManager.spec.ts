@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from "vitest";
 import { Outcome } from "@platonic-dice/core";
 import type {
   DieRollRecord,
@@ -33,21 +34,21 @@ describe("RollRecordManager", () => {
     manager = new RollRecordManager();
   });
 
-  test("should initialize empty with default maxRecords", () => {
+  it("should initialize empty with default maxRecords", () => {
     expect(manager.length).toBe(0);
     expect(manager.maxRecordsCount).toBe(DEFAULT_MAX_RECORDS);
     expect(manager.full).toEqual([]);
     expect(manager.all).toEqual([]);
   });
 
-  test("should add DieRollRecord correctly", () => {
+  it("should add DieRollRecord correctly", () => {
     manager.add(dieRoll);
     expect(manager.length).toBe(1);
     expect(manager.full[0]).toEqual(dieRoll);
     expect(manager.all[0]).toEqual({ roll: dieRoll.roll });
   });
 
-  test("should add ModifiedDieRollRecord correctly", () => {
+  it("should add ModifiedDieRollRecord correctly", () => {
     manager.add(modifiedDieRoll);
     expect(manager.length).toBe(1);
     expect(manager.full[0]).toEqual(modifiedDieRoll);
@@ -57,7 +58,7 @@ describe("RollRecordManager", () => {
     });
   });
 
-  test("should add TargetDieRollRecord correctly", () => {
+  it("should add TargetDieRollRecord correctly", () => {
     manager.add(targetDieRoll);
     expect(manager.length).toBe(1);
     expect(manager.full[0]).toEqual(targetDieRoll);
@@ -67,7 +68,7 @@ describe("RollRecordManager", () => {
     });
   });
 
-  test("should throw TypeError for invalid records", () => {
+  it("should throw TypeError for invalid records", () => {
     // @ts-expect-error testing runtime validation
     expect(() => manager.add({})).toThrow(TypeError);
     // @ts-expect-error testing runtime validation
@@ -76,7 +77,7 @@ describe("RollRecordManager", () => {
     expect(() => manager.add({ roll: 5, foo: "bar" })).toThrow(TypeError);
   });
 
-  test("should maintain maxRecords correctly", () => {
+  it("should maintain maxRecords correctly", () => {
     const smallManager = new RollRecordManager<DieRollRecord>(2);
     smallManager.add({ roll: 1, timestamp: new Date() });
     smallManager.add({ roll: 2, timestamp: new Date() });
@@ -85,7 +86,7 @@ describe("RollRecordManager", () => {
     expect(smallManager.full.map((r) => r.roll)).toEqual([2, 3]);
   });
 
-  test("should return last N records with last()", () => {
+  it("should return last N records with last()", () => {
     manager.add(dieRoll);
     manager.add(modifiedDieRoll);
     manager.add(targetDieRoll);
@@ -105,7 +106,7 @@ describe("RollRecordManager", () => {
     expect(verboseLastTwo).toEqual([modifiedDieRoll, targetDieRoll]);
   });
 
-  test("should report records with report()", () => {
+  it("should report records with report()", () => {
     manager.add(dieRoll);
     manager.add(modifiedDieRoll);
     manager.add(targetDieRoll);
@@ -118,14 +119,14 @@ describe("RollRecordManager", () => {
     );
   });
 
-  test("should clear records with clear()", () => {
+  it("should clear records with clear()", () => {
     manager.add(dieRoll);
     manager.clear();
     expect(manager.length).toBe(0);
     expect(manager.full).toEqual([]);
   });
 
-  test("toString() should reflect last roll", () => {
+  it("toString() should reflect last roll", () => {
     expect(manager.toString()).toContain("empty");
 
     manager.add(dieRoll);
@@ -135,7 +136,7 @@ describe("RollRecordManager", () => {
     expect(str).toContain(dieRoll.timestamp.toISOString());
   });
 
-  test("toJSON() should return full records", () => {
+  it("toJSON() should return full records", () => {
     manager.add(dieRoll);
     expect(manager.toJSON()).toEqual(manager.full);
   });

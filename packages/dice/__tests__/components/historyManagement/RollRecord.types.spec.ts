@@ -1,10 +1,11 @@
+import { describe, it, expect } from "vitest";
 import { Outcome } from "@platonic-dice/core/entities";
 import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TargetDieRollRecord,
   RollRecord,
-} from "../../../src/components/historyManagement/RollRecord.types.js";
+} from "../../../src/components/historyManagement/RollRecord.types";
 
 describe("RollRecord types (runtime shape validation)", () => {
   const now = new Date();

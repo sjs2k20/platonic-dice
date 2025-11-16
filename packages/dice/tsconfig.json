@@ -1,11 +1,12 @@
 {
-  "extends": ["../../tsconfig.base.json"],
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "bundler",
     "rootDir": ".",
     "outDir": "dist",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["node", "vitest"]
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["node_modules", "dist"]

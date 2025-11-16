@@ -2,20 +2,16 @@
   "name": "@platonic-dice/dice",
   "version": "0.1.0",
   "description": "Persistent dice objects with roll history and TypeScript support.",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "jest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@platonic-dice/core": "*"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "ts-jest": "^29.4.5",
-    "@types/jest": "^30.0.0",
-    "typescript": "^5.6.0"
   }
 }

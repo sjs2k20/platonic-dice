@@ -40,9 +40,5 @@
   },
   "tsd": {
     "directory": "src/test-d"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "tsd": "^0.31.2"
   }
 }
