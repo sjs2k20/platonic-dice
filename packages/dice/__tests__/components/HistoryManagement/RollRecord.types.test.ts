@@ -4,7 +4,7 @@ import type {
   ModifiedDieRollRecord,
   TargetDieRollRecord,
   RollRecord,
-} from "../../../src/components/HistoryManagement/RollRecord.types.ts";
+} from "../../../src/components/historyManagement/RollRecord.types.js";
 
 describe("RollRecord types (runtime shape validation)", () => {
   const now = new Date();
