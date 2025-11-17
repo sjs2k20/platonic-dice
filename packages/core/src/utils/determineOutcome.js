@@ -4,7 +4,9 @@
  * Determines the outcome of a roll based on provided test conditions.
  */
 
-const { Outcome, TestType, TestConditions } = require("../entities");
+function getEntities() {
+  return require("../entities");
+}
 
 /**
  * @typedef {import("../entities/Outcome").OutcomeValue} OutcomeValue
@@ -43,6 +45,8 @@ const { Outcome, TestType, TestConditions } = require("../entities");
  * console.log(determineOutcome(1, skill)); // "critical_failure"
  */
 function determineOutcome(value, testConditions) {
+  const { Outcome, TestType, TestConditions } = getEntities();
+
   if (typeof value !== "number" || Number.isNaN(value)) {
     throw new TypeError("value must be a valid number.");
   }
