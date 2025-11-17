@@ -2,13 +2,13 @@
 
 import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
 import { Die } from "../../src/components/Die";
-import { DieType, RollType, roll as coreRoll } from "@platonic-dice/core";
 import {
-  RollRecordManager,
-  type DieRollRecord,
-  type ModifiedDieRollRecord,
-  type TargetDieRollRecord,
-} from "../../src/components/historyManagement";
+  DieType,
+  RollType,
+  roll as coreRoll,
+  rollMod as coreRollMod,
+  rollTest as coreRollTest,
+} from "@platonic-dice/core";
 
 // ------------------------
 // MOCK @platonic-dice/core
@@ -18,15 +18,10 @@ vi.mock("@platonic-dice/core", async (importOriginal: () => Promise<any>) => {
   return {
     ...(actual as Record<string, any>),
     roll: vi.fn(),
+    rollMod: vi.fn(),
+    rollTest: vi.fn(),
   };
 });
-
-// ------------------------
-// SPY RollRecordManager
-// ------------------------
-const addSpy = vi.spyOn(RollRecordManager.prototype, "add");
-const clearSpy = vi.spyOn(RollRecordManager.prototype, "clear");
-const reportSpy = vi.spyOn(RollRecordManager.prototype, "report");
 
 // ------------------------
 // TEST SUITE
@@ -43,7 +38,7 @@ describe("Die class", () => {
     const die = new Die(DieType.D6);
     expect(die.type).toBe(DieType.D6);
     expect(die.result).toBe(undefined);
-    expect(die.history).toEqual([]);
+    expect(die.history("normal")).toEqual([]);
   });
 
   it("throws for invalid die type", () => {
@@ -61,22 +56,19 @@ describe("Die class", () => {
   });
 
   // ---------------------
-  // ROLLING
+  // BASIC ROLL
   // ---------------------
   it("rolls and records a basic DieRollRecord", () => {
     const die = new Die(DieType.D6);
-
     (coreRoll as Mock).mockReturnValue(4);
 
     const result = die.roll();
     expect(result).toBe(4);
-
-    expect(addSpy).toHaveBeenCalledTimes(1);
-    const record = addSpy.mock.calls[0][0] as DieRollRecord;
-    expect(record.roll).toBe(4);
-    expect(record.timestamp).toBeInstanceOf(Date);
     expect(die.result).toBe(4);
-    expect(die.history.length).toBe(1);
+
+    const history = die.history("normal", true);
+    expect(history.length).toBe(1);
+    expect(history[0]).toMatchObject({ roll: 4 });
   });
 
   it("passes through rollType to coreRoll()", () => {
@@ -84,137 +76,100 @@ describe("Die class", () => {
     (coreRoll as Mock).mockReturnValue(17);
 
     die.roll(RollType.Advantage);
-
     expect(coreRoll).toHaveBeenCalledWith(DieType.D20, RollType.Advantage);
   });
 
   it("throws for invalid rollType", () => {
     const die = new Die(DieType.D8);
-    // @ts-expect-error testing invalid argument
+    // @ts-expect-error
     expect(() => die.roll("INVALID")).toThrowError(/Invalid roll type/);
   });
 
   // ---------------------
-  // HISTORY ACCESSORS
+  // MODIFIED ROLL
   // ---------------------
-  it("history returns timestamps removed; historyFull returns full objects", () => {
-    const die = new Die(DieType.D10);
-    (coreRoll as Mock).mockReturnValue(6);
-
-    die.roll();
-
-    expect(die.historyFull.length).toBe(1);
-    expect(die.historyFull[0]).toHaveProperty("timestamp");
-    expect(die.history.length).toBe(1);
-    expect(die.history[0]).not.toHaveProperty("timestamp");
-  });
-
-  // ---------------------
-  // DETAILED HISTORY + REPORT
-  // ---------------------
-  it("historyDetailed delegates to RollRecordManager.report", () => {
+  it("rollMod records ModifiedDieRollRecord", () => {
     const die = new Die(DieType.D6);
-    die.historyDetailed({ limit: 10 });
-    expect(reportSpy).toHaveBeenCalledWith({ limit: 10 });
+    (coreRollMod as Mock).mockReturnValue({ base: 3, modified: 5 });
+
+    const result = die.rollMod((n) => n + 2);
+    expect(result).toBe(5);
+    expect(die.result).toBe(5);
+
+    const history = die.history("modifier", true);
+    expect(history.length).toBe(1);
+    expect(history[0]).toMatchObject({ roll: 3, modified: 5 });
   });
 
-  it("report() builds correct summary", () => {
+  // ---------------------
+  // TEST ROLL
+  // ---------------------
+  it("rollTest records TargetDieRollRecord", () => {
     const die = new Die(DieType.D6);
-    (coreRoll as Mock).mockReturnValueOnce(3).mockReturnValueOnce(5);
+    (coreRollTest as Mock).mockReturnValue({ base: 4, outcome: "success" });
 
-    die.roll();
-    die.roll();
+    const result = die.rollTest({ testType: "AtLeast", target: 3 });
+    expect(result).toBe(4);
+    expect(die.result).toBe(4);
 
-    const report = die.report({ verbose: false });
-    expect(report.type).toBe(DieType.D6);
-    expect(report.times_rolled).toBe(2);
-    expect(report.latest_record).toBeTruthy();
-    expect(report.history).toBeUndefined();
+    const history = die.history("test", true);
+    expect(history.length).toBe(1);
+    expect(history[0]).toMatchObject({ roll: 4, outcome: "success" });
   });
 
-  it("report({ includeHistory:true }) includes history", () => {
+  // ---------------------
+  // HISTORY ACCESS
+  // ---------------------
+  it("history returns timestamp-stripped records when verbose=false", () => {
     const die = new Die(DieType.D6);
     (coreRoll as Mock).mockReturnValue(2);
     die.roll();
 
-    const report = die.report({ includeHistory: true });
-    expect(report.history).toBeTruthy();
-    expect(report.history!.length).toBe(1);
+    const hist = die.history("normal", false);
+    expect(hist[0]).not.toHaveProperty("timestamp");
+
+    const histVerbose = die.history("normal", true);
+    expect(histVerbose[0]).toHaveProperty("timestamp");
   });
 
   // ---------------------
-  // toString()
+  // RESET
   // ---------------------
-  it("toString() reports 'not rolled yet' when empty", () => {
-    const die = new Die(DieType.D6);
-    expect(die.toString()).toMatch(/not rolled yet/);
-  });
-
-  it("toString() includes latest roll when available", () => {
+  it("reset clears latest result and optionally all histories", () => {
     const die = new Die(DieType.D6);
     (coreRoll as Mock).mockReturnValue(5);
     die.roll();
+    die.reset();
+    expect(die.result).toBeUndefined();
 
-    expect(die.toString()).toMatch(/latest=/);
-    expect(die.toString()).toMatch(/total rolls=1/);
+    die.roll();
+    die.reset(true);
+    expect(die.result).toBeUndefined();
+    expect(die.history("normal")).toEqual([]);
+    expect(die.history("modifier")).toEqual([]);
+    expect(die.history("test")).toEqual([]);
   });
 
   // ---------------------
-  // toJSON()
+  // toString / toJSON
   // ---------------------
-  it("toJSON() returns full verbose report", () => {
+  it("toString reports correctly", () => {
+    const die = new Die(DieType.D6);
+    expect(die.toString()).toMatch(/not rolled yet/);
+
+    (coreRoll as Mock).mockReturnValue(3);
+    die.roll();
+    expect(die.toString()).toMatch(/latest=3/);
+  });
+
+  it("toJSON returns all histories keyed by type", () => {
     const die = new Die(DieType.D6);
     (coreRoll as Mock).mockReturnValue(4);
     die.roll();
 
     const json = die.toJSON();
-    expect(json.type).toBe(DieType.D6);
-    expect(json.times_rolled).toBe(1);
-    expect(json.history!.length).toBe(1);
-    expect(json.latest_record).toBeTruthy();
-  });
-
-  // ---------------------
-  // SUBCLASSING BEHAVIOUR
-  // ---------------------
-  it("subclasses can override roll() to store different record types", () => {
-    class ModifiedDie extends Die<ModifiedDieRollRecord> {
-      roll(): number {
-        this.reset();
-        const value = 10;
-        const mod = 2;
-        this.rolls.add({
-          roll: value,
-          modified: mod,
-          timestamp: new Date(),
-        });
-        return value + mod;
-      }
-    }
-
-    const die = new ModifiedDie(DieType.D6);
-    const result = die.roll();
-    expect(result).toBe(12);
-    expect(die.historyFull[0].modified).toBe(2);
-  });
-
-  it("subclasses for targeted rolls store outcome correctly", () => {
-    class TargetDie extends Die<TargetDieRollRecord> {
-      roll(): number {
-        this.reset();
-        const roll = 7;
-        const outcome = "success" as TargetDieRollRecord["outcome"];
-        this.rolls.add({
-          roll,
-          outcome,
-          timestamp: new Date(),
-        });
-        return roll;
-      }
-    }
-
-    const die = new TargetDie(DieType.D8);
-    die.roll();
-    expect(die.historyFull[0].outcome).toBe("success");
+    expect(json).toHaveProperty("normal");
+    expect(json.normal.length).toBe(1);
+    expect(json.normal[0]).toMatchObject({ roll: 4 });
   });
 });

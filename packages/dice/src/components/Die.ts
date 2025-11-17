@@ -1,71 +1,77 @@
-import { DieType, RollType, roll as coreRoll } from "@platonic-dice/core";
 import {
-  RollRecordManager,
-  type RollRecord,
-  type DieRollRecord,
-  type HistoryManager,
+  DieType,
+  RollType,
+  roll as coreRoll,
+  rollMod as coreRollMod,
+  rollTest as coreRollTest,
+} from "@platonic-dice/core";
+
+import type {
+  RollModifierFunction,
+  RollModifierInstance,
+  TestConditionsInstance,
+} from "@platonic-dice/core";
+
+import {
+  RollRecord,
+  DieRollRecord,
+  ModifiedDieRollRecord,
+  TargetDieRollRecord,
+  RollHistoryCache,
 } from "./historyManagement";
 
 /**
- * Base Die class.
+ * Represents a single die with flexible history tracking.
  *
- * Generic over:
- * - `R`: the roll-record shape
- * - `HM`: the manager implementation (must satisfy HistoryManager<R>)
+ * The Die class provides:
+ * - Normal rolls (numeric)
+ * - Modified rolls (numeric or functional modifiers)
+ * - Test rolls (success/failure evaluation)
+ *
+ * Each roll type is stored independently in a `RollHistoryCache`.
+ *
+ * Example:
+ * ```ts
+ * const d20 = new Die(DieType.D20);
+ * const result = d20.roll(); // normal roll
+ * const modResult = d20.rollMod(n => n + 2); // modified roll
+ * const testResult = d20.rollTest({ testType: "AtLeast", target: 15 });
+ * ```
  */
-export class Die<
-  R extends RollRecord = DieRollRecord,
-  HM extends HistoryManager<R> = RollRecordManager<R>
-> {
-  /** the die type (e.g. DieType.D6) */
+export class Die {
   private readonly typeValue: DieType;
+  private readonly rolls: RollHistoryCache<RollRecord>;
+  private resultValue?: number;
 
-  /** most recent roll result, or undefined if none yet */
-  private resultValue: number | undefined;
-
-  /**
-   * Roll history manager. Protected so subclasses can access to append
-   * alternate record shapes (e.g. Modified or Target records).
-   */
-  protected readonly rolls: HM;
+  /** Keys used internally for history separation */
+  private static readonly NORMAL_KEY = "normal";
+  private static readonly MODIFIER_KEY = "modifier";
+  private static readonly TEST_KEY = "test";
 
   /**
-   * Create a Die.
-   * @param type - Die type (must be a value from `DieType`)
-   * @param rollsManager - optional custom manager for roll records
+   * Create a new Die instance.
+   * @param type - The die type (must be a value from `DieType`)
+   * @param historyCache - Optional custom `RollHistoryCache` instance
    */
-  constructor(type: DieType, rollsManager?: HM) {
+  constructor(type: DieType, historyCache?: RollHistoryCache<RollRecord>) {
     if (!Object.values(DieType).includes(type)) {
       throw new Error(`Invalid die type: ${type}`);
     }
     this.typeValue = type;
-
-    // Default to RollRecordManager if no custom manager provided.
-    // Type assertion needed because TS can't verify HM is RollRecordManager<R>.
-    this.rolls = rollsManager ?? (new RollRecordManager<R>() as unknown as HM);
+    this.rolls = historyCache ?? new RollHistoryCache({ maxKeys: 10 });
   }
 
-  /** The die type (e.g. "d6") */
+  /** The die type (e.g., `d6`, `d20`) */
   get type(): DieType {
     return this.typeValue;
   }
 
-  /** The most recent roll result, or undefined if not rolled yet */
+  /** The most recent numeric roll result, or undefined if not rolled yet */
   get result(): number | undefined {
     return this.resultValue;
   }
 
-  /** History without timestamps (array of records with timestamp removed) */
-  get history(): Omit<R, "timestamp">[] {
-    return this.rolls.all;
-  }
-
-  /** Full history including timestamps */
-  get historyFull(): R[] {
-    return this.rolls.full;
-  }
-
-  /** Number of faces / sides on this die */
+  /** Number of faces on this die */
   get faceCount(): number {
     const lookup: Record<DieType, number> = {
       [DieType.D4]: 4,
@@ -79,113 +85,139 @@ export class Die<
   }
 
   /**
-   * Reset die state.
-   * @param complete - if true, clear history as well
+   * Reset the most recent result.
+   * @param complete - If true, clears all histories for all roll types
    */
-  protected reset(complete = false): void {
+  reset(complete = false): void {
     this.resultValue = undefined;
-    if (complete) this.rolls.clear();
+    if (complete) this.rolls.clearAll();
   }
 
   /**
-   * Roll the die and store a DieRollRecord by default.
-   *
-   * Subclasses that produce a different record shape SHOULD override this
-   * method and add the appropriate record type to `this.rolls`.
-   *
-   * @param rollType - optional advantage/disadvantage mode
-   * @returns the numeric roll result
+   * Perform a normal die roll.
+   * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
+   * @returns The numeric result
    */
   roll(rollType?: RollType): number {
     if (rollType !== undefined && !Object.values(RollType).includes(rollType)) {
       throw new Error(`Invalid roll type: ${rollType}`);
     }
 
-    this.reset();
-    this.resultValue = coreRoll(this.typeValue, rollType);
+    const result = coreRoll(this.typeValue, rollType);
+    this.resultValue = result;
 
-    // Default behaviour: record a plain DieRollRecord.
-    const record = {
-      roll: this.resultValue,
+    const record: DieRollRecord = {
+      roll: result,
       timestamp: new Date(),
-    } as R;
-
-    this.rolls.add(record);
-    return this.resultValue;
-  }
-
-  /**
-   * Retrieve roll history with options.
-   * @param options.limit - maximum number of records
-   * @param options.verbose - include timestamps if true
-   * @returns array of records (with timestamps if verbose=true)
-   */
-  historyDetailed(options?: { limit?: number; verbose?: boolean }) {
-    return this.rolls.report(options);
-  }
-
-  /**
-   * Build a simple report for the die.
-   *
-   * Returned object shape:
-   * {
-   *   type: DieType,
-   *   times_rolled: number,
-   *   latest_record: R | Omit<R,'timestamp'> | null,
-   *   history?: R[] | Omit<R,'timestamp'>[]   // if includeHistory === true
-   * }
-   *
-   * Subclasses can refine the report shape if desired.
-   */
-  report(options?: {
-    limit?: number;
-    verbose?: boolean;
-    includeHistory?: boolean;
-  }): {
-    type: DieType;
-    times_rolled: number;
-    latest_record: R | Omit<R, "timestamp"> | null;
-    history?: (R | Omit<R, "timestamp">)[];
-  } {
-    const { limit, verbose = false, includeHistory = false } = options || {};
-
-    const latestArr = this.rolls.report({ verbose, limit: 1 });
-    const latest = latestArr.length > 0 ? latestArr[0] : null;
-
-    const baseReport: {
-      type: DieType;
-      times_rolled: number;
-      latest_record: R | Omit<R, "timestamp"> | null;
-      history?: (R | Omit<R, "timestamp">)[];
-    } = {
-      type: this.typeValue,
-      times_rolled: this.rolls.length,
-      latest_record: latest ?? null,
     };
 
-    if (includeHistory) {
-      baseReport.history = this.rolls.report({ verbose, limit });
-    }
+    this.rolls.setActiveKey(Die.NORMAL_KEY);
+    this.rolls.add(record);
 
-    return baseReport;
+    return result;
   }
 
-  /** Human-friendly summary */
+  /**
+   * Perform a roll with a modifier.
+   *
+   * @param modifier - Numeric or functional modifier (function `(n: number) => number` or `RollModifierInstance`)
+   * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
+   * @returns The modified numeric result
+   *
+   * Example:
+   * ```ts
+   * d20.rollMod(n => n + 2); // adds +2 to the roll
+   * ```
+   */
+  rollMod(
+    modifier: RollModifierFunction | RollModifierInstance,
+    rollType?: RollType
+  ): number {
+    const { base, modified } = coreRollMod(this.typeValue, modifier, rollType);
+    this.resultValue = modified;
+
+    const record: ModifiedDieRollRecord = {
+      roll: base,
+      modified,
+      timestamp: new Date(),
+    };
+
+    this.rolls.setActiveKey(Die.MODIFIER_KEY);
+    this.rolls.add(record);
+
+    return modified;
+  }
+
+  /**
+   * Perform a roll against test conditions (success/failure evaluation).
+   *
+   * @param testConditions - Test conditions (plain object or `TestConditionsInstance`)
+   * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
+   * @returns The base numeric roll
+   *
+   * Example:
+   * ```ts
+   * d20.rollTest({ testType: "AtLeast", target: 15 });
+   * ```
+   */
+  rollTest(
+    testConditions: TestConditionsInstance | object,
+    rollType?: RollType
+  ): number {
+    const { base, outcome } = coreRollTest(
+      this.typeValue,
+      testConditions,
+      rollType
+    );
+    this.resultValue = base;
+
+    const record: TargetDieRollRecord = {
+      roll: base,
+      outcome,
+      timestamp: new Date(),
+    };
+
+    this.rolls.setActiveKey(Die.TEST_KEY);
+    this.rolls.add(record);
+
+    return base;
+  }
+
+  /**
+   * Retrieve roll history for a given key.
+   *
+   * @param key - `"normal" | "modifier" | "test"`
+   * @param verbose - Include timestamps if true
+   * @returns Array of roll records (timestamps included if verbose)
+   */
+  history(key: string = Die.NORMAL_KEY, verbose = false) {
+    this.rolls.setActiveKey(key);
+    return this.rolls.getAll(verbose);
+  }
+
+  /**
+   * Retrieve a roll report for a specific key.
+   *
+   * @param key - `"normal" | "modifier" | "test"`
+   * @param options - Optional report options (`limit` and `verbose`)
+   * @returns Array of roll records (subject to limit and verbose)
+   */
+  report(
+    key: string = Die.NORMAL_KEY,
+    options?: { limit?: number; verbose?: boolean }
+  ) {
+    this.rolls.setActiveKey(key);
+    return this.rolls.activeManager?.report(options) ?? [];
+  }
+
+  /** Human-readable summary of the die */
   toString(): string {
-    if (this.rolls.length === 0) {
-      return `Die(${this.typeValue}): not rolled yet`;
-    }
-    const latest = this.historyDetailed({ verbose: true, limit: 1 })[0];
-    return `Die(${this.typeValue}): latest=${JSON.stringify(
-      latest
-    )}, total rolls=${this.rolls.length}`;
+    if (!this.resultValue) return `Die(${this.typeValue}): not rolled yet`;
+    return `Die(${this.typeValue}): latest=${this.resultValue}`;
   }
 
-  /** JSON representation (includes history) */
+  /** JSON representation of all histories keyed by roll type */
   toJSON() {
-    const report = this.report({ verbose: true, includeHistory: true });
-    // Convert undefined latest_record to null for backend/API
-    report.latest_record = report.latest_record ?? null;
-    return report;
+    return this.rolls.toJSON();
   }
 }
