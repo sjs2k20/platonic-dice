@@ -16,7 +16,7 @@ import {
   RollRecord,
   DieRollRecord,
   ModifiedDieRollRecord,
-  TargetDieRollRecord,
+  TestDieRollRecord,
   RollHistoryCache,
 } from "./historyManagement";
 
@@ -171,7 +171,7 @@ export class Die {
     );
     this.resultValue = base;
 
-    const record: TargetDieRollRecord = {
+    const record: TestDieRollRecord = {
       roll: base,
       outcome,
       timestamp: new Date(),

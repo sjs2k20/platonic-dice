@@ -20,7 +20,7 @@ export interface ModifiedDieRollRecord {
 /**
  * Targeted test roll record (e.g., success/failure).
  */
-export interface TargetDieRollRecord {
+export interface TestDieRollRecord {
   roll: number;
   outcome: OutcomeValue;
   timestamp: Date;
@@ -32,4 +32,4 @@ export interface TargetDieRollRecord {
 export type RollRecord =
   | DieRollRecord
   | ModifiedDieRollRecord
-  | TargetDieRollRecord;
+  | TestDieRollRecord;

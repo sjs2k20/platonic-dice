@@ -2,7 +2,7 @@ import type {
   RollRecord,
   DieRollRecord,
   ModifiedDieRollRecord,
-  TargetDieRollRecord,
+  TestDieRollRecord,
 } from "./RollRecord.types";
 import { Outcome } from "@platonic-dice/core";
 
@@ -142,14 +142,12 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
 
   private static isTargetDieRollRecord(
     record: RollRecord
-  ): record is TargetDieRollRecord {
+  ): record is TestDieRollRecord {
     return (
       record &&
       typeof record.roll === "number" &&
       "outcome" in record &&
-      Object.values(Outcome).includes(
-        (record as TargetDieRollRecord).outcome
-      ) &&
+      Object.values(Outcome).includes((record as TestDieRollRecord).outcome) &&
       record.timestamp instanceof Date
     );
   }

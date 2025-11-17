@@ -3,7 +3,7 @@ import { Outcome } from "@platonic-dice/core/entities";
 import type {
   DieRollRecord,
   ModifiedDieRollRecord,
-  TargetDieRollRecord,
+  TestDieRollRecord,
   RollRecord,
 } from "../../../src/components/historyManagement/RollRecord.types";
 
@@ -21,7 +21,7 @@ describe("RollRecord types (runtime shape validation)", () => {
     timestamp: now,
   };
 
-  const targetRecord: TargetDieRollRecord = {
+  const targetRecord: TestDieRollRecord = {
     roll: 17,
     outcome: Outcome.Success,
     timestamp: now,

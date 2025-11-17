@@ -3,7 +3,7 @@ import { Outcome } from "@platonic-dice/core";
 import type {
   DieRollRecord,
   ModifiedDieRollRecord,
-  TargetDieRollRecord,
+  TestDieRollRecord,
 } from "../../../src/components/historyManagement/RollRecord.types";
 import {
   DEFAULT_MAX_RECORDS,
@@ -24,7 +24,7 @@ describe("RollRecordManager", () => {
     timestamp: new Date(),
   };
 
-  const targetDieRoll: TargetDieRollRecord = {
+  const targetDieRoll: TestDieRollRecord = {
     roll: 20,
     outcome: Outcome.Success,
     timestamp: new Date(),
