@@ -3,8 +3,8 @@
  * and returns a numeric result.
  *
  * Implementations should:
- * - Declare exactly one parameter (checked via `fn.length === 1`).
- * - Accept and return numbers (preferably integers for dice operations).
+ * - Declare exactly one parameter (checked via `fn.length === 1`)
+ * - Accept and return numbers (preferably integers for dice operations)
  *
  * Examples:
  * ```js
@@ -15,22 +15,30 @@
 export type RollModifierFunction = (n: number) => number;
 
 /**
- * Represents a composite modifier for {@link rollDiceMod}.
+ * Represents a composite modifier for dice operations.
  *
  * Each field is optional and defaults to the identity modifier if omitted.
- *
- * @example
- * const modifier: DiceModifier = {
- *   each: n => n + 1,
- *   net: sum => sum + 2
- * };
  */
 export interface DiceModifier {
-  /** Function or {@link RollModifier} applied to each individual die. */
-  each?: RollModifierFunction | RollModifier | null | undefined;
+  /**
+   * Function or {@link RollModifier} applied to each individual die.
+   *
+   * Accepts:
+   * - RollModifier instance
+   * - RollModifierFunction
+   * - undefined
+   */
+  each?: RollModifierFunction | RollModifier | undefined;
 
-  /** Function or {@link RollModifier} applied to the total (sum) of all dice. */
-  net?: RollModifierFunction | RollModifier | null | undefined;
+  /**
+   * Function or {@link RollModifier} applied to the total sum.
+   *
+   * Accepts:
+   * - RollModifier instance
+   * - RollModifierFunction
+   * - undefined
+   */
+  net?: RollModifierFunction | RollModifier | undefined;
 }
 
 /**
@@ -38,10 +46,6 @@ export interface DiceModifier {
  *
  * Wraps a pure function `(n: number) => number` and provides
  * validation and `apply` semantics.
- *
- * @example
- * const bonus = new RollModifier(n => n + 2);
- * const result = bonus.apply(10); // 12
  */
 export class RollModifier {
   /**
@@ -55,14 +59,12 @@ export class RollModifier {
 
   /**
    * Applies this modifier to a numeric roll result.
-   * @param baseValue - The base roll value.
-   * @returns The modified result.
    */
   apply(baseValue: number): number;
 
   /**
    * Validates the modifier’s internal function.
-   * @throws {TypeError} If the modifier function is invalid.
+   * @throws {TypeError} If invalid.
    */
   validate(): void;
 }
@@ -71,33 +73,28 @@ export class RollModifier {
  * Checks whether a given function is a valid roll modifier.
  *
  * Validation ensures:
- * - It is a function
+ * - `m` is a function
  * - It declares exactly one parameter
- * - It returns an integer when applied to a test value
+ * - Applying it to a test number returns an integer
  *
- * @param m - The function to validate.
- * @returns `true` if the function is valid, else `false`.
+ * The JS accepts `null`/`undefined`, so TS reflects that.
  */
-export function isValidRollModifier(m: Function | null): boolean;
+export function isValidRollModifier(m: Function | null | undefined): boolean;
 
 /**
  * Ensures that a modifier conforms to the `RollModifier` structure.
  *
- * - `RollModifier` instance → returned as-is
- * - Function → wrapped in a new `RollModifier`
- * - `null` or `undefined` → identity modifier
+ * Accepts:
+ * - RollModifier instance
+ * - Function `(n: number) => number`
+ * - undefined (treated as identity modifier)
  *
- * @param m - The modifier input to normalize.
- * @returns A valid `RollModifier` instance.
+ * Returns a valid `RollModifier`.
+ *
  * @throws {TypeError} If the input is invalid.
- *
- * @example
- * const rm1 = normaliseRollModifier(); // identity modifier
- * const rm2 = normaliseRollModifier(n => n + 1);
- * const rm3 = normaliseRollModifier(new RollModifier(n => n * 2));
  */
 export function normaliseRollModifier(
-  m?: RollModifier | RollModifierFunction | null
+  m?: RollModifier | RollModifierFunction | undefined
 ): RollModifier;
 
 /** Alias type for instances of {@link RollModifier}. */

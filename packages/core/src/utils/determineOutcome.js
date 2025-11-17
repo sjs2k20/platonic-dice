@@ -53,9 +53,14 @@ function determineOutcome(value, testConditions) {
 
   // Normalise plain object input into a TestConditions instance
   if (!(testConditions instanceof TestConditions)) {
-    const { testType, dieType, ...conditions } =
-      /** @type {TestConditionsLike} */ (testConditions);
-    testConditions = new TestConditions(testType, conditions, dieType);
+    const { testType, dieType, ...rest } = /** @type {TestConditionsLike} */ (
+      testConditions
+    );
+
+    // Inject dieType into the conditions object to satisfy TestConditions
+    const fullConditions = { ...rest, dieType };
+
+    testConditions = new TestConditions(testType, fullConditions, dieType);
   }
 
   /** @type {TestConditionsInstance} */

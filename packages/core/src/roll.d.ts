@@ -17,10 +17,7 @@ import { DieTypeValue, RollTypeValue } from "./entities";
  * const dis = roll(DieType.D20, RollType.Disadvantage);
  * ```
  */
-export function roll(
-  dieType: DieTypeValue,
-  rollType?: RollTypeValue | null
-): number;
+export function roll(dieType: DieTypeValue, rollType?: RollTypeValue): number;
 
 /**
  * Rolls a die with advantage.
@@ -52,34 +49,34 @@ export function rollDis(dieType: DieTypeValue): number;
  * Rolls a D4 die.
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
-export function rollD4(rollType?: RollTypeValue | null): number;
+export function rollD4(rollType?: RollTypeValue): number;
 
 /**
  * Rolls a D6 die.
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
-export function rollD6(rollType?: RollTypeValue | null): number;
+export function rollD6(rollType?: RollTypeValue): number;
 
 /**
  * Rolls a D8 die.
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
-export function rollD8(rollType?: RollTypeValue | null): number;
+export function rollD8(rollType?: RollTypeValue): number;
 
 /**
  * Rolls a D10 die.
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
-export function rollD10(rollType?: RollTypeValue | null): number;
+export function rollD10(rollType?: RollTypeValue): number;
 
 /**
  * Rolls a D12 die.
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
-export function rollD12(rollType?: RollTypeValue | null): number;
+export function rollD12(rollType?: RollTypeValue): number;
 
 /**
  * Rolls a D20 die.
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
-export function rollD20(rollType?: RollTypeValue | null): number;
+export function rollD20(rollType?: RollTypeValue): number;

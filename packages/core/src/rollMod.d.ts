@@ -20,20 +20,20 @@ export interface RollModResult {
  *
  * @param dieType - The type of die to roll (e.g., `DieType.D20`).
  * @param modifier - Either a function `(n: number) => number` or a RollModifier instance.
- * @param rollType - Optional roll mode (Advantage / Disadvantage). Defaults to `null`.
+ * @param rollType - Optional roll mode (Advantage / Disadvantage). Defaults to `undefined`.
  * @returns An object containing the `base` roll and the `modified` result.
  */
 export declare function rollMod(
   dieType: DieTypeValue,
   modifier: RollModifierFunction | RollModifierInstance,
-  rollType?: RollTypeValue | null
+  rollType?: RollTypeValue
 ): RollModResult;
 
 /**
  * Convenience type for die-specific modifier aliases.
  * Each function returns the modified roll for the given die.
  */
-export type DieModifierAlias = (rollType?: RollTypeValue | null) => number;
+export type DieModifierAlias = (rollType?: RollTypeValue) => number;
 
 /**
  * Dynamically generated convenience aliases for all die types and common modifiers.

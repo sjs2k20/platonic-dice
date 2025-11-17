@@ -42,7 +42,7 @@ describe("Die class", () => {
   it("creates a die with a valid type", () => {
     const die = new Die(DieType.D6);
     expect(die.type).toBe(DieType.D6);
-    expect(die.result).toBe(null);
+    expect(die.result).toBe(undefined);
     expect(die.history).toEqual([]);
   });
 

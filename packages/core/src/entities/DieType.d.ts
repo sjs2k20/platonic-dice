@@ -26,7 +26,7 @@ export enum DieType {
  * isValidDieType("d6"); // true
  * isValidDieType("d100"); // false
  */
-export function isValidDieType(dieType: string | null): boolean;
+export function isValidDieType(dieType?: string): boolean;
 
 /** The keys of {@link DieType} (e.g., `"D20"`). */
 export type DieTypeKey = keyof typeof DieType;

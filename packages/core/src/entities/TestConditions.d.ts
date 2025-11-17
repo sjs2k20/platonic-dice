@@ -1,54 +1,38 @@
 import { DieTypeValue, TestTypeValue } from "./index";
 
 /**
- * Represents a set of conditions for a dice roll test.
+ * Represents a set of validated conditions for a dice roll test.
  *
- * Automatically validates the provided `testType` and `conditions`
- * against the `dieType` when constructed.
- *
- * @example
- * const tc = new TestConditions(TestType.AtLeast, { target: 15 }, DieType.D20);
- * const result = rollTest(DieType.D20, tc);
+ * The constructor guarantees that:
+ * - `testType` is valid
+ * - `conditions` is one of the allowed condition shapes
+ * - numeric ranges match the provided die type
  */
 export class TestConditions {
-  /**
-   * Creates a validated test condition set.
-   *
-   * @param testType - The type of test (e.g., `"at_least"`, `"within"`, `"skill"`).
-   * @param conditions - The conditions object appropriate to the test type.
-   * @param dieType - The die type used to validate numeric ranges.
-   * @throws {TypeError|RangeError} If any input is invalid.
-   */
   constructor(
     testType: TestTypeValue,
-    conditions: object,
+    conditions: Conditions,
     dieType: DieTypeValue
   );
 
-  /** The test type (e.g., `"at_least"`, `"within"`, `"skill"`). */
+  /** The type of test (e.g., `"at_least"`, `"within"`, `"skill"`). */
   testType: TestTypeValue;
 
-  /** The condition values (target, range, thresholds, etc.). */
-  conditions: object;
+  /** The validated condition object. */
+  conditions: Conditions;
 
-  /** The die type associated with this test (e.g., `"d20"`). */
+  /** The die type associated with the test (e.g., `"d20"`). */
   dieType: DieTypeValue;
 
   /**
-   * Validates that the current test conditions still conform to the specification.
-   * Useful if they are loaded dynamically or serialized.
-   *
-   * @throws {TypeError} If validation fails.
+   * Re-validates the stored conditions.
+   * Useful after loading from JSON or dynamic sources.
    */
   validate(): void;
 }
 
 /**
- * Validates a given condition object for a specified test type.
- *
- * @param c - The condition object to validate.
- * @param testType - The test type to check against.
- * @returns `true` if valid, `false` otherwise.
+ * Validates a raw condition object against a given test type.
  */
 export function areValidTestConditions(
   c: Record<string, any>,
@@ -58,62 +42,48 @@ export function areValidTestConditions(
 /**
  * Normalises any input into a {@link TestConditions} instance.
  *
- * Accepts:
- * - An existing `TestConditions` instance → returned as-is.
- * - A plain object `{ testType, ... }` → wrapped in a new `TestConditions`.
- *
- * Automatically validates all fields using the provided `dieType`.
- *
- * @param tc - A TestConditions instance or plain object.
- * @param dieType - The die type for validation (e.g., `"d6"`, `"d20"`).
- * @returns A validated {@link TestConditions} instance.
- * @throws {TypeError} If input is invalid.
- *
- * @example
- * const tc1 = normaliseTestConditions({ testType: "at_least", target: 4 }, "d6");
- * const tc2 = normaliseTestConditions(new TestConditions("exact", { target: 3 }, "d6"), "d6");
+ * Supports:
+ * - An existing TestConditions instance → returned unchanged
+ * - A plain object → converted to a TestConditions instance
  */
 export function normaliseTestConditions(
-  tc: TestConditions | { testType: string; [key: string]: any },
+  tc: TestConditions | { testType: TestTypeValue; [key: string]: any },
   dieType: DieTypeValue
 ): TestConditions;
 
-/** --- Private subtypes --- */
+/* ------------------------------------------------------------------------- */
+/* Internal condition shapes (now accurate to JS and undefined-only policy)  */
+/* ------------------------------------------------------------------------- */
+
 interface BaseTestCondition {
   dieType: DieTypeValue;
 }
-interface TargetConditions extends BaseTestCondition {
+
+/** target: number */
+export interface TargetConditions extends BaseTestCondition {
   target: number;
 }
-interface SkillConditions extends BaseTestCondition {
+
+/** target: number + optional critical thresholds */
+export interface SkillConditions extends BaseTestCondition {
   target: number;
-  critical_success?: number;
-  critical_failure?: number;
+  critical_success?: number; // optional, undefined if omitted
+  critical_failure?: number; // optional, undefined if omitted
 }
-interface WithinConditions extends BaseTestCondition {
+
+/** min/max inclusive */
+export interface WithinConditions extends BaseTestCondition {
   min: number;
   max: number;
 }
-interface SpecificListConditions extends BaseTestCondition {
+
+/** values: non-empty array */
+export interface SpecificListConditions extends BaseTestCondition {
   values: number[];
 }
 
 /**
- * Public union of all valid test condition shapes.
- *
- * This is a union type of all the internal test condition shapes:
- * - `TargetConditions` – single target value
- * - `SkillConditions` – target with optional critical thresholds
- * - `WithinConditions` – min/max range
- * - `SpecificListConditions` – array of specific allowed values
- *
- * Use this type when normalising or working with raw condition objects.
- *
- * @example
- * const c1: Conditions = { dieType: 'd6', target: 4 };
- * const c2: Conditions = { dieType: 'd20', min: 5, max: 15 };
- * const c3: Conditions = { dieType: 'd12', values: [1, 4, 7] };
- * const c4: Conditions = { dieType: 'd20', target: 10, critical_success: 20 };
+ * Public union of all supported test condition shapes.
  */
 export type Conditions =
   | TargetConditions

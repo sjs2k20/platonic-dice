@@ -12,14 +12,14 @@ import {
  * @param testConditions - Conditions to evaluate against. Either:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
- * @param rollType - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param rollType - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`). Defaults to `undefined`.
  * @returns An object containing the raw roll and its outcome.
  * @throws TypeError if `dieType` or `testConditions` are invalid.
  */
 export declare function rollTest(
   dieType: DieTypeValue,
   testConditions: TestConditionsInstance | Record<string, any>,
-  rollType?: RollTypeValue | null
+  rollType?: RollTypeValue
 ): {
   base: number;
   outcome: OutcomeValue;
@@ -28,7 +28,7 @@ export declare function rollTest(
 /**
  * Dynamically generated aliases for `rollTest`.
  *
- * Example: `rollD20AtLeast(target: number, rollType?: RollTypeValue | null)`
+ * Example: `rollD20AtLeast(target: number, rollType?: RollTypeValue)`
  * Returns: `{ base: number, outcome: OutcomeValue }`.
  *
  * The names are generated as `roll<DieKey><TestKey>` for all combinations of
@@ -38,7 +38,7 @@ export declare const aliases: Record<
   string,
   (
     target: number,
-    rollType?: RollTypeValue | null
+    rollType?: RollTypeValue
   ) => {
     base: number;
     outcome: OutcomeValue;

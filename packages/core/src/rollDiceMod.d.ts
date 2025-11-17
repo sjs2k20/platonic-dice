@@ -49,6 +49,11 @@ export declare function rollDiceMod(
 
 /**
  * Convenience alias returning only the per-die modified array (`modified.each.array`).
+ *
+ * @param dieType - Type of die to roll.
+ * @param modifier - Optional modifier(s) to apply.
+ * @param options - Optional options object.
+ * @returns Array of per-die modified results.
  */
 export declare function rollDiceModArr(
   dieType: DieTypeValue,
@@ -58,6 +63,11 @@ export declare function rollDiceModArr(
 
 /**
  * Convenience alias returning only the total net value (`modified.net.value`).
+ *
+ * @param dieType - Type of die to roll.
+ * @param modifier - Optional modifier(s) to apply.
+ * @param options - Optional options object.
+ * @returns The total net modified value.
  */
 export declare function rollDiceModNet(
   dieType: DieTypeValue,

@@ -16,7 +16,7 @@ export enum Outcome {
  * @param outcome - The outcome to validate.
  * @returns `true` if valid, otherwise `false`.
  */
-export function isValidOutcome(outcome: string | null): boolean;
+export function isValidOutcome(outcome?: string): boolean;
 
 /** The keys of {@link Outcome} (e.g., `"CriticalSuccess"`). */
 export type OutcomeKey = keyof typeof Outcome;

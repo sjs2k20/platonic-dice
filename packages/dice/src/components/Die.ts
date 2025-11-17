@@ -1,48 +1,48 @@
 import { DieType, RollType, roll as coreRoll } from "@platonic-dice/core";
 import {
   RollRecordManager,
-  DEFAULT_MAX_RECORDS,
   type RollRecord,
   type DieRollRecord,
+  type HistoryManager,
 } from "./historyManagement";
 
 /**
  * Base Die class.
  *
- * Generic over the roll-record shape so subclasses can specialise:
- * - `Die<DieRollRecord>` (default)
- * - `Die<ModifiedDieRollRecord>`
- * - `Die<TargetDieRollRecord>`
- *
- * Subclasses should override `roll()` if they need to store records with
- * extra fields (e.g. `modified` or `outcome`).
- *
- * @template R - The RollRecord variant produced by this Die (defaults to DieRollRecord)
+ * Generic over:
+ * - `R`: the roll-record shape
+ * - `HM`: the manager implementation (must satisfy HistoryManager<R>)
  */
-export class Die<R extends RollRecord = DieRollRecord> {
+export class Die<
+  R extends RollRecord = DieRollRecord,
+  HM extends HistoryManager<R> = RollRecordManager<R>
+> {
   /** the die type (e.g. DieType.D6) */
   private readonly typeValue: DieType;
 
-  /** most recent roll result, or null if none yet */
-  private resultValue: number | null = null;
+  /** most recent roll result, or undefined if none yet */
+  private resultValue: number | undefined;
 
   /**
    * Roll history manager. Protected so subclasses can access to append
    * alternate record shapes (e.g. Modified or Target records).
    */
-  protected readonly rolls: RollRecordManager<R>;
+  protected readonly rolls: HM;
 
   /**
    * Create a Die.
    * @param type - Die type (must be a value from `DieType`)
-   * @param maxHistory - optional maximum history size to pass to the manager
+   * @param rollsManager - optional custom manager for roll records
    */
-  constructor(type: DieType, maxHistory = DEFAULT_MAX_RECORDS) {
+  constructor(type: DieType, rollsManager?: HM) {
     if (!Object.values(DieType).includes(type)) {
       throw new Error(`Invalid die type: ${type}`);
     }
     this.typeValue = type;
-    this.rolls = new RollRecordManager<R>(maxHistory);
+
+    // Default to RollRecordManager if no custom manager provided.
+    // Type assertion needed because TS can't verify HM is RollRecordManager<R>.
+    this.rolls = rollsManager ?? (new RollRecordManager<R>() as unknown as HM);
   }
 
   /** The die type (e.g. "d6") */
@@ -50,8 +50,8 @@ export class Die<R extends RollRecord = DieRollRecord> {
     return this.typeValue;
   }
 
-  /** The most recent roll result, or null if not rolled yet */
-  get result(): number | null {
+  /** The most recent roll result, or undefined if not rolled yet */
+  get result(): number | undefined {
     return this.resultValue;
   }
 
@@ -83,7 +83,7 @@ export class Die<R extends RollRecord = DieRollRecord> {
    * @param complete - if true, clear history as well
    */
   protected reset(complete = false): void {
-    this.resultValue = null;
+    this.resultValue = undefined;
     if (complete) this.rolls.clear();
   }
 
@@ -96,8 +96,8 @@ export class Die<R extends RollRecord = DieRollRecord> {
    * @param rollType - optional advantage/disadvantage mode
    * @returns the numeric roll result
    */
-  roll(rollType: RollType | null = null): number {
-    if (rollType !== null && !Object.values(RollType).includes(rollType)) {
+  roll(rollType?: RollType): number {
+    if (rollType !== undefined && !Object.values(RollType).includes(rollType)) {
       throw new Error(`Invalid roll type: ${rollType}`);
     }
 
@@ -105,19 +105,12 @@ export class Die<R extends RollRecord = DieRollRecord> {
     this.resultValue = coreRoll(this.typeValue, rollType);
 
     // Default behaviour: record a plain DieRollRecord.
-    // This is safe because the generic default R === DieRollRecord.
-    // If a subclass uses a different R, that subclass should override roll()
-    // to push its own record shape instead.
-    const record: unknown = {
+    const record = {
       roll: this.resultValue,
       timestamp: new Date(),
-    };
+    } as R;
 
-    // Use a type assertion here: for the base class R will be DieRollRecord so
-    // this assertion is correct. Subclasses should override if they need a
-    // different record shape and avoid relying on this.
-    this.rolls.add(record as R);
-
+    this.rolls.add(record);
     return this.resultValue;
   }
 
@@ -156,7 +149,6 @@ export class Die<R extends RollRecord = DieRollRecord> {
   } {
     const { limit, verbose = false, includeHistory = false } = options || {};
 
-    // ask the manager for the most recent record (limit:1)
     const latestArr = this.rolls.report({ verbose, limit: 1 });
     const latest = latestArr.length > 0 ? latestArr[0] : null;
 
@@ -191,6 +183,9 @@ export class Die<R extends RollRecord = DieRollRecord> {
 
   /** JSON representation (includes history) */
   toJSON() {
-    return this.report({ verbose: true, includeHistory: true });
+    const report = this.report({ verbose: true, includeHistory: true });
+    // Convert undefined latest_record to null for backend/API
+    report.latest_record = report.latest_record ?? null;
+    return report;
   }
 }

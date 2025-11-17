@@ -14,7 +14,7 @@ export enum RollType {
  * @param rollType - The roll type to validate.
  * @returns `true` if valid, otherwise `false`.
  */
-export function isValidRollType(rollType: string | null): boolean;
+export function isValidRollType(rollType?: string): boolean;
 
 /** The keys of {@link RollType} (e.g., `"Advantage"`). */
 export type RollTypeKey = keyof typeof RollType;

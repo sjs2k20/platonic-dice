@@ -19,7 +19,7 @@ export enum TestType {
  * @param testType - The test type to validate.
  * @returns `true` if valid, otherwise `false`.
  */
-export function isValidTestType(testType: string | null): boolean;
+export function isValidTestType(testType?: string): boolean;
 
 /** The keys of {@link TestType} (e.g., `"AtLeast"`). */
 export type TestTypeKey = keyof typeof TestType;
