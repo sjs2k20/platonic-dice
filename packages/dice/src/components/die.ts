@@ -17,8 +17,8 @@ import {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
-  RollHistoryCache,
-} from "./historyManagement";
+  HistoryCache,
+} from "./history";
 
 /**
  * Represents a single die with flexible history tracking.
@@ -40,7 +40,7 @@ import {
  */
 export class Die {
   private readonly typeValue: DieType;
-  private readonly rolls: RollHistoryCache<RollRecord>;
+  private readonly rolls: HistoryCache<RollRecord>;
   private resultValue?: number;
 
   /** Keys used internally for history separation */
@@ -53,12 +53,12 @@ export class Die {
    * @param type - The die type (must be a value from `DieType`)
    * @param historyCache - Optional custom `RollHistoryCache` instance
    */
-  constructor(type: DieType, historyCache?: RollHistoryCache<RollRecord>) {
+  constructor(type: DieType, historyCache?: HistoryCache<RollRecord>) {
     if (!Object.values(DieType).includes(type)) {
       throw new Error(`Invalid die type: ${type}`);
     }
     this.typeValue = type;
-    this.rolls = historyCache ?? new RollHistoryCache({ maxKeys: 10 });
+    this.rolls = historyCache ?? new HistoryCache({ maxKeys: 10 });
   }
 
   /** The die type (e.g., `d6`, `d20`) */

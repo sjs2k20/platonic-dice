@@ -1,10 +1,11 @@
-import type {
-  RollRecord,
-  DieRollRecord,
-  ModifiedDieRollRecord,
-  TestDieRollRecord,
-} from "./RollRecord.types";
-import { Outcome } from "@platonic-dice/core";
+import {
+  RollRecordStorage,
+  isDieRollRecord,
+  isModifiedDieRollRecord,
+  isTargetDieRollRecord,
+  stripTimestamp,
+  type RollRecord,
+} from "./internal";
 
 /**
  * Default maximum number of roll records stored.
@@ -21,32 +22,33 @@ export const DEFAULT_MAX_RECORDS = 1000;
  */
 export class RollRecordManager<R extends RollRecord = RollRecord> {
   /** Internal storage of roll records */
-  private records: R[] = [];
+  private storage: RollRecordStorage<R>;
   /** Maximum number of roll records to retain */
   private maxRecords: number;
 
   constructor(maxRecords: number = DEFAULT_MAX_RECORDS) {
     this.maxRecords = maxRecords;
+    this.storage = new RollRecordStorage<R>(maxRecords);
   }
 
   /** Returns a copy of all roll records (including timestamps) */
   get full(): R[] {
-    return [...this.records];
+    return this.storage.full;
   }
 
   /** Returns a copy of all roll records with timestamps stripped */
   get all(): Omit<R, "timestamp">[] {
-    return this.records.map(RollRecordManager.stripTimestamp);
+    return this.storage.full.map(stripTimestamp);
   }
 
   /** Returns the number of roll records stored */
   get length(): number {
-    return this.records.length;
+    return this.storage.size;
   }
 
   /** Returns the maximum number of roll records stored */
   get maxRecordsCount(): number {
-    return this.maxRecords;
+    return this.storage.maxRecordsCount;
   }
 
   /** Adds a roll record to the history */
@@ -54,26 +56,22 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     if (!record || typeof record !== "object") {
       throw new TypeError("Record must be an object");
     }
-
     if (
-      !RollRecordManager.isDieRollRecord(record) &&
-      !RollRecordManager.isModifiedDieRollRecord(record) &&
-      !RollRecordManager.isTargetDieRollRecord(record)
+      !isDieRollRecord(record as any) &&
+      !isModifiedDieRollRecord(record as any) &&
+      !isTargetDieRollRecord(record as any)
     ) {
       throw new TypeError(
         "Record must be a valid DieRollRecord, ModifiedDieRollRecord, or TargetDieRollRecord"
       );
     }
 
-    this.records.push(record);
-    if (this.records.length > this.maxRecords) {
-      this.records.shift(); // remove oldest
-    }
+    this.storage.add(record);
   }
 
   /** Clears the roll history */
   clear() {
-    this.records = [];
+    this.storage.clear();
   }
 
   /** Returns the last N roll records */
@@ -81,12 +79,11 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     if (typeof n !== "number" || n < 1) {
       throw new TypeError("Parameter n must be a positive number.");
     }
-
-    const len = this.records.length;
+    const len = this.storage.size;
     if (len === 0) return [];
 
-    const slice = this.records.slice(Math.max(len - n, 0));
-    return verbose ? slice : slice.map(RollRecordManager.stripTimestamp);
+    const slice = this.storage.last(n);
+    return verbose ? slice : slice.map(stripTimestamp);
   }
 
   /** Produces a roll history report */
@@ -95,68 +92,24 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     verbose?: boolean;
   }): (R | Omit<R, "timestamp">)[] {
     const { limit, verbose = false } = options || {};
-    const n = Math.min(limit ?? this.records.length, this.records.length);
+    const n = Math.min(limit ?? this.storage.size, this.storage.size);
     return n === 0 ? [] : this.last(n, verbose);
   }
 
   /** Human-readable string summary of roll history */
   toString(): string {
-    if (this.records.length === 0) {
+    if (this.storage.size === 0) {
       return `RollRecordManager: empty (maxRecords=${this.maxRecords})`;
     }
-    const lastRecord = this.records[this.records.length - 1];
-    return `RollRecordManager: ${this.records.length}/${
+    const lastRecord = this.storage.full[this.storage.size - 1];
+    return `RollRecordManager: ${this.storage.size}/${
       this.maxRecords
     } rolls (last: ${lastRecord.roll} @ ${lastRecord.timestamp.toISOString()})`;
   }
 
   /** Returns the full history as an array of records */
   toJSON(): R[] {
-    return this.full;
+    return this.storage.toJSON();
   }
-
-  // -----------------------
-  // PRIVATE HELPER METHODS
-  // -----------------------
-  private static isDieRollRecord(record: RollRecord): record is DieRollRecord {
-    return (
-      record &&
-      typeof record.roll === "number" &&
-      record.timestamp instanceof Date &&
-      !("modified" in record) &&
-      !("outcome" in record)
-    );
-  }
-
-  private static isModifiedDieRollRecord(
-    record: RollRecord
-  ): record is ModifiedDieRollRecord {
-    return (
-      record &&
-      typeof record.roll === "number" &&
-      typeof (record as ModifiedDieRollRecord).modified === "number" &&
-      record.timestamp instanceof Date &&
-      !("outcome" in record)
-    );
-  }
-
-  private static isTargetDieRollRecord(
-    record: RollRecord
-  ): record is TestDieRollRecord {
-    return (
-      record &&
-      typeof record.roll === "number" &&
-      "outcome" in record &&
-      Object.values(Outcome).includes((record as TestDieRollRecord).outcome) &&
-      record.timestamp instanceof Date
-    );
-  }
-
-  /** Remove timestamp from a record */
-  private static stripTimestamp<R extends RollRecord>(
-    record: R
-  ): Omit<R, "timestamp"> {
-    const { timestamp, ...rest } = record;
-    return rest;
-  }
+  // Note: Validation and stripping moved to internal/validator.ts
 }

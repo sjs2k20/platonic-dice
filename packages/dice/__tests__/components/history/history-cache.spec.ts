@@ -1,10 +1,7 @@
 /// <reference types="vitest" />
 
 import { describe, it, expect, beforeEach } from "vitest";
-import {
-  RollHistoryCache,
-  type RollRecord,
-} from "../../../src/components/historyManagement";
+import { HistoryCache, type RollRecord } from "../../../src/components/history";
 
 type TestRecord = RollRecord & {
   roll: number;
@@ -12,10 +9,10 @@ type TestRecord = RollRecord & {
 };
 
 describe("RollHistoryCache", () => {
-  let cache: RollHistoryCache<TestRecord>;
+  let cache: HistoryCache<TestRecord>;
 
   beforeEach(() => {
-    cache = new RollHistoryCache<TestRecord>({
+    cache = new HistoryCache<TestRecord>({
       maxRecordsPerKey: 3,
       maxKeys: 2,
     });
@@ -129,9 +126,7 @@ describe("RollHistoryCache", () => {
 
   it("toString returns a readable summary", () => {
     cache.setActiveKey("Active");
-    expect(cache.toString()).toMatch(
-      /RollHistoryCache: 1 keys \(active: Active\)/
-    );
+    expect(cache.toString()).toMatch(/HistoryCache: 1 keys \(active: Active\)/);
   });
 
   it("toJSON returns object with arrays of RollRecords", () => {

@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 
 import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
-import { Die } from "../../src/components/Die";
+import { Die } from "../../src/components/die";
 import {
   DieType,
   RollType,

@@ -4,11 +4,11 @@ import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
-} from "../../../src/components/historyManagement/RollRecord.types";
+} from "../../../../src/components/history/roll-record-manager/internal/roll-record.types";
 import {
   DEFAULT_MAX_RECORDS,
   RollRecordManager,
-} from "../../../src/components/historyManagement/RollRecordManager";
+} from "../../../../src/components/history/roll-record-manager";
 
 describe("RollRecordManager", () => {
   let manager: RollRecordManager;

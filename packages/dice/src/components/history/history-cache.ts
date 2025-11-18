@@ -1,5 +1,8 @@
-import { RollRecordManager, DEFAULT_MAX_RECORDS } from "./RollRecordManager";
-import type { RollRecord } from "./RollRecord.types";
+import {
+  RollRecordManager,
+  DEFAULT_MAX_RECORDS,
+  type RollRecord,
+} from "./roll-record-manager";
 
 /**
  * A wrapper for RollRecordManager that maintains multiple, independently capped histories.
@@ -9,7 +12,7 @@ import type { RollRecord } from "./RollRecord.types";
  *
  * @template R - The type of roll records stored
  */
-export class RollHistoryCache<R extends RollRecord = RollRecord> {
+export class HistoryCache<R extends RollRecord = RollRecord> {
   private readonly cache = new Map<string, RollRecordManager<R>>();
   private readonly maxRecordsPerKey: number;
   private readonly maxKeys: number;
