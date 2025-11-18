@@ -4,12 +4,12 @@ import {
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
   stripTimestamp,
-} from "../../../../../src/components/history/roll-record-manager/internal/validator";
+} from "@dice/components/history/roll-record-manager/internal/validator";
 import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
-} from "../../../../../src/components/history/roll-record-manager/internal/roll-record.types";
+} from "@dice/components/history/roll-record-manager/internal/roll-record.types";
 import { Outcome } from "@platonic-dice/core";
 
 describe("RollRecord validator", () => {

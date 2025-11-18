@@ -6,7 +6,11 @@
     "rootDir": ".",
     "outDir": "dist",
     "isolatedModules": true,
-    "types": ["node", "vitest"]
+    "types": ["node", "vitest"],
+    "baseUrl": ".",
+    "paths": {
+      "@dice/*": ["src/*"]
+    }
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["node_modules", "dist"]
