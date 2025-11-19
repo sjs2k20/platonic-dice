@@ -56,8 +56,8 @@ function rollTest(dieType, testConditions, rollType = undefined) {
   // Perform the roll
   const base = r.roll(dieType, rollType);
 
-  // Determine the outcome using centralized logic
-  const outcome = utils.determineOutcome(base, testConditions);
+  // Determine the outcome using the normalized conditions
+  const outcome = utils.determineOutcome(base, conditionSet);
 
   return { base, outcome };
 }

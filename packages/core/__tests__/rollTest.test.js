@@ -53,7 +53,11 @@ describe("@platonic-dice/core/rollTest", () => {
       expect(result.base).toBe(5);
       expect(result.outcome).toBe("success");
       expect(r.roll).toHaveBeenCalledWith(dieType, undefined);
-      expect(utils.determineOutcome).toHaveBeenCalledWith(5, testConditions);
+      // determineOutcome receives a normalized TestConditions instance
+      expect(utils.determineOutcome).toHaveBeenCalledWith(
+        5,
+        expect.any(td.TestConditions)
+      );
     });
 
     it("should pass rollType through to underlying roll", () => {
@@ -111,10 +115,11 @@ describe("@platonic-dice/core/rollTest", () => {
         expect(result.base).toBe(4);
         expect(result.outcome).toBe("failure");
         expect(r.roll).toHaveBeenCalledWith(dieType, "disadvantage");
-        expect(utils.determineOutcome).toHaveBeenCalledWith(4, {
-          testType,
-          target: 3,
-        });
+        // determineOutcome now receives a normalized TestConditions instance
+        expect(utils.determineOutcome).toHaveBeenCalledWith(
+          4,
+          expect.any(td.TestConditions)
+        );
       });
     });
 
@@ -129,10 +134,11 @@ describe("@platonic-dice/core/rollTest", () => {
       expect(result.base).toBe(5);
       expect(result.outcome).toBe("success");
       expect(r.roll).toHaveBeenCalledWith(DieType.D6, undefined);
-      expect(utils.determineOutcome).toHaveBeenCalledWith(5, {
-        testType: TestType.AtLeast,
-        target: 4,
-      });
+      // determineOutcome now receives a normalized TestConditions instance
+      expect(utils.determineOutcome).toHaveBeenCalledWith(
+        5,
+        expect.any(td.TestConditions)
+      );
     });
   });
 });

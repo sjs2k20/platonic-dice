@@ -4,4 +4,5 @@ export type {
   TestDieRollRecord,
   RollRecord,
 } from "./roll-record-manager";
+export { RollRecordFactory } from "./roll-record-manager";
 export * from "./history-cache";

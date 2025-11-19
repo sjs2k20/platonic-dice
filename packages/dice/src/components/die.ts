@@ -1,10 +1,4 @@
-import {
-  DieType,
-  RollType,
-  roll as coreRoll,
-  rollMod as coreRollMod,
-  rollTest as coreRollTest,
-} from "@platonic-dice/core";
+import { DieType, RollType } from "@platonic-dice/core";
 
 import type {
   RollModifierFunction,
@@ -12,13 +6,7 @@ import type {
   TestConditionsInstance,
 } from "@platonic-dice/core";
 
-import {
-  RollRecord,
-  DieRollRecord,
-  ModifiedDieRollRecord,
-  TestDieRollRecord,
-  HistoryCache,
-} from "./history";
+import { RollRecord, RollRecordFactory, HistoryCache } from "./history";
 
 /**
  * Represents a single die with flexible history tracking.
@@ -42,6 +30,7 @@ export class Die {
   private readonly typeValue: DieType;
   private readonly rolls: HistoryCache<RollRecord>;
   private resultValue?: number;
+  private readonly recordFactory = new RollRecordFactory();
 
   /** Keys used internally for history separation */
   private static readonly NORMAL_KEY = "normal";
@@ -60,6 +49,19 @@ export class Die {
     this.typeValue = type;
     this.rolls = historyCache ?? new HistoryCache({ maxKeys: 10 });
   }
+
+  /**
+   * Notes on behavior and contracts
+   * - `resultValue` holds the most recent numeric value produced by a roll
+   *   operation. It is updated from factory-produced records: for normal and
+   *   test rolls it tracks `record.roll`; for modified rolls it tracks
+   *   `record.modified`.
+   * - `rolls` is a `HistoryCache` that stores separate histories keyed by
+   *   roll type (normal/modifier/test). Each public roll method sets the
+   *   corresponding active key, creates a factory-produced record and adds
+   *   it to the active history. Record shape validation happens at the
+   *   `RollRecordManager.add()` boundary.
+   */
 
   /** The die type (e.g., `d6`, `d20`) */
   get type(): DieType {
@@ -103,18 +105,17 @@ export class Die {
       throw new Error(`Invalid roll type: ${rollType}`);
     }
 
-    const result = coreRoll(this.typeValue, rollType);
-    this.resultValue = result;
-
-    const record: DieRollRecord = {
-      roll: result,
-      timestamp: new Date(),
-    };
+    // Delegate record creation to the RollRecordFactory to centralize shape
+    const record = this.recordFactory.createNormalRoll(
+      this.typeValue,
+      rollType
+    );
+    this.resultValue = record.roll;
 
     this.rolls.setActiveKey(Die.NORMAL_KEY);
     this.rolls.add(record);
 
-    return result;
+    return record.roll;
   }
 
   /**
@@ -133,19 +134,17 @@ export class Die {
     modifier: RollModifierFunction | RollModifierInstance,
     rollType?: RollType
   ): number {
-    const { base, modified } = coreRollMod(this.typeValue, modifier, rollType);
-    this.resultValue = modified;
-
-    const record: ModifiedDieRollRecord = {
-      roll: base,
-      modified,
-      timestamp: new Date(),
-    };
+    const record = this.recordFactory.createModifiedRoll(
+      this.typeValue,
+      modifier,
+      rollType
+    );
+    this.resultValue = record.modified;
 
     this.rolls.setActiveKey(Die.MODIFIER_KEY);
     this.rolls.add(record);
 
-    return modified;
+    return record.modified;
   }
 
   /**
@@ -164,23 +163,17 @@ export class Die {
     testConditions: TestConditionsInstance | object,
     rollType?: RollType
   ): number {
-    const { base, outcome } = coreRollTest(
+    const record = this.recordFactory.createTestRoll(
       this.typeValue,
       testConditions,
       rollType
     );
-    this.resultValue = base;
-
-    const record: TestDieRollRecord = {
-      roll: base,
-      outcome,
-      timestamp: new Date(),
-    };
+    this.resultValue = record.roll;
 
     this.rolls.setActiveKey(Die.TEST_KEY);
     this.rolls.add(record);
 
-    return base;
+    return record.roll;
   }
 
   /**
@@ -212,7 +205,8 @@ export class Die {
 
   /** Human-readable summary of the die */
   toString(): string {
-    if (!this.resultValue) return `Die(${this.typeValue}): not rolled yet`;
+    if (this.resultValue === undefined)
+      return `Die(${this.typeValue}): not rolled yet`;
     return `Die(${this.typeValue}): latest=${this.resultValue}`;
   }
 
