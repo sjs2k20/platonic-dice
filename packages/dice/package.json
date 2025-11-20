@@ -5,7 +5,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "dice",
     "TTRPG",
@@ -32,5 +34,9 @@
   },
   "dependencies": {
     "@platonic-dice/core": "^2.0.0"
+  },
+  "devDependencies": {
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.9"
   }
 }
