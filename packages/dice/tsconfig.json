@@ -10,8 +10,8 @@
     "baseUrl": ".",
     "paths": {
       "@dice/*": ["src/*"],
-      "@platonic-dice/core": ["../core/src/index.js"],
-      "@platonic-dice/core/*": ["../core/src/*"]
+      "@platonic-dice/core": ["../core/dist-types.d.ts"],
+      "@platonic-dice/core/*": ["../core/dist/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],
