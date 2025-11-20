@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/core",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Core JavaScript logic for simulating TTRPG dice rolls.",
   "main": "dist/index.js",
   "types": "dist-types.d.ts",
