@@ -16,7 +16,10 @@ describe("RollRecordFactory", () => {
   });
 
   it("should create a valid ModifiedDieRollRecord for modified rolls", () => {
-    const record = factory.createModifiedRoll(DieType.D20, (n) => n + 2);
+    const record = factory.createModifiedRoll(
+      DieType.D20,
+      (n: number) => n + 2
+    );
     expect(record).toMatchObject({
       roll: expect.any(Number),
       modified: expect.any(Number),
@@ -46,7 +49,7 @@ describe("RollRecordFactory", () => {
 
   it("should throw an error for invalid RollType in createNormalRoll", () => {
     expect(() =>
-      factory.createNormalRoll(DieType.D6, "InvalidRollType" as RollType)
+      factory.createNormalRoll(DieType.D6, "InvalidRollType" as any)
     ).toThrow(TypeError);
   });
 });

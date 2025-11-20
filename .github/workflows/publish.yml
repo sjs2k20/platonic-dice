@@ -1,71 +1,122 @@
-name: Publish Package & Release
+name: Publish Packages & Release
 
 on:
-    push:
-        tags:
-            - "v*.*.*"
+  push:
+    tags:
+      - "v*.*.*"
 
 jobs:
-    publish:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
+  typecheck:
+    name: Typecheck workspaces
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: "20"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
 
-            # Optional: only needed if you run tests/builds before publish
-            # - run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-            # --- PRE-FLIGHT CHECKS ---
+      - name: Run TypeScript checks for workspace packages
+        run: |
+          set -euo pipefail
+          echo "Looking for packages with tsconfig.json..."
+          found=0
+          for dir in packages/*; do
+            if [ -f "$dir/tsconfig.json" ]; then
+              echo "Found tsconfig in $dir, running tsc --noEmit"
+              npx tsc -p "$dir/tsconfig.json" --noEmit
+              found=1
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "No package tsconfig.json files found; skipping typecheck step."
+          fi
 
-            - name: Verify package.json version matches tag
-              run: |
-                  PKG_VERSION=$(node -p "require('./package.json').version")
-                  TAG_VERSION=${GITHUB_REF#refs/tags/v}
-                  echo "package.json version=$PKG_VERSION, git tag=$TAG_VERSION"
-                  if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
-                    echo "ERROR: Version mismatch! package.json=$PKG_VERSION, tag=$TAG_VERSION"
+  publish:
+    needs: typecheck
+    runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build core package
+        run: npm run -w @platonic-dice/core build
+
+      - name: Determine tag version
+        id: tag
+        run: |
+          TAG_VERSION=${GITHUB_REF_NAME#v}
+          echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Verify workspace package versions and publish matching packages
+        env:
+          GHPKG_TOKEN: ${{ secrets.GHPKG_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG_VERSION=${{ steps.tag.outputs.tag_version }}
+          echo "Tag version: $TAG_VERSION"
+
+          # Determine github packages token to use (prefer repo secret GHPKG_TOKEN, fallback to GITHUB_TOKEN)
+          GHPKG_TOKEN="${GHPKG_TOKEN:-$GITHUB_TOKEN}"
+
+          # Create a temporary npmrc so npm uses the tokens for both registries
+          printf "//registry.npmjs.org/:_authToken=%s\n//npm.pkg.github.com/:_authToken=%s\n" "$NPM_TOKEN" "$GHPKG_TOKEN" > ~/.npmrc
+
+          # Publish packages in deterministic order to respect inter-package deps
+          PACKAGES=("packages/core" "packages/dice")
+
+          for pkg in "${PACKAGES[@]}"; do
+            if [ -f "$pkg/package.json" ]; then
+              PKG_NAME=$(node -p "require('./$pkg/package.json').name")
+              PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
+              echo "Found package: $PKG_NAME@$PKG_VERSION in $pkg"
+              if [ "$PKG_VERSION" = "$TAG_VERSION" ]; then
+                echo "Publishing $PKG_NAME from $pkg to npmjs.org"
+                pushd "$pkg"
+                # Ensure install/build step runs as necessary (prepublishOnly handles build)
+                npm publish --registry https://registry.npmjs.org/ --access public || {
+                  echo "Publish to npmjs failed, checking if version already exists..."
+                  if npm view "$PKG_NAME@$PKG_VERSION" >/dev/null 2>&1; then
+                    echo "Version $PKG_VERSION already exists on npm for $PKG_NAME, continuing."
+                  else
+                    echo "ERROR: npm publish to npmjs failed for $PKG_NAME"
                     exit 1
                   fi
+                }
 
-            - name: Check npm authentication
-              run: npm whoami --registry=https://registry.npmjs.org/
-              env:
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+                # Attempt GitHub Packages publish (best-effort). If it fails, log and continue.
+                echo "Attempting to publish $PKG_NAME to GitHub Packages"
+                if npm publish --registry https://npm.pkg.github.com/ --access public; then
+                  echo "Published $PKG_NAME to GitHub Packages"
+                else
+                  echo "Warning: publishing $PKG_NAME to GitHub Packages failed or is not configured for this scope. Continuing."
+                fi
 
-            # --- PUBLISH TO NPMJS ---
+                popd
+              else
+                echo "Skipping $PKG_NAME (version mismatch)"
+              fi
+            else
+              echo "Package path $pkg does not exist, skipping"
+            fi
+          done
 
-            - name: Publish to npmjs.org
-              run: |
-                  TAG_VERSION=${GITHUB_REF_NAME#v}
-                  set -e
-                  npm publish --registry https://registry.npmjs.org/ --access public || {
-                    if npm view platonic-dice@$TAG_VERSION >/dev/null 2>&1; then
-                      echo "WARNING: Version $TAG_VERSION already exists on npm, continuing."
-                    else
-                      echo "ERROR: npm publish failed for another reason."
-                      exit 1
-                    fi
-                  }
-              env:
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-            # Optional GitHub Packages publish (will require scoped package)
-            # # --- PUBLISH TO GITHUB PACKAGES ---
-
-            # - name: Publish to GitHub Packages
-            #   run: npm publish --registry https://npm.pkg.github.com/ --access public
-            #   env:
-            #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            # --- CREATE GITHUB RELEASE ---
-
-            - name: Create GitHub Release
-              uses: softprops/action-gh-release@v1
-              with:
-                  tag_name: ${{ github.ref_name }}
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

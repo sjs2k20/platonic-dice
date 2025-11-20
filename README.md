@@ -1,150 +1,101 @@
 # Platonic Dice
 
-_A flexible and extensible JavaScript library for simulating tabletop RPG dice rolls._
+A monorepo containing two publishable packages:
 
-## Overview
+- `@platonic-dice/core` — pure JavaScript/TypeScript dice-roll logic, entities and utilities.
+- `@platonic-dice/dice` — higher-level persistent dice objects (history, validators, TypeScript types) built on `@platonic-dice/core`.
 
-**Platonic Dice** is a JavaScript library designed to model and simulate dice rolling mechanics commonly used in tabletop role-playing games (TTRPGs), such as _Dungeons & Dragons_. It provides a robust API to handle standard dice rolls, advantage/disadvantage mechanics, target-based success checks, and more.
+This repository is structured as an npm workspace. Each package lives under `packages/<name>` and has its own `package.json`, README and build/test scripts.
 
-Whether you need a simple dice roller, a way to track roll history, or an extensible library to integrate with your own gaming applications, **Platonic Dice** is built for flexibility and ease of use.
+## Install
 
----
-
-## Features
-
-✅ **Full TTRPG Dice Support** – Supports d4, d6, d8, d10, d12, d20 rolls.  
-✅ **Advantage & Disadvantage Rolls** – Implements rolling mechanics for TTRPG rules.  
-✅ **Persistent Dice Objects** – Track roll history for each die instance.  
-✅ **Custom Dice** – Define custom faces with unique outcomes.  
-✅ **Target-Based Rolling** – Test against predefined success/failure conditions.  
-✅ **Modifier Functions** – Apply transformations to dice rolls dynamically.  
-✅ **Library-Friendly** – Designed for easy import and use in other applications.
-
----
-
-## Installation
-
-To install via **npm**, run:
+Install a package from npm (after publishing):
 
 ```bash
-npm install platonic-dice
+# core
+npm install @platonic-dice/core
+
+# dice
+npm install @platonic-dice/dice
 ```
 
-Or via **yarn**:
+Locally (development):
 
 ```bash
-yarn add platonic-dice
+# install workspace dev dependencies and link packages
+npm install
+
+# build all packages
+npm run build
+
+# run tests across workspaces
+npm test
 ```
 
----
+## Packages
 
-## Usage Examples
+### @platonic-dice/core
 
-### 1️⃣ Basic Dice Rolls
+- Exposes functions for rolling dice (`roll`, `rollDice`, `rollMod`, `rollTest`), enums (`DieType`, `RollType`, `TestType`), and utilities.
+- Sources: `packages/core/src`
+- Entry: `packages/core/src/index.js`
 
-```javascript
-const { rollDie, rollDice } = require("platonic-dice");
+### @platonic-dice/dice
 
-console.log(rollDie("d20")); // Rolls a single d20
-console.log(rollDice("d6", { count: 3 })); // Rolls three d6 dice
+- Provides the `Die` class and history tooling which consumes `@platonic-dice/core`.
+- Written in TypeScript; built output is `packages/dice/dist`.
+- Entry: `packages/dice/dist/index.js` (after build)
+
+## Quick examples
+
+CommonJS (Node):
+
+```js
+const { roll } = require("@platonic-dice/core");
+const { Die } = require("@platonic-dice/dice");
+
+console.log(roll("d20"));
+const d = new Die("d12");
+console.log(d.roll());
 ```
 
-### 2️⃣ Rolling with Advantage/Disadvantage
+TypeScript / ESM:
 
-```javascript
-const { RollType } = require("platonic-dice");
+```ts
+import { roll, DieType } from "@platonic-dice/core";
+import { Die } from "@platonic-dice/dice";
 
-console.log(rollDie("d20", RollType.Advantage)); // Rolls with advantage
-console.log(rollDie("d20", RollType.Disadvantage)); // Rolls with disadvantage
+console.log(roll(DieType.D20));
 ```
 
-### 3️⃣ Persistent Dice Instances
+## Publishing
 
-```javascript
-const { Die } = require("platonic-dice");
+We publish packages by tagging the repository and letting GitHub Actions run the release workflow.
 
-const myDie = new Die("d12");
-console.log(myDie.roll()); // Roll the die
-console.log(myDie.history); // View roll history
-console.log(myDie.toJSON()); // Get a JSON representation
-```
+1.  Bump package versions in the packages you want to publish (e.g. `packages/core/package.json` and `packages/dice/package.json`) to the desired release (e.g. `1.0.0`).
+2.  Commit the changes and create a git tag: `git tag v1.0.0`.
+3.  Push the tag: `git push origin v1.0.0`.
 
-### 4️⃣ Applying Modifiers to Rolls
+The workflow at `.github/workflows/publish.yml` looks for the tag version and publishes any package in `packages/*` whose `package.json` version matches that tag. The workflow expects a repo secret named `NPM_TOKEN` containing an npm granular token with `read & write` permissions for the package scope.
 
-```javascript
-const { ModifiedDie } = require("platonic-dice");
+### Publishing to GitHub Packages
 
-const addTwoModifier = (roll) => roll + 2;
-const modDie = new ModifiedDie("d10", addTwoModifier);
-
-console.log(modDie.roll()); // Rolls d10 and adds 2 to result
-console.log(modDie.modifiedHistory); // Check modified roll history
-```
-
-### 5️⃣ Target-Based Rolling (Success/Failure)
-
-```javascript
-const { TargetDie } = require("platonic-dice");
-
-const targetDie = new TargetDie("d20", [18, 19, 20]); // Success on 18+
-console.log(targetDie.roll()); // Rolls and checks success/failure
-console.log(targetDie.getHistory()); // View full roll history
-```
-
-### 6️⃣ Custom Dice with Face Mapping
-
-```javascript
-const { CustomDie } = require("platonic-dice");
-
-const faceMappings = {
-    1: () => "Critical Failure",
-    20: () => "Critical Success",
-};
-
-const customDie = new CustomDie("d20", faceMappings, () => "Normal Roll");
-console.log(customDie.roll()); // Rolls and maps result
-console.log(customDie.report(true)); // View detailed roll report
-```
-
-### 7️⃣ Test Dice with Critical Success/Failure
-
-```javascript
-const { TestDie, TestConditions } = require("platonic-dice");
-
-const testConditions = new TestConditions(10, 18, 2); // Success at 10+, Crit at 18+, Fail at 2-
-const testDie = new TestDie("d20", testConditions);
-
-console.log(testDie.roll()); // Rolls and evaluates success/failure
-console.log(testDie.report()); // View latest roll result and outcome
-```
-
----
-
-## Development Roadmap
-
-✅ **Core Dice Functionality** – Standard rolls, advantage/disadvantage, roll history.  
-✅ **Target-Based & Test Rolls** – Rolling against thresholds with outcomes.
-🔲 **Code Tidy** – Tidy up the API to improve UX and integration into larger apps.
-🔲 **Dice Pools & Multiple Dice Mechanics** – Implement grouped rolls with different conditions.  
-🔲 **Optional UI Component** – Develop a visual dice roller for web apps.
-
----
+- GitHub Packages requires scoped package names (e.g. `@platonic-dice/*`). If you publish to GitHub Packages, you must point `npm publish` to `https://npm.pkg.github.com/` and use a token with the `write:packages` scope (a PAT).
 
 ## Contributing
 
-Want to contribute? Here’s how:
-
-1. **Fork the repo** and create your feature branch (`git checkout -b feature-name`).
-2. **Make your changes** and commit (`git commit -m "Add new feature"`).
-3. **Push to your branch** (`git push origin feature-name`).
-4. **Submit a Pull Request** for review.
-
----
+- Fork -> branch -> PR. Follow existing code style and add tests for new behavior.
+- Run `npm run build` and `npm test` before opening a PR.
 
 ## License
 
-This project is licensed under the **MIT License** – see the [LICENSE](https://github.com/sjs2k20/platonic-dice/blob/main/LICENSE) file for details.
+MIT — see the `LICENSE` file at the repository root.
+
+## Other notes
+
+- The root `package.json` is intentionally `private: true` to avoid publishing the monorepo root.
+- Each package contains its own `README.md` shown on its npm page after publishing.
 
 ---
 
-🚀 **Ready to roll some dice? Let’s play!** 🎲
+Happy rolling! 🎲

@@ -1,17 +1,36 @@
 {
   "name": "@platonic-dice/dice",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Persistent dice objects with roll history and TypeScript support.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
+  "keywords": [
+    "dice",
+    "TTRPG",
+    "random",
+    "game",
+    "d20",
+    "dnd"
+  ],
+  "author": "Stephen James Saunders",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjs2k20/platonic-dice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sjs2k20/platonic-dice.git/issues"
+  },
+  "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@platonic-dice/core": "*"
+    "@platonic-dice/core": "^1.0.0"
   }
 }

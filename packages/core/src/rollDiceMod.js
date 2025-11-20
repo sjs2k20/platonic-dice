@@ -65,7 +65,7 @@ function rollDiceMod(dieType, modifier = {}, { count = 1 } = {}) {
 
   if (modifier instanceof RollModifier || typeof modifier === "function") {
     // Single modifier → treated as net
-    eachMod = normaliseRollModifier(null); // identity
+    eachMod = normaliseRollModifier(undefined); // identity
     netMod = normaliseRollModifier(modifier);
   } else if (typeof modifier === "object" && modifier !== null) {
     const { each, net } = modifier;

@@ -1,10 +1,12 @@
 import { DieType, RollType } from "@platonic-dice/core";
 
 import type {
+  DieTypeValue,
   RollModifierFunction,
   RollModifierInstance,
   TestConditionsInstance,
 } from "@platonic-dice/core";
+import type { RollTypeValue, TestTypeValue } from "@platonic-dice/core";
 
 import { RollRecordFactory, HistoryCache } from "@dice/components";
 
@@ -29,7 +31,7 @@ import type { RollRecord } from "@dice/types";
  * ```
  */
 export class Die {
-  private readonly typeValue: DieType;
+  private readonly typeValue: DieTypeValue;
   private readonly rolls: HistoryCache<RollRecord>;
   private resultValue?: number;
   private readonly recordFactory = new RollRecordFactory();
@@ -44,11 +46,13 @@ export class Die {
    * @param type - The die type (must be a value from `DieType`)
    * @param historyCache - Optional custom `RollHistoryCache` instance
    */
-  constructor(type: DieType, historyCache?: HistoryCache<RollRecord>) {
-    if (!Object.values(DieType).includes(type)) {
+  constructor(type: DieTypeValue, historyCache?: HistoryCache<RollRecord>) {
+    // Accept only the narrow literal union type (DieTypeValue) for strictness.
+    // Runtime validation still guards against invalid values.
+    if (!Object.values(DieType).includes(type as any)) {
       throw new Error(`Invalid die type: ${type}`);
     }
-    this.typeValue = type;
+    this.typeValue = type as DieTypeValue;
     this.rolls = historyCache ?? new HistoryCache({ maxKeys: 10 });
   }
 
@@ -66,7 +70,7 @@ export class Die {
    */
 
   /** The die type (e.g., `d6`, `d20`) */
-  get type(): DieType {
+  get type(): DieTypeValue {
     return this.typeValue;
   }
 
@@ -77,7 +81,7 @@ export class Die {
 
   /** Number of faces on this die */
   get faceCount(): number {
-    const lookup: Record<DieType, number> = {
+    const lookup: Record<DieTypeValue, number> = {
       [DieType.D4]: 4,
       [DieType.D6]: 6,
       [DieType.D8]: 8,
@@ -102,8 +106,11 @@ export class Die {
    * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
    * @returns The numeric result
    */
-  roll(rollType?: RollType): number {
-    if (rollType !== undefined && !Object.values(RollType).includes(rollType)) {
+  roll(rollType?: RollTypeValue): number {
+    if (
+      rollType !== undefined &&
+      !Object.values(RollType).includes(rollType as any)
+    ) {
       throw new Error(`Invalid roll type: ${rollType}`);
     }
 
@@ -134,7 +141,7 @@ export class Die {
    */
   rollMod(
     modifier: RollModifierFunction | RollModifierInstance,
-    rollType?: RollType
+    rollType?: RollTypeValue
   ): number {
     const record = this.recordFactory.createModifiedRoll(
       this.typeValue,
@@ -162,8 +169,10 @@ export class Die {
    * ```
    */
   rollTest(
-    testConditions: TestConditionsInstance | object,
-    rollType?: RollType
+    testConditions:
+      | TestConditionsInstance
+      | { testType: TestTypeValue; [k: string]: any },
+    rollType?: RollTypeValue
   ): number {
     const record = this.recordFactory.createTestRoll(
       this.typeValue,

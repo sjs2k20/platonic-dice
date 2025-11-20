@@ -11,6 +11,11 @@ import type {
   RollModifierInstance,
   TestConditionsInstance,
 } from "@platonic-dice/core";
+import type {
+  DieTypeValue,
+  TestTypeValue,
+  RollTypeValue,
+} from "@platonic-dice/core";
 
 import type {
   DieRollRecord,
@@ -23,6 +28,8 @@ import {
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
 } from "./internal";
+
+// Runtime validation for rollType values uses the runtime `RollType` object.
 
 /**
  * Factory interface for producing RollRecord values.
@@ -43,16 +50,19 @@ export interface IRollRecordFactory {
    * @param rollType - Optional roll mode (advantage/disadvantage).
    * @throws TypeError for invalid `rollType`.
    */
-  createNormalRoll(dieType: DieType, rollType?: RollType): DieRollRecord;
+  createNormalRoll(
+    dieType: DieTypeValue,
+    rollType?: RollTypeValue
+  ): DieRollRecord;
 
   /**
    * Create a modified roll record. The modifier may be a numeric or
    * functional modifier; the factory resolves base and modified values.
    */
   createModifiedRoll(
-    dieType: DieType,
+    dieType: DieTypeValue,
     modifier: RollModifierFunction | RollModifierInstance,
-    rollType?: RollType
+    rollType?: RollTypeValue
   ): ModifiedDieRollRecord;
 
   /**
@@ -61,9 +71,11 @@ export interface IRollRecordFactory {
    * validate it. The returned record contains `roll` and `outcome`.
    */
   createTestRoll(
-    dieType: DieType,
-    testConditions: TestConditionsInstance | object,
-    rollType?: RollType
+    dieType: DieTypeValue,
+    testConditions:
+      | TestConditionsInstance
+      | { testType: TestTypeValue; [k: string]: any },
+    rollType?: RollTypeValue
   ): TestDieRollRecord;
 }
 
@@ -77,8 +89,17 @@ export interface IRollRecordFactory {
  * This keeps the public API simple and avoids DI.
  */
 export class RollRecordFactory implements IRollRecordFactory {
-  createNormalRoll(dieType: DieType, rollType?: RollType): DieRollRecord {
-    if (rollType !== undefined && !Object.values(RollType).includes(rollType)) {
+  createNormalRoll(
+    dieType: DieTypeValue,
+    rollType?: RollTypeValue
+  ): DieRollRecord {
+    // Runtime validation without `any` casts: compare against the known
+    // RollType members (explicit checks keep types narrow and avoid casts).
+    if (
+      rollType !== undefined &&
+      rollType !== RollType.Advantage &&
+      rollType !== RollType.Disadvantage
+    ) {
       throw new TypeError(`Invalid rollType: ${String(rollType)}`);
     }
     // Delegate to core roll implementation and attach a timestamp.
@@ -94,9 +115,9 @@ export class RollRecordFactory implements IRollRecordFactory {
   }
 
   createModifiedRoll(
-    dieType: DieType,
+    dieType: DieTypeValue,
     modifier: RollModifierFunction | RollModifierInstance,
-    rollType?: RollType
+    rollType?: RollTypeValue
   ): ModifiedDieRollRecord {
     // Resolve base and modified values using the core helper, then stamp.
     const { base, modified } = coreRollMod(dieType, modifier, rollType);
@@ -115,9 +136,11 @@ export class RollRecordFactory implements IRollRecordFactory {
   }
 
   createTestRoll(
-    dieType: DieType,
-    testConditions: TestConditionsInstance | object,
-    rollType?: RollType
+    dieType: DieTypeValue,
+    testConditions:
+      | TestConditionsInstance
+      | { testType: TestTypeValue; [k: string]: any },
+    rollType?: RollTypeValue
   ): TestDieRollRecord {
     // Core normalises and evaluates test conditions; we retain the outcome
     // and attach a timestamp to produce a TestDieRollRecord.

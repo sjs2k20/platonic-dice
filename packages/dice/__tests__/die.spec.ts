@@ -42,8 +42,7 @@ describe("Die class", () => {
   });
 
   it("throws for invalid die type", () => {
-    // @ts-expect-error testing invalid input
-    expect(() => new Die("INVALID")).toThrowError(/Invalid die type/);
+    expect(() => new Die("INVALID" as any)).toThrowError(/Invalid die type/);
   });
 
   // ---------------------
@@ -81,8 +80,7 @@ describe("Die class", () => {
 
   it("throws for invalid rollType", () => {
     const die = new Die(DieType.D8);
-    // @ts-expect-error
-    expect(() => die.roll("INVALID")).toThrowError(/Invalid roll type/);
+    expect(() => die.roll("INVALID" as any)).toThrowError(/Invalid roll type/);
   });
 
   // ---------------------
@@ -92,7 +90,7 @@ describe("Die class", () => {
     const die = new Die(DieType.D6);
     (coreRollMod as Mock).mockReturnValue({ base: 3, modified: 5 });
 
-    const result = die.rollMod((n) => n + 2);
+    const result = die.rollMod((n: number) => n + 2);
     expect(result).toBe(5);
     expect(die.result).toBe(5);
 
@@ -108,7 +106,7 @@ describe("Die class", () => {
     const die = new Die(DieType.D6);
     (coreRollTest as Mock).mockReturnValue({ base: 4, outcome: "success" });
 
-    const result = die.rollTest({ testType: "AtLeast", target: 3 });
+    const result = die.rollTest({ testType: "at_least", target: 3 });
     expect(result).toBe(4);
     expect(die.result).toBe(4);
 
