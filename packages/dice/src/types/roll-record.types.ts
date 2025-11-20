@@ -1,0 +1,39 @@
+/**
+ * Types for roll records used across the dice package.
+ * These represent the persisted shape for normal, modified and test rolls.
+ */
+import type { OutcomeValue } from "@platonic-dice/core";
+
+/**
+ * Simple die roll record.
+ */
+export interface DieRollRecord {
+  roll: number;
+  timestamp: Date;
+}
+
+/**
+ * Modified die roll record.
+ */
+export interface ModifiedDieRollRecord {
+  roll: number;
+  modified: number;
+  timestamp: Date;
+}
+
+/**
+ * Targeted test roll record (e.g., success/failure).
+ */
+export interface TestDieRollRecord {
+  roll: number;
+  outcome: OutcomeValue;
+  timestamp: Date;
+}
+
+/**
+ * Union type for all possible roll records.
+ */
+export type RollRecord =
+  | DieRollRecord
+  | ModifiedDieRollRecord
+  | TestDieRollRecord;
