@@ -46,9 +46,11 @@ import {
 export interface IRollRecordFactory {
   /**
    * Create a simple numeric roll record for the given die.
-   * @param dieType - The die type (e.g. `DieType.D6`).
-   * @param rollType - Optional roll mode (advantage/disadvantage).
-   * @throws TypeError for invalid `rollType`.
+   *
+   * @param {DieTypeValue} dieType - The die type (e.g. `DieType.D6`).
+   * @param {RollTypeValue} [rollType] - Optional roll mode (advantage/disadvantage).
+   * @returns {DieRollRecord} A validated die roll record containing `roll` and `timestamp`.
+   * @throws {TypeError} If `rollType` is not a valid `RollTypeValue`.
    */
   createNormalRoll(
     dieType: DieTypeValue,
@@ -58,6 +60,11 @@ export interface IRollRecordFactory {
   /**
    * Create a modified roll record. The modifier may be a numeric or
    * functional modifier; the factory resolves base and modified values.
+   *
+   * @param {DieTypeValue} dieType - The die type to roll.
+   * @param {RollModifierFunction|RollModifierInstance} modifier - Modifier applied to the base roll.
+   * @param {RollTypeValue} [rollType] - Optional roll mode.
+   * @returns {ModifiedDieRollRecord} A validated modified roll record.
    */
   createModifiedRoll(
     dieType: DieTypeValue,
@@ -69,6 +76,11 @@ export interface IRollRecordFactory {
    * Create a test roll record. `testConditions` may be a plain object or
    * a `TestConditionsInstance` — the core library will normalise and
    * validate it. The returned record contains `roll` and `outcome`.
+   *
+   * @param {DieTypeValue} dieType - The die type to roll.
+   * @param {TestConditionsInstance|{ testType: TestTypeValue; [k: string]: any }} testConditions - Test descriptor or instance.
+   * @param {RollTypeValue} [rollType] - Optional roll mode.
+   * @returns {TestDieRollRecord} A validated test roll record containing `roll`, `outcome`, and `timestamp`.
    */
   createTestRoll(
     dieType: DieTypeValue,

@@ -46,7 +46,13 @@ export function isTargetDieRollRecord(
   );
 }
 
-/** Remove timestamp property from a record (immutable-friendly) */
+/**
+ * Remove timestamp property from a record (immutable-friendly).
+ *
+ * @template R
+ * @param {R} record - The record to strip timestamp from.
+ * @returns {Omit<R, "timestamp">} The record without the timestamp property.
+ */
 export function stripTimestamp<R extends RollRecord>(
   record: R
 ): Omit<R, "timestamp"> {

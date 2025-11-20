@@ -14,6 +14,11 @@ export class RollRecordStorage<R extends RollRecord = RollRecord> {
    * Create a new storage container.
    * @param maxRecords Maximum number of records to retain (FIFO eviction).
    */
+  /**
+   * Create a new storage container.
+   *
+   * @param {number} [maxRecords=1000] Maximum number of records to retain (FIFO eviction).
+   */
   constructor(maxRecords: number = 1000) {
     if (typeof maxRecords !== "number" || maxRecords < 1) {
       throw new TypeError("maxRecords must be a positive number");

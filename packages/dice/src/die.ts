@@ -46,6 +46,13 @@ export class Die {
    * @param type - The die type (must be a value from `DieType`)
    * @param historyCache - Optional custom `RollHistoryCache` instance
    */
+  /**
+   * Create a new Die instance.
+   *
+   * @param {DieTypeValue} type - The die type (must be a value from `DieType`).
+   * @param {HistoryCache<RollRecord>} [historyCache] - Optional custom history cache instance.
+   * @throws {Error} If `type` is not a valid `DieType` value.
+   */
   constructor(type: DieTypeValue, historyCache?: HistoryCache<RollRecord>) {
     // Accept only the narrow literal union type (DieTypeValue) for strictness.
     // Runtime validation still guards against invalid values.
@@ -106,6 +113,13 @@ export class Die {
    * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
    * @returns The numeric result
    */
+  /**
+   * Perform a normal die roll.
+   *
+   * @param {RollTypeValue} [rollType] - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`).
+   * @returns {number} The numeric result of the roll.
+   * @throws {Error} If `rollType` is provided but invalid.
+   */
   roll(rollType?: RollTypeValue): number {
     if (
       rollType !== undefined &&
@@ -139,6 +153,15 @@ export class Die {
    * d20.rollMod(n => n + 2); // adds +2 to the roll
    * ```
    */
+  /**
+   * Perform a roll with a modifier.
+   *
+   * @param {RollModifierFunction | RollModifierInstance} modifier - Numeric or functional modifier applied to the base roll.
+   * @param {RollTypeValue} [rollType] - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`).
+   * @returns {number} The modified numeric result.
+   * @example
+   * d20.rollMod(n => n + 2); // adds +2 to the roll
+   */
   rollMod(
     modifier: RollModifierFunction | RollModifierInstance,
     rollType?: RollTypeValue
@@ -168,6 +191,16 @@ export class Die {
    * d20.rollTest({ testType: "AtLeast", target: 15 });
    * ```
    */
+  /**
+   * Perform a roll against test conditions (success/failure evaluation).
+   *
+   * @param {TestConditionsInstance | { testType: TestTypeValue; [k: string]: any }} testConditions - Test conditions (plain object or normalized `TestConditions` instance).
+   * @param {RollTypeValue} [rollType] - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`).
+   * @returns {number} The base numeric roll used to evaluate the test.
+   * @throws {Error} If `testConditions` or `rollType` are invalid (delegated to core).
+   * @example
+   * d20.rollTest({ testType: "at_least", target: 15 });
+   */
   rollTest(
     testConditions:
       | TestConditionsInstance
@@ -194,6 +227,13 @@ export class Die {
    * @param verbose - Include timestamps if true
    * @returns Array of roll records (timestamps included if verbose)
    */
+  /**
+   * Retrieve roll history for a given key.
+   *
+   * @param {string} [key=Die.NORMAL_KEY] - One of "normal" | "modifier" | "test".
+   * @param {boolean} [verbose=false] - Include timestamps when true.
+   * @returns {Array} Array of roll records (timestamps included when verbose).
+   */
   history(key: string = Die.NORMAL_KEY, verbose = false) {
     this.rolls.setActiveKey(key);
     return this.rolls.getAll(verbose);
@@ -206,6 +246,13 @@ export class Die {
    * @param options - Optional report options (`limit` and `verbose`)
    * @returns Array of roll records (subject to limit and verbose)
    */
+  /**
+   * Retrieve a roll report for a specific key.
+   *
+   * @param {string} [key=Die.NORMAL_KEY] - History key to report on.
+   * @param {{limit?: number, verbose?: boolean}} [options] - Report options.
+   * @returns {Array} Array of roll records (subject to `limit` and `verbose`).
+   */
   report(
     key: string = Die.NORMAL_KEY,
     options?: { limit?: number; verbose?: boolean }
@@ -215,6 +262,11 @@ export class Die {
   }
 
   /** Human-readable summary of the die */
+  /**
+   * Human-readable summary of the die
+   *
+   * @returns {string} Short description including last result if present.
+   */
   toString(): string {
     if (this.resultValue === undefined)
       return `Die(${this.typeValue}): not rolled yet`;
@@ -222,6 +274,11 @@ export class Die {
   }
 
   /** JSON representation of all histories keyed by roll type */
+  /**
+   * JSON representation of all histories keyed by roll type
+   *
+   * @returns {Record<string, RollRecord[]>} Mapping of history keys to arrays of records.
+   */
   toJSON() {
     return this.rolls.toJSON();
   }

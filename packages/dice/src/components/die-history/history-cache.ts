@@ -9,6 +9,14 @@ import type { RollRecord } from "@dice/types";
  *
  * @template R - The type of roll records stored
  */
+/**
+ * A wrapper for RollRecordManager that maintains multiple, independently capped histories.
+ *
+ * Useful for scenarios where a single RollRecordManager needs to support "history parking",
+ * such as storing separate roll histories per modifier or context.
+ *
+ * @template R - The type of roll records stored
+ */
 export class HistoryCache<R extends RollRecord = RollRecord> {
   private readonly cache = new Map<string, RollRecordManager<R>>();
   private readonly maxRecordsPerKey: number;
@@ -23,7 +31,11 @@ export class HistoryCache<R extends RollRecord = RollRecord> {
     this.maxKeys = maxKeys;
   }
 
-  /** Sets the currently active history key */
+  /**
+   * Sets the currently active history key. If the key does not exist it will be created.
+   *
+   * @param {string} key - History key to activate.
+   */
   setActiveKey(key: string) {
     if (!this.cache.has(key)) {
       if (this.cache.size >= this.maxKeys) {
@@ -37,13 +49,22 @@ export class HistoryCache<R extends RollRecord = RollRecord> {
     this.activeKey = key;
   }
 
-  /** Returns the currently active RollRecordManager */
+  /**
+   * Returns the currently active RollRecordManager for the active key.
+   *
+   * @returns {RollRecordManager<R> | undefined} The manager for the active key (if any).
+   */
   get activeManager(): RollRecordManager<R> | undefined {
     if (!this.activeKey) return undefined;
     return this.cache.get(this.activeKey);
   }
 
-  /** Adds a roll record to the active history */
+  /**
+   * Adds a roll record to the active history.
+   *
+   * @param {R} record - The roll record to add.
+   * @throws {Error} If no active history key is set.
+   */
   add(record: R) {
     const manager = this.activeManager;
     if (!manager)
@@ -51,26 +72,40 @@ export class HistoryCache<R extends RollRecord = RollRecord> {
     manager.add(record);
   }
 
-  /** Returns a copy of the roll records for the active key */
+  /**
+   * Returns a copy of the roll records for the active key.
+   *
+   * @param {boolean} [verbose=false] - When true include timestamps.
+   * @returns {R[] | Omit<R, "timestamp">[]} Array of records for the active key.
+   */
   getAll(verbose = false): R[] | Omit<R, "timestamp">[] {
     const manager = this.activeManager;
     if (!manager) return [];
     return verbose ? manager.full : manager.all;
   }
 
-  /** Clears all roll records for the active key */
+  /**
+   * Clears all roll records for the active key.
+   */
   clearActive() {
     const manager = this.activeManager;
     if (manager) manager.clear();
   }
 
-  /** Clears all cached histories */
+  /**
+   * Clears all cached histories and resets the active key.
+   */
   clearAll() {
     this.cache.clear();
     this.activeKey = undefined;
   }
 
-  /** Returns a roll history report for all cached keys */
+  /**
+   * Returns a roll history report for all cached keys.
+   *
+   * @param {{limit?: number, verbose?: boolean}} [options] - Report options.
+   * @returns {Record<string, (R | Omit<R, "timestamp">)[]>} Map of key→records.
+   */
   report({
     limit,
     verbose = false,
@@ -85,14 +120,22 @@ export class HistoryCache<R extends RollRecord = RollRecord> {
     return reports;
   }
 
-  /** Returns a string summary of the cache */
+  /**
+   * Returns a string summary of the cache.
+   *
+   * @returns {string} Summary containing number of keys and active key.
+   */
   toString(): string {
     return `RollHistoryCache: ${this.cache.size} keys (active: ${
       this.activeKey ?? "none"
     })`;
   }
 
-  /** Returns a JSON-friendly object mapping keys to arrays of RollRecords */
+  /**
+   * Returns a JSON-friendly object mapping keys to arrays of RollRecords.
+   *
+   * @returns {Record<string, R[]>} The cache contents as plain arrays.
+   */
   toJSON(): Record<string, R[]> {
     const json: Record<string, R[]> = {};
     for (const [key, manager] of this.cache.entries()) {

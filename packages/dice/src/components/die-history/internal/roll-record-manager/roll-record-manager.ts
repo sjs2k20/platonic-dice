@@ -26,32 +26,58 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
   /** Maximum number of roll records to retain */
   private maxRecords: number;
 
+  /**
+   * Create a RollRecordManager.
+   *
+   * @param {number} [maxRecords=DEFAULT_MAX_RECORDS] - Maximum records to retain.
+   */
   constructor(maxRecords: number = DEFAULT_MAX_RECORDS) {
     this.maxRecords = maxRecords;
     this.storage = new RollRecordStorage<R>(maxRecords);
   }
 
-  /** Returns a copy of all roll records (including timestamps) */
+  /**
+   * Returns a copy of all roll records (including timestamps).
+   *
+   * @returns {R[]} All records (timestamps preserved).
+   */
   get full(): R[] {
     return this.storage.full;
   }
 
-  /** Returns a copy of all roll records with timestamps stripped */
+  /**
+   * Returns a copy of all roll records with timestamps stripped.
+   *
+   * @returns {Omit<R, "timestamp">[]} Records without timestamps.
+   */
   get all(): Omit<R, "timestamp">[] {
     return this.storage.full.map(stripTimestamp);
   }
 
-  /** Returns the number of roll records stored */
+  /**
+   * Returns the number of roll records stored.
+   *
+   * @returns {number} Number of stored records.
+   */
   get length(): number {
     return this.storage.size;
   }
 
-  /** Returns the maximum number of roll records stored */
+  /**
+   * Returns the configured maximum number of roll records.
+   *
+   * @returns {number} Maximum records configured.
+   */
   get maxRecordsCount(): number {
     return this.storage.maxRecordsCount;
   }
 
-  /** Adds a roll record to the history */
+  /**
+   * Adds a roll record to the history.
+   *
+   * @param {R} record - The record to add.
+   * @throws {TypeError} If the record is not a valid roll record shape.
+   */
   add(record: R) {
     if (!record || typeof record !== "object") {
       throw new TypeError("Record must be an object");
@@ -69,12 +95,20 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     this.storage.add(record);
   }
 
-  /** Clears the roll history */
+  /**
+   * Clears the roll history storage.
+   */
   clear() {
     this.storage.clear();
   }
 
-  /** Returns the last N roll records */
+  /**
+   * Returns the last N roll records.
+   *
+   * @param {number} [n=1] - Number of records to retrieve.
+   * @param {boolean} [verbose=false] - Include timestamps when true.
+   * @returns {(R | Omit<R, "timestamp">)[]} Array of records.
+   */
   last(n: number = 1, verbose = false): (R | Omit<R, "timestamp">)[] {
     if (typeof n !== "number" || n < 1) {
       throw new TypeError("Parameter n must be a positive number.");
@@ -86,7 +120,12 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     return verbose ? slice : slice.map(stripTimestamp);
   }
 
-  /** Produces a roll history report */
+  /**
+   * Produces a roll history report based on the given options.
+   *
+   * @param {{limit?: number; verbose?: boolean}} [options]
+   * @returns {(R | Omit<R, "timestamp">)[]} An array of records per options.
+   */
   report(options?: {
     limit?: number;
     verbose?: boolean;
@@ -96,7 +135,11 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     return n === 0 ? [] : this.last(n, verbose);
   }
 
-  /** Human-readable string summary of roll history */
+  /**
+   * Human-readable string summary of roll history.
+   *
+   * @returns {string} Summary that contains last roll and counts.
+   */
   toString(): string {
     if (this.storage.size === 0) {
       return `RollRecordManager: empty (maxRecords=${this.maxRecords})`;
