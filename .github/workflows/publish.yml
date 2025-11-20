@@ -20,6 +20,22 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspaces
 
+      - name: Show core files visible to CI
+        run: |
+          echo "core dist exists?"
+          ls -la packages/core/dist || true
+          echo "core dist-types.d.ts exists?"
+          ls -la packages/core/dist-types.d.ts || true
+          echo "node_modules link for core (if present):"
+          ls -la node_modules/@platonic-dice || true
+          echo "peek at dist-types.d.ts (first 200 lines)"
+          sed -n '1,200p' packages/core/dist-types.d.ts || true
+
+      - name: TypeScript resolve trace for dice (debug)
+        run: |
+          echo "Running tsc --traceResolution for packages/dice (debug output; step allowed to fail)"
+          npx tsc -p packages/dice/tsconfig.json --noEmit --traceResolution || true
+
       - name: Run TypeScript checks for workspace packages
         run: |
           set -euo pipefail
