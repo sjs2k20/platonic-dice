@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import RollRecordStorage from "@dice/components/history/roll-record-manager/internal/storage";
-import type { DieRollRecord } from "@dice/components/history/roll-record-manager/internal/roll-record.types";
+import RollRecordStorage from "@dice/components/die-history/internal/roll-record-manager/internal/roll-record-storage";
+import type { DieRollRecord } from "@dice/types";
 
 describe("RollRecordStorage", () => {
   it("evicts oldest when capacity exceeded", () => {

@@ -1,16 +1,16 @@
 import { describe, it, expect } from "vitest";
+import { Outcome } from "@platonic-dice/core";
 import {
   isDieRollRecord,
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
   stripTimestamp,
-} from "@dice/components/history/roll-record-manager/internal/validator";
+} from "@dice/components/die-history/internal";
 import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
-} from "@dice/components/history/roll-record-manager/internal/roll-record.types";
-import { Outcome } from "@platonic-dice/core";
+} from "@dice/types";
 
 describe("RollRecord validator", () => {
   const now = new Date();

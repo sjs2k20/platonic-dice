@@ -1,7 +1,8 @@
 /// <reference types="vitest" />
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { HistoryCache, type RollRecord } from "@dice/components/history";
+import { HistoryCache } from "@dice/components/die-history";
+import type { RollRecord } from "@dice/types";
 
 type TestRecord = RollRecord & {
   roll: number;

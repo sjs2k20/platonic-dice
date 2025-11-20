@@ -16,14 +16,13 @@ import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
-  RollRecord,
-} from "./roll-record.types";
+} from "@dice/types";
 
 import {
   isDieRollRecord,
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
-} from "./validator";
+} from "./internal";
 
 /**
  * Factory interface for producing RollRecord values.

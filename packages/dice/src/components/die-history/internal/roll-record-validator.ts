@@ -1,10 +1,10 @@
+import { Outcome } from "@platonic-dice/core";
 import type {
   RollRecord,
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
-} from "./roll-record.types";
-import { Outcome } from "@platonic-dice/core";
+} from "@dice/types";
 
 /**
  * Runtime type-guards for RollRecord shapes.

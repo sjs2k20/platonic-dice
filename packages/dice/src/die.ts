@@ -6,7 +6,9 @@ import type {
   TestConditionsInstance,
 } from "@platonic-dice/core";
 
-import { RollRecord, RollRecordFactory, HistoryCache } from "./history";
+import { RollRecordFactory, HistoryCache } from "@dice/components";
+
+import type { RollRecord } from "@dice/types";
 
 /**
  * Represents a single die with flexible history tracking.

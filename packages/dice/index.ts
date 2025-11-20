@@ -1,2 +1,2 @@
-export { Die } from "./src/components/die";
-export * from "./src/components/history";
+export { Die } from "./src/die";
+export * from "./src/types";

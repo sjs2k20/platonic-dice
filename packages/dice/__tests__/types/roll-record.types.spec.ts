@@ -5,7 +5,7 @@ import type {
   ModifiedDieRollRecord,
   TestDieRollRecord,
   RollRecord,
-} from "@dice/components/history/roll-record-manager/internal/roll-record.types";
+} from "@dice/types";
 
 describe("RollRecord types (runtime shape validation)", () => {
   const now = new Date();

@@ -1,8 +1,5 @@
-import {
-  RollRecordManager,
-  DEFAULT_MAX_RECORDS,
-  type RollRecord,
-} from "./roll-record-manager";
+import { RollRecordManager, DEFAULT_MAX_RECORDS } from "./internal";
+import type { RollRecord } from "@dice/types";
 
 /**
  * A wrapper for RollRecordManager that maintains multiple, independently capped histories.

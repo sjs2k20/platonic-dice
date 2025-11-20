@@ -1,11 +1,11 @@
+import type { RollRecord } from "@dice/types";
 import {
-  RollRecordStorage,
   isDieRollRecord,
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
   stripTimestamp,
-  type RollRecord,
-} from "./internal";
+} from "../roll-record-validator";
+import { RollRecordStorage } from "./internal";
 
 /**
  * Default maximum number of roll records stored.

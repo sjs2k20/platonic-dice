@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { RollRecordFactory } from "../../../../src/components/history/roll-record-manager/internal/roll-record-factory";
+import { RollRecordFactory } from "@dice/components/die-history";
 import { DieType, RollType } from "@platonic-dice/core";
 
 describe("RollRecordFactory", () => {

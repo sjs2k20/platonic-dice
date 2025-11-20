@@ -1,4 +1,4 @@
-import type { RollRecord } from "./roll-record.types";
+import type { RollRecord } from "@dice/types";
 
 /**
  * Simple in-memory storage for roll records with a fixed capacity.
