@@ -9,7 +9,9 @@
     "types": ["node", "vitest"],
     "baseUrl": ".",
     "paths": {
-      "@dice/*": ["src/*"]
+      "@dice/*": ["src/*"],
+      "@platonic-dice/core": ["../core/dist-types.d.ts"],
+      "@platonic-dice/core/*": ["../core/dist/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],

@@ -116,6 +116,8 @@ function alias(key) {
         return /** @type {any} */ (result.modified.each.array);
       case "net":
         return /** @type {any} */ (result.modified.net.value);
+      default:
+        throw new TypeError(`Unknown alias key: ${key}`);
     }
   };
 }

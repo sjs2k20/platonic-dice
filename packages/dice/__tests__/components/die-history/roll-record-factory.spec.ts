@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { RollRecordFactory } from "@dice/components/die-history";
-import { DieType, RollType } from "@platonic-dice/core";
+import { DieType } from "@platonic-dice/core";
 
 describe("RollRecordFactory", () => {
   const factory = new RollRecordFactory();

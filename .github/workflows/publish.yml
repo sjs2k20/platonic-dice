@@ -1,5 +1,8 @@
 name: Publish Packages & Release
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -18,7 +21,12 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces
+
+      - name: Build core package (emit declarations)
+        run: npm run -w @platonic-dice/core build
+
+      # (debug steps removed)
 
       - name: Run TypeScript checks for workspace packages
         run: |
@@ -50,7 +58,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces
 
       - name: Build core package
         run: npm run -w @platonic-dice/core build
@@ -62,18 +70,13 @@ jobs:
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
       - name: Verify workspace package versions and publish matching packages
-        env:
-          GHPKG_TOKEN: ${{ secrets.GHPKG_TOKEN }}
         run: |
           set -euo pipefail
           TAG_VERSION=${{ steps.tag.outputs.tag_version }}
           echo "Tag version: $TAG_VERSION"
 
-          # Determine github packages token to use (prefer repo secret GHPKG_TOKEN, fallback to GITHUB_TOKEN)
-          GHPKG_TOKEN="${GHPKG_TOKEN:-$GITHUB_TOKEN}"
-
-          # Create a temporary npmrc so npm uses the tokens for both registries
-          printf "//registry.npmjs.org/:_authToken=%s\n//npm.pkg.github.com/:_authToken=%s\n" "$NPM_TOKEN" "$GHPKG_TOKEN" > ~/.npmrc
+          # Create a temporary npmrc so npm uses the token for npmjs.
+          printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > ~/.npmrc
 
           # Publish packages in deterministic order to respect inter-package deps
           PACKAGES=("packages/core" "packages/dice")
@@ -84,28 +87,16 @@ jobs:
               PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
               echo "Found package: $PKG_NAME@$PKG_VERSION in $pkg"
               if [ "$PKG_VERSION" = "$TAG_VERSION" ]; then
-                echo "Publishing $PKG_NAME from $pkg to npmjs.org"
-                pushd "$pkg"
-                # Ensure install/build step runs as necessary (prepublishOnly handles build)
-                npm publish --registry https://registry.npmjs.org/ --access public || {
-                  echo "Publish to npmjs failed, checking if version already exists..."
-                  if npm view "$PKG_NAME@$PKG_VERSION" >/dev/null 2>&1; then
-                    echo "Version $PKG_VERSION already exists on npm for $PKG_NAME, continuing."
-                  else
-                    echo "ERROR: npm publish to npmjs failed for $PKG_NAME"
-                    exit 1
-                  fi
-                }
-
-                # Attempt GitHub Packages publish (best-effort). If it fails, log and continue.
-                echo "Attempting to publish $PKG_NAME to GitHub Packages"
-                if npm publish --registry https://npm.pkg.github.com/ --access public; then
-                  echo "Published $PKG_NAME to GitHub Packages"
+                echo "Checking if $PKG_NAME@$PKG_VERSION already exists on npmjs.org"
+                if npm view "$PKG_NAME@$PKG_VERSION" >/dev/null 2>&1; then
+                  echo "Version $PKG_VERSION already exists on npm for $PKG_NAME, skipping publish."
                 else
-                  echo "Warning: publishing $PKG_NAME to GitHub Packages failed or is not configured for this scope. Continuing."
+                  echo "Publishing $PKG_NAME from $pkg to npmjs.org"
+                  pushd "$pkg"
+                  # Ensure install/build step runs as necessary (prepublishOnly handles build)
+                  npm publish --registry https://registry.npmjs.org/ --access public
+                  popd
                 fi
-
-                popd
               else
                 echo "Skipping $PKG_NAME (version mismatch)"
               fi

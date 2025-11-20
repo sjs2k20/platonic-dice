@@ -1,11 +1,13 @@
 {
   "name": "@platonic-dice/dice",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "description": "Persistent dice objects with roll history and TypeScript support.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "dice",
     "TTRPG",
@@ -31,6 +33,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@platonic-dice/core": "^1.0.0"
+    "@platonic-dice/core": "^2.0.1"
+  },
+  "devDependencies": {
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.9"
   }
 }
