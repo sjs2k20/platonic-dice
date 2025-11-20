@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspaces
 
+      - name: Build core package (emit declarations)
+        run: npm run -w @platonic-dice/core build
+
       - name: Show core files visible to CI
         run: |
           echo "core dist exists?"
