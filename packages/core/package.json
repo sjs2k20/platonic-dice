@@ -14,7 +14,7 @@
       "types": "./dist/entities/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "dist-types.d.ts"],
   "keywords": [
     "dice",
     "TTRPG",
