@@ -19,6 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@platonic-dice/core": resolve(__dirname, "../core/src"),
+      "@dice": resolve(__dirname, "./src"),
     },
   },
 });
