@@ -18,7 +18,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces
 
       - name: Run TypeScript checks for workspace packages
         run: |
@@ -50,7 +50,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces
 
       - name: Build core package
         run: npm run -w @platonic-dice/core build
