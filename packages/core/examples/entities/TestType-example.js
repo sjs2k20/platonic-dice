@@ -13,8 +13,8 @@ console.log(`AtLeast: "${TestType.AtLeast}"`);
 console.log(`AtMost: "${TestType.AtMost}"`);
 console.log(`Exact: "${TestType.Exact}"`);
 console.log(`Within: "${TestType.Within}"`);
-console.log(`Skill: "${TestType.Skill}"`);
-console.log(`Attack: "${TestType.Attack}"\n`);
+console.log(`InList: "${TestType.InList}"`);
+console.log(`Skill: "${TestType.Skill}"\n`);
 
 // Example 2: AtLeast (Standard DC)
 console.log("=== AtLeast Test (Saving Throw) ===");
@@ -44,20 +44,20 @@ for (let i = 0; i < 5; i++) {
 }
 console.log();
 
-// Example 4: Attack test
-console.log("=== Attack Test (vs AC 16) ===");
+// Example 4: Attack roll using AtLeast (vs AC)
+console.log("=== Attack Roll (vs AC 16) ===");
 const attack = rollTest(DieType.D20, {
-  testType: TestType.Attack,
+  testType: TestType.AtLeast,
   target: 16,
 });
 
 console.log(`Roll: ${attack.roll}, AC: 16`);
 console.log(`Outcome: ${attack.outcome}`);
 
-if (attack.outcome === Outcome.CriticalSuccess) {
-  console.log("💥 CRITICAL HIT! Double damage dice!\n");
-} else if (attack.outcome === Outcome.CriticalFailure) {
-  console.log("💀 FUMBLE! Automatic miss!\n");
+if (attack.roll === 20) {
+  console.log("💥 Natural 20! CRITICAL HIT!\n");
+} else if (attack.roll === 1) {
+  console.log("💀 Natural 1! Fumble!\n");
 } else {
   console.log();
 }
@@ -127,11 +127,11 @@ const withCrits = rollTest(DieType.D20, {
 console.log(`  Roll ${withCrits.roll}: ${withCrits.outcome}`);
 
 console.log("\nWithout natural crits:");
-const withoutCrits = rollTest(
-  DieType.D20,
-  { testType: TestType.Skill, target: 15 },
-  { useNaturalCrits: false }
-);
+const withoutCrits = rollTest(DieType.D20, {
+  testType: TestType.Skill,
+  target: 15,
+  useNaturalCrits: false,
+});
 console.log(`  Roll ${withoutCrits.roll}: ${withoutCrits.outcome}`);
 console.log("  (No critical outcomes, even on nat 1/20)\n");
 
@@ -190,7 +190,7 @@ console.log();
 console.log("=== Dynamic Test Type Selection ===");
 function selectTestType(rollPurpose) {
   const typeMap = {
-    attack: TestType.Attack,
+    attack: TestType.AtLeast, // Attack rolls use AtLeast (vs AC)
     skill: TestType.Skill,
     save: TestType.AtLeast,
     exact: TestType.Exact,

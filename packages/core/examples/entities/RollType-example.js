@@ -16,12 +16,8 @@ console.log(`Disadvantage: "${RollType.Disadvantage}"\n`);
 // Example 2: Basic usage
 console.log("=== Basic Roll Types ===");
 console.log(`Normal: ${roll(DieType.D20)}`);
-console.log(
-  `Advantage: ${roll(DieType.D20, { rollType: RollType.Advantage })}`
-);
-console.log(
-  `Disadvantage: ${roll(DieType.D20, { rollType: RollType.Disadvantage })}\n`
-);
+console.log(`Advantage: ${roll(DieType.D20, RollType.Advantage)}`);
+console.log(`Disadvantage: ${roll(DieType.D20, RollType.Disadvantage)}\n`);
 
 // Example 3: Comparing roll types
 console.log("=== Comparing Roll Types (10 rolls each) ===");
@@ -33,12 +29,8 @@ const results = {
 
 for (let i = 0; i < 10; i++) {
   results[RollType.Normal].push(roll(DieType.D20));
-  results[RollType.Advantage].push(
-    roll(DieType.D20, { rollType: RollType.Advantage })
-  );
-  results[RollType.Disadvantage].push(
-    roll(DieType.D20, { rollType: RollType.Disadvantage })
-  );
+  results[RollType.Advantage].push(roll(DieType.D20, RollType.Advantage));
+  results[RollType.Disadvantage].push(roll(DieType.D20, RollType.Disadvantage));
 }
 
 Object.entries(results).forEach(([type, rolls]) => {
@@ -51,8 +43,8 @@ console.log();
 console.log("=== Attack with Advantage ===");
 const attackAdv = rollTest(
   DieType.D20,
-  { testType: TestType.Attack, target: 15 },
-  { rollType: RollType.Advantage }
+  { testType: TestType.AtLeast, target: 15 },
+  RollType.Advantage
 );
 
 console.log(`Roll: ${attackAdv.roll}, Outcome: ${attackAdv.outcome}`);
@@ -63,7 +55,7 @@ console.log("=== Skill Check with Disadvantage ===");
 const skillDisadv = rollTest(
   DieType.D20,
   { testType: TestType.Skill, target: 12 },
-  { rollType: RollType.Disadvantage }
+  RollType.Disadvantage
 );
 
 console.log(`Roll: ${skillDisadv.roll}, Outcome: ${skillDisadv.outcome}`);
@@ -90,7 +82,7 @@ const scenarios = [
 
 scenarios.forEach((s) => {
   const type = determineRollType(s.adv, s.disadv);
-  const result = roll(DieType.D20, { rollType: type });
+  const result = roll(DieType.D20, type);
   console.log(`${s.desc}: ${type} → ${result}`);
 });
 console.log();
@@ -162,7 +154,7 @@ console.log(`\nEffective roll type: ${rollType}\n`);
 // Example 9: All roll types iteration
 console.log("=== Iterating All Roll Types ===");
 Object.values(RollType).forEach((type) => {
-  const result = roll(DieType.D20, { rollType: type });
+  const result = roll(DieType.D20, type);
   console.log(`${type}: ${result}`);
 });
 console.log();
@@ -171,7 +163,7 @@ console.log();
 console.log("=== Statistical Comparison (100 rolls) ===");
 function getStats(rollType, samples = 100) {
   const rolls = Array.from({ length: samples }, () =>
-    roll(DieType.D20, { rollType })
+    roll(DieType.D20, rollType)
   );
 
   const avg = rolls.reduce((a, b) => a + b, 0) / samples;
@@ -244,5 +236,5 @@ console.log(`  Advantages: ${ranger.conditions.advantages.join(", ")}`);
 console.log(`  Disadvantages: ${ranger.conditions.disadvantages.join(", ")}`);
 console.log(`  Effective: ${ranger.getRollType()}`);
 
-const attackResult = roll(DieType.D20, { rollType: ranger.getRollType() });
+const attackResult = roll(DieType.D20, ranger.getRollType());
 console.log(`  Attack roll: ${attackResult}`);

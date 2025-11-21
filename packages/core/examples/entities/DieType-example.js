@@ -98,10 +98,16 @@ console.log();
 console.log("=== Mixed Dice Rolls ===");
 console.log(
   "Fireball damage (8d6):",
-  rollDice(8, DieType.D6).values.join(" + ")
+  rollDice(DieType.D6, { count: 8 }).array.join(" + ")
 );
-console.log("Fall damage (6d6):", rollDice(6, DieType.D6).values.join(" + "));
-console.log("Healing (2d8):", rollDice(2, DieType.D8).values.join(" + "));
+console.log(
+  "Fall damage (6d6):",
+  rollDice(DieType.D6, { count: 6 }).array.join(" + ")
+);
+console.log(
+  "Healing (2d8):",
+  rollDice(DieType.D8, { count: 2 }).array.join(" + ")
+);
 console.log();
 
 // Example 9: Conditional die selection
@@ -132,6 +138,6 @@ function getSpellDamageDice(spellLevel) {
 
 for (let level = 1; level <= 5; level++) {
   const { count, die } = getSpellDamageDice(level);
-  const damage = rollDice(count, die);
+  const damage = rollDice(die, { count });
   console.log(`Level ${level} spell (${count}${die}): ${damage.sum}`);
 }

@@ -15,18 +15,18 @@ console.log("=== ModifiedTestConditions Examples ===\n");
 
 // Example 1: Basic ModifiedTestConditions
 console.log("--- Creating ModifiedTestConditions ---");
+const { RollModifier } = require("../../src");
 const conditions = new ModifiedTestConditions(
   TestType.AtLeast,
-  15, // target
-  11, // modifiedMin (D6 + 10 = 11)
-  16, // modifiedMax (D6 + 10 = 16)
-  DieType.D6
+  { target: 15 },
+  DieType.D6,
+  new RollModifier((n) => n + 10)
 );
 
 console.log(`Test Type: ${conditions.testType}`);
-console.log(`Target: ${conditions.target}`);
+console.log(`Target: ${conditions.conditions.target}`);
 console.log(
-  `Modified Range: ${conditions.modifiedMin}-${conditions.modifiedMax}`
+  `Modified Range: ${conditions.modifiedRange.min}-${conditions.modifiedRange.max}`
 );
 console.log(`Die Type: ${conditions.dieType}\n`);
 
@@ -55,10 +55,9 @@ console.log(`Plain object: ${plainResult.base} + 10 = ${plainResult.modified}`);
 // Explicit class (manual range specification)
 const classConditions = new ModifiedTestConditions(
   TestType.AtLeast,
-  15,
-  11,
-  16,
-  DieType.D6
+  { target: 15 },
+  DieType.D6,
+  new RollModifier((n) => n + 10)
 );
 const classResult = rollModTest(DieType.D6, (n) => n + 10, classConditions);
 console.log(`Class: ${classResult.base} + 10 = ${classResult.modified}`);
@@ -69,15 +68,14 @@ console.log("=== High-Level Character (D20 + 17) ===");
 // Level 20 character: +5 ability, +6 proficiency, +3 items, +3 buffs = +17
 const legendary = new ModifiedTestConditions(
   TestType.AtLeast,
-  30, // Very high DC
-  18, // min (1 + 17)
-  37, // max (20 + 17)
-  DieType.D20
+  { target: 30 }, // Very high DC
+  DieType.D20,
+  new RollModifier((n) => n + 17)
 );
 
-console.log(`DC ${legendary.target} check`);
+console.log(`DC ${legendary.conditions.target} check`);
 console.log(
-  `Modified range: ${legendary.modifiedMin}-${legendary.modifiedMax}`
+  `Modified range: ${legendary.modifiedRange.min}-${legendary.modifiedRange.max}`
 );
 
 const legendaryRoll = rollModTest(DieType.D20, (n) => n + 17, legendary);
@@ -88,13 +86,14 @@ console.log(`Outcome: ${legendaryRoll.outcome}\n`);
 console.log("=== Negative Modifier (D20 - 5) ===");
 const penalty = new ModifiedTestConditions(
   TestType.AtLeast,
-  10,
-  -4, // min (1 - 5)
-  15, // max (20 - 5)
-  DieType.D20
+  { target: 10 },
+  DieType.D20,
+  new RollModifier((n) => n - 5) // -4 to 15 range
 );
 
-console.log(`Modified range: ${penalty.modifiedMin} to ${penalty.modifiedMax}`);
+console.log(
+  `Modified range: ${penalty.modifiedRange.min} to ${penalty.modifiedRange.max}`
+);
 const penaltyRoll = rollModTest(DieType.D20, (n) => n - 5, penalty);
 console.log(`Roll: ${penaltyRoll.base} - 5 = ${penaltyRoll.modified}`);
 console.log(`Outcome: ${penaltyRoll.outcome}\n`);
@@ -102,23 +101,22 @@ console.log(`Outcome: ${penaltyRoll.outcome}\n`);
 // Example 6: Epic-level difficulty
 console.log("=== Epic-Level Difficulty ===");
 function createEpicCheck(dc) {
-  const requiredBonus = 10; // Epic DCs require significant bonuses
+  const requiredBonus = dc - 20;
 
   return new ModifiedTestConditions(
     TestType.AtLeast,
-    dc,
-    1 + requiredBonus,
-    20 + requiredBonus,
-    DieType.D20
+    { target: dc },
+    DieType.D20,
+    new RollModifier((n) => n + requiredBonus)
   );
 }
 
 const epicDC28 = createEpicCheck(28);
-console.log(`Epic DC ${epicDC28.target}`);
+console.log(`Epic DC ${epicDC28.conditions.target}`);
 console.log(
-  `Requires modifier range: ${epicDC28.modifiedMin}-${epicDC28.modifiedMax}`
+  `Requires modifier range: ${epicDC28.modifiedRange.min}-${epicDC28.modifiedRange.max}`
 );
-console.log(`Minimum bonus needed: +${epicDC28.modifiedMin - 1}\n`);
+console.log(`Minimum bonus needed: +${epicDC28.modifiedRange.min - 1}\n`);
 
 // Example 7: Skill mastery system
 console.log("=== Skill Mastery System ===");
@@ -139,10 +137,9 @@ class Skill {
   createCheck(dc) {
     return new ModifiedTestConditions(
       TestType.Skill,
-      dc,
-      this.modifiedRange.min,
-      this.modifiedRange.max,
-      DieType.D20
+      { target: dc },
+      DieType.D20,
+      new RollModifier((n) => n + this.totalBonus)
     );
   }
 
@@ -189,25 +186,32 @@ function getModifiedConditions(baseModifier, tier) {
 
   return new ModifiedTestConditions(
     TestType.AtLeast,
-    dcMap[tier],
-    1 + baseModifier,
-    20 + baseModifier,
-    DieType.D20
+    { target: dcMap[tier] },
+    DieType.D20,
+    new RollModifier((n) => n + baseModifier)
   );
 }
 
 const modifier = 8;
 const tiers = ["normal", "hard", "epic", "legendary", "mythic"];
 
-console.log(`With +${modifier} modifier:`);
+console.log(
+  `With +${modifier} modifier (range: ${1 + modifier}-${20 + modifier}):`
+);
 tiers.forEach((tier) => {
-  const conditions = getModifiedConditions(modifier, tier);
-  const possible = conditions.target <= conditions.modifiedMax;
-  console.log(
-    `  ${tier} (DC ${conditions.target}): ${
-      possible ? "Possible" : "Impossible"
-    }`
-  );
+  try {
+    const conditions = getModifiedConditions(modifier, tier);
+    const possible =
+      conditions.conditions.target <= conditions.modifiedRange.max;
+    console.log(
+      `  ${tier} (DC ${conditions.conditions.target}): ${
+        possible ? "Possible" : "Impossible"
+      }`
+    );
+  } catch (error) {
+    const dcMap = { normal: 15, hard: 20, epic: 25, legendary: 30, mythic: 35 };
+    console.log(`  ${tier} (DC ${dcMap[tier]}): Out of range`);
+  }
 });
 console.log();
 
@@ -224,29 +228,22 @@ try {
 console.log("\nModifiedTestConditions (modified range validation):");
 const valid = new ModifiedTestConditions(
   TestType.AtLeast,
-  25, // Valid within modified range
-  11, // D20 + 10 min
-  30, // D20 + 10 max
-  DieType.D20
+  { target: 25 }, // Valid within modified range
+  DieType.D20,
+  new RollModifier((n) => n + 10) // D20 + 10: range 11-30
 );
 console.log(
-  `  ✓ DC ${valid.target} is valid (within ${valid.modifiedMin}-${valid.modifiedMax})\n`
+  `  ✓ DC ${valid.conditions.target} is valid (within ${valid.modifiedRange.min}-${valid.modifiedRange.max})\n`
 );
 
 // Example 10: Auto-calculate helper
 console.log("=== Auto-Calculate Modified Range ===");
 function createModifiedConditions(dieType, modifier, testType, target) {
-  const dieMax = parseInt(dieType.substring(1)); // Extract number from "d20"
-
-  const modifiedMin = 1 + modifier;
-  const modifiedMax = dieMax + modifier;
-
   return new ModifiedTestConditions(
     testType,
-    target,
-    modifiedMin,
-    modifiedMax,
-    dieType
+    { target },
+    dieType,
+    new RollModifier((n) => n + modifier)
   );
 }
 
@@ -256,9 +253,9 @@ const autoCalc = createModifiedConditions(
   TestType.AtLeast,
   28
 );
-console.log(`D20 + 12 vs DC ${autoCalc.target}`);
+console.log(`D20 + 12 vs DC ${autoCalc.conditions.target}`);
 console.log(
-  `  Auto-calculated range: ${autoCalc.modifiedMin}-${autoCalc.modifiedMax}\n`
+  `  Auto-calculated range: ${autoCalc.modifiedRange.min}-${autoCalc.modifiedRange.max}\n`
 );
 
 // Example 11: Conditional validation
@@ -273,16 +270,15 @@ function createSmartConditions(dieType, modifier, testType, target) {
     );
     return new ModifiedTestConditions(
       testType,
-      target,
-      1 + modifier,
-      dieMax + modifier,
-      dieType
+      { target },
+      dieType,
+      new RollModifier((n) => n + modifier)
     );
   }
 
   // Use regular TestConditions otherwise
   console.log(`  → Using TestConditions (target ${target} within 1-${dieMax})`);
-  return new TestConditions(testType, target, dieType);
+  return new TestConditions(testType, { target }, dieType);
 }
 
 console.log("DC 15 with +5 modifier:");

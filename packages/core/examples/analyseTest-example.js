@@ -87,7 +87,7 @@ console.log(
 );
 
 // Example 4: Different die types
-console.log("=== Success Rates Across Die Types (DC 5) ===");
+console.log("=== Success Rates Across Die Types (DC 3) ===");
 [
   DieType.D4,
   DieType.D6,
@@ -98,7 +98,7 @@ console.log("=== Success Rates Across Die Types (DC 5) ===");
 ].forEach((die) => {
   const analysis = analyseTest(die, {
     testType: TestType.AtLeast,
-    target: 5,
+    target: 3,
   });
   const rate = (analysis.outcomeProbabilities[Outcome.Success] * 100).toFixed(
     1

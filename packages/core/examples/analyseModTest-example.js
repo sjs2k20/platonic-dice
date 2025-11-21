@@ -146,6 +146,14 @@ console.log();
 console.log("=== Finding Required Bonus for 50% Success ===");
 function findRequiredBonus(dieType, dc, targetRate = 0.5) {
   for (let bonus = 0; bonus <= 20; bonus++) {
+    // If bonus makes minimum roll >= DC, success rate is 100%
+    if (1 + bonus >= dc) {
+      return {
+        bonus,
+        actualRate: 1.0,
+      };
+    }
+
     const analysis = analyseModTest(dieType, (n) => n + bonus, {
       testType: TestType.AtLeast,
       target: dc,
@@ -320,20 +328,27 @@ console.log(
 
 // Example 15: Negative outcomes (impossible targets)
 console.log("=== Impossible Target Analysis ===");
-const impossible = analyseModTest(DieType.D20, (n) => n + 2, {
-  testType: TestType.AtLeast,
-  target: 25,
-});
+try {
+  const impossible = analyseModTest(DieType.D20, (n) => n + 2, {
+    testType: TestType.AtLeast,
+    target: 25,
+  });
 
-console.log(`D20+2 vs DC 25:`);
-console.log(
-  `  Modified range: ${impossible.modifiedRange.min}-${impossible.modifiedRange.max}`
-);
-console.log(
-  `  Success rate: ${(
-    impossible.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(0)}%`
-);
+  console.log(`D20+2 vs DC 25:`);
+  console.log(
+    `  Modified range: ${impossible.modifiedRange.min}-${impossible.modifiedRange.max}`
+  );
+  console.log(
+    `  Success rate: ${(
+      impossible.outcomeProbabilities[Outcome.Success] * 100
+    ).toFixed(1)}%`
+  );
+} catch (error) {
+  console.log(`D20+2 vs DC 25:`);
+  console.log(`  Modified range: 3-22`);
+  console.log(`  Result: Impossible! Target DC 25 exceeds maximum roll of 22.`);
+  console.log(`  The library correctly rejects this invalid test.`);
+}
 console.log(`  (Target exceeds maximum possible roll!)\n`);
 
 // Example 16: Skill test with natural crits

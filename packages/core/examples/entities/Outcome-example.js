@@ -27,7 +27,7 @@ const check = rollTest(DieType.D20, {
   target: 12,
 });
 
-console.log(`Roll: ${check.roll}, Target: 12`);
+console.log(`Roll: ${check.base}, Target: 12`);
 if (check.outcome === Outcome.Success) {
   console.log("✓ Success!");
 } else {
@@ -42,7 +42,7 @@ const skillCheck = rollTest(DieType.D20, {
   target: 15,
 });
 
-console.log(`Roll: ${skillCheck.roll}, Outcome: ${skillCheck.outcome}`);
+console.log(`Roll: ${skillCheck.base}, Outcome: ${skillCheck.outcome}`);
 switch (skillCheck.outcome) {
   case Outcome.CriticalSuccess:
     console.log("🌟 Natural 20! Critical success!");
@@ -72,20 +72,18 @@ function isCritical(outcome) {
 }
 
 const attack = rollTest(DieType.D20, {
-  testType: TestType.Attack,
+  testType: TestType.AtLeast,
   target: 16,
 });
 
-console.log(`Attack roll: ${attack.roll}, Outcome: ${attack.outcome}`);
+console.log(`Attack roll: ${attack.base}, Outcome: ${attack.outcome}`);
 console.log(`Is success? ${isSuccess(attack.outcome)}`);
 console.log(`Is critical? ${isCritical(attack.outcome)}\n`);
 
 // Example 5: Combat resolution
 console.log("=== Combat Resolution ===");
-function resolveAttack(attackRoll, baseDamage) {
-  console.log(
-    `  Attack: ${attackRoll.roll} vs AC ${attackRoll.testConditions.target}`
-  );
+function resolveAttack(attackRoll, baseDamage, ac) {
+  console.log(`  Attack: ${attackRoll.base} vs AC ${ac}`);
 
   switch (attackRoll.outcome) {
     case Outcome.CriticalSuccess:
@@ -107,10 +105,10 @@ function resolveAttack(attackRoll, baseDamage) {
 }
 
 const attackRoll = rollTest(DieType.D20, {
-  testType: TestType.Attack,
+  testType: TestType.AtLeast,
   target: 15,
 });
-resolveAttack(attackRoll, 8);
+resolveAttack(attackRoll, 8, 15);
 console.log();
 
 // Example 6: Skill check with degrees of success
@@ -133,7 +131,7 @@ const investigation = rollTest(DieType.D20, {
   target: 14,
 });
 
-console.log(`Investigation: ${investigation.roll}`);
+console.log(`Investigation: ${investigation.base}`);
 console.log(describeSkillResult(investigation));
 console.log();
 
