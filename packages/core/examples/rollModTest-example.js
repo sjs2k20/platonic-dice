@@ -1,235 +1,254 @@
 /**
  * Example usage of rollModTest
- * Demonstrates combining modifiers with test conditions, including
- * the ability to use targets outside the base die range when modifiers extend it.
+ * Demonstrates combining modifiers with test conditions
  */
 
 const {
+  roll,
+  rollMod,
+  rollTest,
   rollModTest,
   DieType,
+  TestType,
   RollType,
   RollModifier,
-  TestType,
   Outcome,
 } = require("../src");
 
-// Example 1: Simple skill check with modifier
-console.log("=== Example 1: D20 skill check with +5 bonus ===");
-const result1 = rollModTest(DieType.D20, (n) => n + 5, {
+console.log("=== How rollModTest Builds on Other Functions ===\n");
+
+console.log("--- roll() returns a simple number ---");
+const oneD20 = roll(DieType.D20);
+console.log(`roll(D20): ${oneD20}`);
+console.log();
+
+console.log("--- rollMod() adds modifier, returns { base, modified } ---");
+const modRoll = rollMod(DieType.D20, (n) => n + 5);
+console.log(`rollMod(D20, +5):`);
+console.log(`  base: ${modRoll.base}`);
+console.log(`  modified: ${modRoll.modified}`);
+console.log();
+
+console.log(
+  "--- rollTest() evaluates condition, returns { base, outcome } ---"
+);
+const testRoll = rollTest(DieType.D20, {
   testType: TestType.AtLeast,
   target: 15,
 });
-console.log(`Base roll: ${result1.base}`);
-console.log(`Modified (base + 5): ${result1.modified}`);
-console.log(`Outcome: ${result1.outcome}`);
-console.log(`Success: ${result1.outcome === Outcome.Success}\n`);
+console.log(`rollTest(D20, AtLeast 15):`);
+console.log(`  base: ${testRoll.base}`);
+console.log(`  outcome: ${testRoll.outcome}`);
+console.log();
 
-// Example 2: Using RollModifier instance with advantage
-console.log("=== Example 2: D20 with advantage and +3 bonus ===");
-const bonus = new RollModifier((n) => n + 3);
-const result2 = rollModTest(
-  DieType.D20,
-  bonus,
-  {
-    testType: TestType.Skill,
-    target: 12,
-    critical_success: 23, // Max achievable: 20+3=23
-    critical_failure: 4, // Min achievable: 1+3=4
-  },
-  RollType.Advantage
+console.log("--- rollModTest() combines both: modifier + evaluation ---");
+const modTestRoll = rollModTest(DieType.D20, (n) => n + 5, {
+  testType: TestType.AtLeast,
+  target: 15,
+});
+console.log(`rollModTest(D20, +5, AtLeast 15):`);
+console.log(`  base: ${modTestRoll.base}`);
+console.log(`  modified: ${modTestRoll.modified}`);
+console.log(`  outcome: ${modTestRoll.outcome}`);
+console.log(
+  `  (Rolled ${modTestRoll.base}, added 5 = ${modTestRoll.modified}, checked if >= 15)`
 );
-console.log(`Base roll (with advantage): ${result2.base}`);
-console.log(`Modified (base + 3): ${result2.modified}`);
-console.log(`Outcome: ${result2.outcome}\n`);
+console.log();
 
-// Example 3: Exact value test with modifier
-console.log("=== Example 3: D6 exact value check ===");
-const result3 = rollModTest(DieType.D6, (n) => n + 2, {
+console.log("\n=== Basic Test Types ===\n");
+
+console.log("--- AtLeast: modified value ≥ target ---");
+const abilityCheck = rollModTest(DieType.D20, (n) => n + 3, {
+  testType: TestType.AtLeast,
+  target: 15,
+});
+console.log(
+  `D20+3 vs DC 15: ${abilityCheck.modified} → ${abilityCheck.outcome}`
+);
+console.log();
+
+console.log("--- AtMost: modified value ≤ target ---");
+const percentileCheck = rollModTest(DieType.D20, (n) => n - 2, {
+  testType: TestType.AtMost,
+  target: 10,
+});
+console.log(
+  `D20-2, need ≤10: ${percentileCheck.modified} → ${percentileCheck.outcome}`
+);
+console.log();
+
+console.log("--- Exact: modified value = target ---");
+const exactRoll = rollModTest(DieType.D6, (n) => n + 2, {
   testType: TestType.Exact,
   target: 5,
 });
-console.log(`Base roll: ${result3.base}`);
-console.log(`Modified (base + 2): ${result3.modified}`);
-console.log(`Target: 5`);
-console.log(`Outcome: ${result3.outcome}`);
-console.log(`Hit exact target: ${result3.outcome === Outcome.Success}\n`);
+console.log(`D6+2, need exact 5: ${exactRoll.modified} → ${exactRoll.outcome}`);
+console.log();
 
-// Example 4: Penalty modifier with disadvantage
-console.log("=== Example 4: D10 with disadvantage and -2 penalty ===");
-const result4 = rollModTest(
-  DieType.D10,
-  (n) => n - 2,
-  { testType: TestType.AtMost, target: 5 },
-  RollType.Disadvantage
+console.log("--- Within: min ≤ modified value ≤ max ---");
+const rangeCheck = rollModTest(DieType.D10, (n) => n + 5, {
+  testType: TestType.Within,
+  min: 10,
+  max: 15,
+});
+console.log(
+  `D10+5, need 10-15: ${rangeCheck.modified} → ${rangeCheck.outcome}`
 );
-console.log(`Base roll (with disadvantage): ${result4.base}`);
-console.log(`Modified (base - 2): ${result4.modified}`);
-console.log(`Outcome: ${result4.outcome}\n`);
+console.log();
 
-// Example 5: Complex modifier with skill test
-console.log("=== Example 5: D20 skill test with complex modifier ===");
-const complexMod = new RollModifier((n) => Math.min(n + 7, 20)); // +7 but capped at 20
-const result5 = rollModTest(DieType.D20, complexMod, {
+console.log("--- InList: modified value in array ---");
+const specificRoll = rollModTest(DieType.D8, (n) => n + 1, {
+  testType: TestType.InList,
+  values: [3, 6, 9],
+});
+console.log(
+  `D8+1, need [3,6,9]: ${specificRoll.modified} → ${specificRoll.outcome}`
+);
+console.log();
+
+console.log("--- Skill: threshold with critical ranges ---");
+const skillCheck = rollModTest(DieType.D20, (n) => n + 4, {
+  testType: TestType.Skill,
+  target: 12,
+  critical_success: 24, // Max: 20+4=24
+  critical_failure: 5, // Min: 1+4=5
+});
+console.log(`D20+4 skill check vs DC 12:`);
+console.log(`  Base: ${skillCheck.base}, Modified: ${skillCheck.modified}`);
+console.log(`  Outcome: ${skillCheck.outcome}`);
+console.log();
+
+console.log("\n=== Extended Range Examples ===\n");
+
+console.log("--- D6 (1-6) + 10 = range 11-16 ---");
+const boostedD6 = rollModTest(DieType.D6, (n) => n + 10, {
+  testType: TestType.AtLeast,
+  target: 15, // Valid! 15 is within 11-16
+});
+console.log(`Base: ${boostedD6.base}, Modified: ${boostedD6.modified}`);
+console.log(`Target 15 (outside base die range, but valid with modifier)`);
+console.log(`Outcome: ${boostedD6.outcome}`);
+console.log();
+
+console.log("--- D20 (1-20) - 5 = range -4 to 15 ---");
+const penalizedD20 = rollModTest(DieType.D20, (n) => n - 5, {
+  testType: TestType.AtMost,
+  target: 0, // Valid! 0 is within -4 to 15
+});
+console.log(`Base: ${penalizedD20.base}, Modified: ${penalizedD20.modified}`);
+console.log(`Target 0 (negative targets possible with penalty)`);
+console.log(`Outcome: ${penalizedD20.outcome}`);
+console.log();
+
+console.log("--- D6 (1-6) × 2 = range 2-12 ---");
+const doubledD6 = rollModTest(DieType.D6, (n) => n * 2, {
+  testType: TestType.Exact,
+  target: 8, // Valid! 8 is within 2-12
+});
+console.log(`Base: ${doubledD6.base}, Modified: ${doubledD6.modified}`);
+console.log(`Target 8 (achievable with multiplier)`);
+console.log(`Outcome: ${doubledD6.outcome}`);
+console.log();
+
+console.log("\n=== Using RollModifier Instance ===\n");
+
+const bonus = new RollModifier((n) => n + 3);
+const withInstance = rollModTest(DieType.D20, bonus, {
+  testType: TestType.AtLeast,
+  target: 15,
+});
+console.log(`Using RollModifier instance:`);
+console.log(`  Base: ${withInstance.base}, Modified: ${withInstance.modified}`);
+console.log(`  Outcome: ${withInstance.outcome}`);
+console.log();
+
+const cappedBonus = new RollModifier((n) => Math.min(n + 7, 20));
+const capped = rollModTest(DieType.D20, cappedBonus, {
   testType: TestType.Skill,
   target: 15,
   critical_success: 20, // Max is capped at 20
-  critical_failure: 8, // Min achievable: 1+7=8
+  critical_failure: 8, // Min: 1+7=8
 });
-console.log(`Base roll: ${result5.base}`);
-console.log(`Modified (base + 7, max 20): ${result5.modified}`);
-console.log(`Outcome: ${result5.outcome}`);
-console.log(`Critical success: ${result5.outcome === Outcome.CriticalSuccess}`);
-console.log(
-  `Critical failure: ${result5.outcome === Outcome.CriticalFailure}\n`
-);
+console.log(`Capped modifier (max 20):`);
+console.log(`  Base: ${capped.base}, Modified: ${capped.modified}`);
+console.log(`  Outcome: ${capped.outcome}`);
+console.log();
 
-// Example 6: Extended range - target above base die range
-console.log("=== Example 6: Extended range validation ===");
-console.log("D6 normally has range 1-6, but with +10 modifier has range 11-16");
-const result6 = rollModTest(
-  DieType.D6,
-  (n) => n + 10,
-  { testType: TestType.AtLeast, target: 15 } // Valid! 15 is achievable with modifier
-);
-console.log(`Base roll: ${result6.base}`);
-console.log(`Modified (base + 10): ${result6.modified}`);
-console.log(`Target: 15 (outside base die range, but within modified range)`);
-console.log(`Outcome: ${result6.outcome}\n`);
+console.log("\n=== With Advantage and Disadvantage ===\n");
 
-// Example 7: Extended range with negative modifier
-console.log("=== Example 7: Negative modifier extending range downward ===");
-console.log("D20 with -5 modifier has range -4 to 15");
-const result7 = rollModTest(
-  DieType.D20,
-  (n) => n - 5,
-  { testType: TestType.AtMost, target: 0 } // Valid! 0 is achievable
-);
-console.log(`Base roll: ${result7.base}`);
-console.log(`Modified (base - 5): ${result7.modified}`);
-console.log(
-  `Target: 0 (would be invalid for base die, but valid with modifier)`
-);
-console.log(`Outcome: ${result7.outcome}\n`);
-
-// Example 8: Natural crits with TTRPG-style mechanics
-console.log("=== Example 8: Natural critical hits (TTRPG style) ===");
-console.log(
-  "With useNaturalCrits, rolling max die value always triggers critical success"
-);
-
-// Simulate a natural 20 with Math.random mock
-const originalRandom = Math.random;
-Math.random = () => 0.999; // Will roll 20
-
-const result8 = rollModTest(
-  DieType.D20,
-  (n) => n - 5, // Negative modifier
-  {
-    testType: TestType.Skill,
-    target: 10,
-    critical_success: 15, // Max achievable: 20-5=15
-    critical_failure: -4, // Min achievable: 1-5=-4
-  },
-  undefined,
-  { useNaturalCrits: true }
-);
-
-console.log(`Base roll: ${result8.base} (natural 20!)`);
-console.log(`Modified: ${result8.modified} (20-5=15)`);
-console.log(`Outcome: ${result8.outcome} (natural crit overrides!)`);
-console.log(
-  `Note: Natural 20 triggers CriticalSuccess even though 15 === critical_success\n`
-);
-
-// Restore Math.random
-Math.random = originalRandom;
-
-// Example 9: Natural failure with massive bonus
-console.log("=== Example 9: Natural 1 always fails (with huge bonus) ===");
-Math.random = () => 0.001; // Will roll 1
-
-const result9 = rollModTest(
-  DieType.D20,
-  (n) => n + 100, // Massive bonus
-  {
-    testType: TestType.Skill,
-    target: 105,
-    critical_success: 120, // Max achievable: 20+100=120
-    critical_failure: 101, // Min achievable: 1+100=101
-  },
-  undefined,
-  { useNaturalCrits: true }
-);
-
-console.log(`Base roll: ${result9.base} (natural 1!)`);
-console.log(`Modified: ${result9.modified} (1+100=101)`);
-console.log(`Outcome: ${result9.outcome} (natural fail overrides!)`);
-console.log(`Without useNaturalCrits, would be: Success or CriticalSuccess\n`);
-
-Math.random = originalRandom;
-
-// Example 10: Outcome-based advantage/disadvantage
-console.log("=== Example 10: Outcome-based advantage ===");
-console.log(
-  "Advantage picks the better OUTCOME, not just the higher base roll"
-);
-
-Math.random = (() => {
-  const values = [0.9, 0.05]; // Will roll 19 and 2
-  let i = 0;
-  return () => values[i++];
-})();
-
-const result10 = rollModTest(
-  DieType.D20,
-  (n) => n + 5,
-  {
-    testType: TestType.Skill,
-    target: 10,
-    critical_success: 24, // 19+5=24 hits this!
-    critical_failure: 6, // 2+5=7 misses this
-  },
-  RollType.Advantage
-);
-
-console.log(`Roll 1: base=19, modified=24 → CriticalSuccess`);
-console.log(`Roll 2: base=2, modified=7 → Success`);
-console.log(`Selected: Roll 1 (CriticalSuccess > Success)`);
-console.log(`Result base: ${result10.base}`);
-console.log(`Result modified: ${result10.modified}`);
-console.log(`Result outcome: ${result10.outcome}\n`);
-
-Math.random = originalRandom;
-
-// Example 11: Combining natural crits with advantage
-console.log("=== Example 11: Natural crits + Advantage ===");
-console.log("Natural 20 will always be selected with advantage");
-
-Math.random = (() => {
-  const values = [0.999, 0.5]; // Will roll 20 and 11
-  let i = 0;
-  return () => values[i++];
-})();
-
-const result11 = rollModTest(
+console.log("--- Advantage: rolls twice, picks better outcome ---");
+const advantage = rollModTest(
   DieType.D20,
   (n) => n + 2,
-  {
-    testType: TestType.Skill,
-    target: 12,
-    critical_success: 22, // Max achievable: 20+2=22
-    critical_failure: 3, // Min achievable: 1+2=3
-  },
-  RollType.Advantage,
-  { useNaturalCrits: true }
+  { testType: TestType.AtLeast, target: 15 },
+  RollType.Advantage
 );
+console.log(`D20+2 with advantage vs DC 15:`);
+console.log(`  Base: ${advantage.base}, Modified: ${advantage.modified}`);
+console.log(`  Outcome: ${advantage.outcome}`);
+console.log();
 
+console.log("--- Disadvantage: rolls twice, picks worse outcome ---");
+const disadvantage = rollModTest(
+  DieType.D10,
+  (n) => n - 3,
+  { testType: TestType.AtMost, target: 5 },
+  RollType.Disadvantage
+);
+console.log(`D10-3 with disadvantage, need ≤5:`);
+console.log(`  Base: ${disadvantage.base}, Modified: ${disadvantage.modified}`);
+console.log(`  Outcome: ${disadvantage.outcome}`);
+console.log();
+
+console.log("\n=== Practical Use Cases ===\n");
+
+console.log("--- Ability Checks ---");
+const strCheck = rollModTest(DieType.D20, (n) => n + 4, {
+  testType: TestType.AtLeast,
+  target: 15,
+});
+console.log(`Strength check (d20+4 vs DC 15): ${strCheck.outcome}`);
+console.log();
+
+const dexSave = rollModTest(
+  DieType.D20,
+  (n) => n + 3,
+  { testType: TestType.AtLeast, target: 12 },
+  RollType.Advantage
+);
 console.log(
-  `Roll 1: base=20 (natural max!) → CriticalSuccess (by natural crit)`
+  `Dexterity save with advantage (d20+3 vs DC 12): ${dexSave.outcome}`
 );
-console.log(`Roll 2: base=11, modified=13 → Success`);
-console.log(`Selected: Roll 1 (CriticalSuccess > Success)`);
-console.log(`Result base: ${result11.base}`);
-console.log(`Result outcome: ${result11.outcome}\n`);
+console.log();
 
-Math.random = originalRandom;
+console.log("--- Skill Tests with Criticals ---");
+const acrobatics = rollModTest(DieType.D20, (n) => n + 7, {
+  testType: TestType.Skill,
+  target: 15,
+  critical_success: 27, // Max: 20+7=27
+  critical_failure: 8, // Min: 1+7=8
+});
+console.log(`Acrobatics check (d20+7 vs DC 15):`);
+console.log(`  Modified: ${acrobatics.modified}`);
+console.log(`  Outcome: ${acrobatics.outcome}`);
+
+if (acrobatics.outcome === Outcome.CriticalSuccess) {
+  console.log("  → Spectacular success!");
+} else if (acrobatics.outcome === Outcome.CriticalFailure) {
+  console.log("  → Spectacular failure!");
+}
+console.log();
+
+console.log("--- Complex Modifiers ---");
+const situationalMod = (n) => {
+  const base = n + 5; // Proficiency + ability
+  return base >= 10 ? base + 2 : base; // +2 bonus if already high
+};
+
+const complex = rollModTest(DieType.D20, situationalMod, {
+  testType: TestType.AtLeast,
+  target: 18,
+});
+console.log(`Situational modifier (base+5, then +2 if ≥10):`);
+console.log(`  Base: ${complex.base}, Modified: ${complex.modified}`);
+console.log(`  Outcome: ${complex.outcome}`);

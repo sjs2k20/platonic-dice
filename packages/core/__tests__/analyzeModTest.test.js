@@ -1,17 +1,17 @@
 /**
  * @jest-environment node
  */
-const { analyzeModTest } = require("../src/analyzeModTest.js");
+const { analyseModTest } = require("../src/analyseModTest.js");
 const { DieType } = require("../src/entities/DieType");
 const { TestType } = require("../src/entities/TestType");
 const { RollModifier } = require("../src/entities/RollModifier");
 const { TestConditions } = require("../src/entities/TestConditions");
 const { Outcome } = require("../src/entities/Outcome");
 
-describe("analyzeModTest", () => {
+describe("analyseModTest", () => {
   describe("Basic Analysis with Modifiers", () => {
-    test("analyzes D20 with +5 modifier correctly", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n + 5, {
+    test("analyses D20 with +5 modifier correctly", () => {
+      const analysis = analyseModTest(DieType.D20, (n) => n + 5, {
         testType: TestType.AtLeast,
         target: 20,
       });
@@ -23,8 +23,8 @@ describe("analyzeModTest", () => {
       expect(analysis.outcomeCounts[Outcome.Failure]).toBe(14);
     });
 
-    test("analyzes D20 with -3 modifier correctly", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n - 3, {
+    test("analyses D20 with -3 modifier correctly", () => {
+      const analysis = analyseModTest(DieType.D20, (n) => n - 3, {
         testType: TestType.AtLeast,
         target: 10,
       });
@@ -37,8 +37,8 @@ describe("analyzeModTest", () => {
       ]);
     });
 
-    test("analyzes D6 with doubling modifier", () => {
-      const analysis = analyzeModTest(DieType.D6, (n) => n * 2, {
+    test("analyses D6 with doubling modifier", () => {
+      const analysis = analyseModTest(DieType.D6, (n) => n * 2, {
         testType: TestType.AtLeast,
         target: 8,
       });
@@ -50,8 +50,8 @@ describe("analyzeModTest", () => {
       expect(analysis.modifiedValuesByRoll[6]).toBe(12);
     });
 
-    test("analyzes D20 with multiplicative modifier correctly", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => Math.floor(n * 1.5), {
+    test("analyses D20 with multiplicative modifier correctly", () => {
+      const analysis = analyseModTest(DieType.D20, (n) => Math.floor(n * 1.5), {
         testType: TestType.AtLeast,
         target: 25,
       });
@@ -64,7 +64,7 @@ describe("analyzeModTest", () => {
 
   describe("Natural Crits with Modifiers", () => {
     test("includes natural crits for Skill test when enabled", () => {
-      const analysis = analyzeModTest(
+      const analysis = analyseModTest(
         DieType.D20,
         (n) => n + 5,
         { testType: TestType.Skill, target: 20 },
@@ -79,7 +79,7 @@ describe("analyzeModTest", () => {
     });
 
     test("natural crits for AtLeast do not produce critical outcomes", () => {
-      const analysis = analyzeModTest(
+      const analysis = analyseModTest(
         DieType.D20,
         (n) => n + 15, // Large modifier
         { testType: TestType.AtLeast, target: 20 },
@@ -97,7 +97,7 @@ describe("analyzeModTest", () => {
     });
 
     test("defaults to natural crits for Skill test", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n + 3, {
+      const analysis = analyseModTest(DieType.D20, (n) => n + 3, {
         testType: TestType.Skill,
         target: 15,
       });
@@ -107,7 +107,7 @@ describe("analyzeModTest", () => {
     });
 
     test("excludes natural crits when disabled", () => {
-      const analysis = analyzeModTest(
+      const analysis = analyseModTest(
         DieType.D20,
         (n) => n + 3,
         { testType: TestType.AtLeast, target: 15 },
@@ -121,7 +121,7 @@ describe("analyzeModTest", () => {
 
   describe("Edge Cases with Modifiers", () => {
     test("modifier makes impossible target possible", () => {
-      const analysis = analyzeModTest(DieType.D6, (n) => n + 10, {
+      const analysis = analyseModTest(DieType.D6, (n) => n + 10, {
         testType: TestType.AtLeast,
         target: 12,
       });
@@ -133,7 +133,7 @@ describe("analyzeModTest", () => {
     });
 
     test("negative modifier makes easy target hard", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n - 15, {
+      const analysis = analyseModTest(DieType.D20, (n) => n - 15, {
         testType: TestType.AtLeast,
         target: 5,
       });
@@ -144,7 +144,7 @@ describe("analyzeModTest", () => {
     });
 
     test("modifier that returns constant value", () => {
-      const analysis = analyzeModTest(
+      const analysis = analyseModTest(
         DieType.D6,
         (n) => {
           n; // Use the parameter
@@ -159,7 +159,7 @@ describe("analyzeModTest", () => {
     });
 
     test("handles zero modifier", () => {
-      const analysis = analyzeModTest(DieType.D6, (n) => n + 0, {
+      const analysis = analyseModTest(DieType.D6, (n) => n + 0, {
         testType: TestType.AtLeast,
         target: 4,
       });
@@ -172,7 +172,7 @@ describe("analyzeModTest", () => {
   describe("Input Formats", () => {
     test("accepts RollModifier instance", () => {
       const modifier = new RollModifier((n) => n + 5);
-      const analysis = analyzeModTest(DieType.D20, modifier, {
+      const analysis = analyseModTest(DieType.D20, modifier, {
         testType: TestType.AtLeast,
         target: 20,
       });
@@ -181,7 +181,7 @@ describe("analyzeModTest", () => {
     });
 
     test("accepts modifier function directly", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n + 5, {
+      const analysis = analyseModTest(DieType.D20, (n) => n + 5, {
         testType: TestType.AtLeast,
         target: 20,
       });
@@ -190,7 +190,7 @@ describe("analyzeModTest", () => {
     });
 
     test("accepts plain object for test conditions", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n + 5, {
+      const analysis = analyseModTest(DieType.D20, (n) => n + 5, {
         testType: TestType.AtLeast,
         target: 15,
       });
@@ -202,7 +202,7 @@ describe("analyzeModTest", () => {
 
   describe("Output Structure", () => {
     test("provides complete analysis structure", () => {
-      const analysis = analyzeModTest(DieType.D6, (n) => n + 2, {
+      const analysis = analyseModTest(DieType.D6, (n) => n + 2, {
         testType: TestType.AtLeast,
         target: 5,
       });
@@ -218,7 +218,7 @@ describe("analyzeModTest", () => {
     });
 
     test("modifiedValuesByRoll maps each roll to modified value", () => {
-      const analysis = analyzeModTest(DieType.D6, (n) => n * 3, {
+      const analysis = analyseModTest(DieType.D6, (n) => n * 3, {
         testType: TestType.AtLeast,
         target: 10,
       });
@@ -229,7 +229,7 @@ describe("analyzeModTest", () => {
     });
 
     test("modifiedRange shows achievable value range", () => {
-      const analysis = analyzeModTest(DieType.D8, (n) => n + 5, {
+      const analysis = analyseModTest(DieType.D8, (n) => n + 5, {
         testType: TestType.AtLeast,
         target: 10,
       });
@@ -239,7 +239,7 @@ describe("analyzeModTest", () => {
     });
 
     test("probabilities sum to 1", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n + 3, {
+      const analysis = analyseModTest(DieType.D20, (n) => n + 3, {
         testType: TestType.AtLeast,
         target: 15,
       });
@@ -252,9 +252,9 @@ describe("analyzeModTest", () => {
   });
 
   describe("Complex Modifiers", () => {
-    test("analyzes min-max clamping modifier", () => {
+    test("analyses min-max clamping modifier", () => {
       const clamp = (n) => Math.max(5, Math.min(n + 2, 15));
-      const analysis = analyzeModTest(DieType.D20, clamp, {
+      const analysis = analyseModTest(DieType.D20, clamp, {
         testType: TestType.AtLeast,
         target: 10,
       });
@@ -264,9 +264,9 @@ describe("analyzeModTest", () => {
       expect(analysis.modifiedRange.max).toBe(15);
     });
 
-    test("analyzes conditional modifier", () => {
+    test("analyses conditional modifier", () => {
       const conditional = (n) => (n >= 10 ? n + 5 : n);
-      const analysis = analyzeModTest(DieType.D20, conditional, {
+      const analysis = analyseModTest(DieType.D20, conditional, {
         testType: TestType.AtLeast,
         target: 15,
       });
@@ -277,9 +277,9 @@ describe("analyzeModTest", () => {
       expect(analysis.outcomeCounts[Outcome.Success]).toBe(11); // 10-20
     });
 
-    test("analyzes dice-exploding-style modifier", () => {
+    test("analyses dice-exploding-style modifier", () => {
       const explode = (n) => (n === 6 ? n + 6 : n);
-      const analysis = analyzeModTest(DieType.D6, explode, {
+      const analysis = analyseModTest(DieType.D6, explode, {
         testType: TestType.AtLeast,
         target: 10,
       });
@@ -292,8 +292,8 @@ describe("analyzeModTest", () => {
   });
 
   describe("Different Test Types with Modifiers", () => {
-    test("analyzes AtMost test with modifier", () => {
-      const analysis = analyzeModTest(DieType.D6, (n) => n - 1, {
+    test("analyses AtMost test with modifier", () => {
+      const analysis = analyseModTest(DieType.D6, (n) => n - 1, {
         testType: TestType.AtMost,
         target: 3,
       });
@@ -303,8 +303,8 @@ describe("analyzeModTest", () => {
       expect(analysis.modifiedRange).toEqual({ min: 0, max: 5 });
     });
 
-    test("analyzes Within test with modifier", () => {
-      const analysis = analyzeModTest(DieType.D20, (n) => n + 10, {
+    test("analyses Within test with modifier", () => {
+      const analysis = analyseModTest(DieType.D20, (n) => n + 10, {
         testType: TestType.Within,
         min: 20,
         max: 25,
@@ -314,8 +314,8 @@ describe("analyzeModTest", () => {
       expect(analysis.outcomeCounts[Outcome.Success]).toBe(6);
     });
 
-    test("analyzes Exact test with modifier", () => {
-      const analysis = analyzeModTest(DieType.D10, (n) => n * 2, {
+    test("analyses Exact test with modifier", () => {
+      const analysis = analyseModTest(DieType.D10, (n) => n * 2, {
         testType: TestType.Exact,
         target: 10,
       });
@@ -327,8 +327,8 @@ describe("analyzeModTest", () => {
   });
 
   describe("Different Die Types with Modifiers", () => {
-    test("analyzes D4 with modifier", () => {
-      const analysis = analyzeModTest(DieType.D4, (n) => n + 10, {
+    test("analyses D4 with modifier", () => {
+      const analysis = analyseModTest(DieType.D4, (n) => n + 10, {
         testType: TestType.AtLeast,
         target: 12,
       });
@@ -338,8 +338,8 @@ describe("analyzeModTest", () => {
       expect(analysis.outcomeCounts[Outcome.Success]).toBe(3); // Rolls 2-4
     });
 
-    test("analyzes D12 with modifier", () => {
-      const analysis = analyzeModTest(DieType.D12, (n) => n * 2, {
+    test("analyses D12 with modifier", () => {
+      const analysis = analyseModTest(DieType.D12, (n) => n * 2, {
         testType: TestType.AtLeast,
         target: 20,
       });

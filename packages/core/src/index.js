@@ -15,8 +15,8 @@ const rollMod = require("./rollMod.js");
 const rollDiceMod = require("./rollDiceMod.js");
 const rollTest = require("./rollTest.js");
 const rollModTest = require("./rollModTest.js");
-const analyzeTest = require("./analyzeTest.js");
-const analyzeModTest = require("./analyzeModTest.js");
+const analyseTest = require("./analyseTest.js");
+const analyseModTest = require("./analyseModTest.js");
 
 // --- Entities (public API) ---
 const entities = require("./entities");
@@ -29,8 +29,8 @@ const entities = require("./entities");
  *        typeof import("./rollDiceMod") &
  *        typeof import("./rollTest") &
  *        typeof import("./rollModTest") &
- *        typeof import("./analyzeTest") &
- *        typeof import("./analyzeModTest") &
+ *        typeof import("./analyseTest") &
+ *        typeof import("./analyseModTest") &
  *        typeof import("./entities") &
  *        { default: any }}
  */
@@ -42,8 +42,8 @@ module.exports = {
   ...entities,
   ...rollTest,
   ...rollModTest,
-  ...analyzeTest,
-  ...analyzeModTest,
+  ...analyseTest,
+  ...analyseModTest,
   default: undefined, // placeholder; will be overwritten
 };
 

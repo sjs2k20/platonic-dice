@@ -1,16 +1,16 @@
 /**
  * @jest-environment node
  */
-const { analyzeTest } = require("../src/analyzeTest.js");
+const { analyseTest } = require("../src/analyseTest.js");
 const { DieType } = require("../src/entities/DieType");
 const { TestType } = require("../src/entities/TestType");
 const { TestConditions } = require("../src/entities/TestConditions");
 const { Outcome } = require("../src/entities/Outcome");
 
-describe("analyzeTest", () => {
+describe("analyseTest", () => {
   describe("Basic Analysis", () => {
-    test("analyzes D20 AtLeast test correctly", () => {
-      const analysis = analyzeTest(DieType.D20, {
+    test("analyses D20 AtLeast test correctly", () => {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.AtLeast,
         target: 15,
       });
@@ -25,8 +25,8 @@ describe("analyzeTest", () => {
       expect(analysis.outcomeProbabilities[Outcome.Failure]).toBeCloseTo(0.7);
     });
 
-    test("analyzes D6 AtMost test correctly", () => {
-      const analysis = analyzeTest(DieType.D6, {
+    test("analyses D6 AtMost test correctly", () => {
+      const analysis = analyseTest(DieType.D6, {
         testType: TestType.AtMost,
         target: 3,
       });
@@ -37,8 +37,8 @@ describe("analyzeTest", () => {
       expect(analysis.outcomeProbabilities[Outcome.Success]).toBeCloseTo(0.5);
     });
 
-    test("analyzes D20 Within test correctly", () => {
-      const analysis = analyzeTest(DieType.D20, {
+    test("analyses D20 Within test correctly", () => {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.Within,
         min: 8,
         max: 12,
@@ -50,8 +50,8 @@ describe("analyzeTest", () => {
       expect(analysis.outcomeProbabilities[Outcome.Success]).toBeCloseTo(0.25);
     });
 
-    test("analyzes Exact test correctly", () => {
-      const analysis = analyzeTest(DieType.D10, {
+    test("analyses Exact test correctly", () => {
+      const analysis = analyseTest(DieType.D10, {
         testType: TestType.Exact,
         target: 7,
       });
@@ -66,7 +66,7 @@ describe("analyzeTest", () => {
 
   describe("Natural Crits", () => {
     test("includes natural crits for AtLeast test when enabled", () => {
-      const analysis = analyzeTest(
+      const analysis = analyseTest(
         DieType.D20,
         { testType: TestType.AtLeast, target: 15 },
         { useNaturalCrits: true }
@@ -81,7 +81,7 @@ describe("analyzeTest", () => {
     });
 
     test("excludes natural crits when disabled", () => {
-      const analysis = analyzeTest(
+      const analysis = analyseTest(
         DieType.D20,
         { testType: TestType.AtLeast, target: 15 },
         { useNaturalCrits: false }
@@ -94,7 +94,7 @@ describe("analyzeTest", () => {
     });
 
     test("defaults to natural crits for Skill test type", () => {
-      const analysis = analyzeTest(DieType.D20, {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.Skill,
         target: 15,
       });
@@ -107,7 +107,7 @@ describe("analyzeTest", () => {
     });
 
     test("defaults to no natural crits for non-Skill test types", () => {
-      const analysis = analyzeTest(DieType.D20, {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.AtLeast,
         target: 15,
       });
@@ -119,7 +119,7 @@ describe("analyzeTest", () => {
 
   describe("Edge Cases", () => {
     test("handles very difficult target", () => {
-      const analysis = analyzeTest(DieType.D20, {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.AtLeast,
         target: 20,
       });
@@ -131,7 +131,7 @@ describe("analyzeTest", () => {
     });
 
     test("handles guaranteed success condition", () => {
-      const analysis = analyzeTest(DieType.D6, {
+      const analysis = analyseTest(DieType.D6, {
         testType: TestType.AtLeast,
         target: 1,
       });
@@ -142,7 +142,7 @@ describe("analyzeTest", () => {
     });
 
     test("handles range that covers entire die", () => {
-      const analysis = analyzeTest(DieType.D8, {
+      const analysis = analyseTest(DieType.D8, {
         testType: TestType.Within,
         min: 1,
         max: 8,
@@ -153,7 +153,7 @@ describe("analyzeTest", () => {
     });
 
     test("handles narrow range", () => {
-      const analysis = analyzeTest(DieType.D20, {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.Within,
         min: 10,
         max: 12,
@@ -171,14 +171,14 @@ describe("analyzeTest", () => {
         { target: 12 },
         DieType.D20
       );
-      const analysis = analyzeTest(DieType.D20, testConditions);
+      const analysis = analyseTest(DieType.D20, testConditions);
 
       expect(analysis.totalPossibilities).toBe(20);
       expect(analysis.outcomeCounts[Outcome.Success]).toBe(9); // 12-20
     });
 
     test("accepts plain object", () => {
-      const analysis = analyzeTest(DieType.D20, {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.AtLeast,
         target: 12,
       });
@@ -190,7 +190,7 @@ describe("analyzeTest", () => {
 
   describe("Output Structure", () => {
     test("provides complete analysis structure", () => {
-      const analysis = analyzeTest(DieType.D6, {
+      const analysis = analyseTest(DieType.D6, {
         testType: TestType.AtLeast,
         target: 4,
       });
@@ -204,7 +204,7 @@ describe("analyzeTest", () => {
     });
 
     test("outcomesByRoll maps each roll to outcome", () => {
-      const analysis = analyzeTest(DieType.D6, {
+      const analysis = analyseTest(DieType.D6, {
         testType: TestType.AtLeast,
         target: 4,
       });
@@ -215,7 +215,7 @@ describe("analyzeTest", () => {
     });
 
     test("rollsByOutcome groups rolls by their outcome", () => {
-      const analysis = analyzeTest(DieType.D6, {
+      const analysis = analyseTest(DieType.D6, {
         testType: TestType.AtLeast,
         target: 4,
       });
@@ -225,7 +225,7 @@ describe("analyzeTest", () => {
     });
 
     test("probabilities sum to 1", () => {
-      const analysis = analyzeTest(DieType.D20, {
+      const analysis = analyseTest(DieType.D20, {
         testType: TestType.AtLeast,
         target: 11,
       });
@@ -238,8 +238,8 @@ describe("analyzeTest", () => {
   });
 
   describe("Different Die Types", () => {
-    test("analyzes D4 correctly", () => {
-      const analysis = analyzeTest(DieType.D4, {
+    test("analyses D4 correctly", () => {
+      const analysis = analyseTest(DieType.D4, {
         testType: TestType.AtLeast,
         target: 3,
       });
@@ -249,8 +249,8 @@ describe("analyzeTest", () => {
       expect(analysis.outcomeCounts[Outcome.Success]).toBe(2); // 3-4
     });
 
-    test("analyzes D12 correctly", () => {
-      const analysis = analyzeTest(DieType.D12, {
+    test("analyses D12 correctly", () => {
+      const analysis = analyseTest(DieType.D12, {
         testType: TestType.Exact,
         target: 7,
       });
@@ -261,8 +261,8 @@ describe("analyzeTest", () => {
       );
     });
 
-    test("analyzes D10 correctly", () => {
-      const analysis = analyzeTest(DieType.D10, {
+    test("analyses D10 correctly", () => {
+      const analysis = analyseTest(DieType.D10, {
         testType: TestType.AtLeast,
         target: 8,
       });

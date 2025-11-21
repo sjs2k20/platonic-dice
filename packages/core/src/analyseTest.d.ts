@@ -1,5 +1,5 @@
 /**
- * @module @platonic-dice/core/src/analyzeTest
+ * @module @platonic-dice/core/src/analyseTest
  */
 
 import type { DieTypeValue } from "./entities/DieType";
@@ -28,7 +28,7 @@ export interface TestAnalysis {
 /**
  * Options for test analysis.
  */
-export interface AnalyzeTestOptions {
+export interface analyseTestOptions {
   /**
    * If true, natural max/min rolls trigger critical outcomes.
    * Defaults to true for Skill tests, false otherwise.
@@ -37,7 +37,7 @@ export interface AnalyzeTestOptions {
 }
 
 /**
- * Analyzes test conditions without performing an actual roll.
+ * analyses test conditions without performing an actual roll.
  * Provides probability information and possible outcomes.
  *
  * @param dieType - The type of die
@@ -47,9 +47,9 @@ export interface AnalyzeTestOptions {
  *
  * @example
  * ```ts
- * import { analyzeTest, DieType, TestType } from "@platonic-dice/core";
+ * import { analyseTest, DieType, TestType } from "@platonic-dice/core";
  *
- * const analysis = analyzeTest(DieType.D20, {
+ * const analysis = analyseTest(DieType.D20, {
  *   testType: TestType.AtLeast,
  *   target: 15
  * });
@@ -58,10 +58,10 @@ export interface AnalyzeTestOptions {
  * console.log(`You need to roll: ${analysis.rollsByOutcome.success}`);
  * ```
  */
-export function analyzeTest(
+export function analyseTest(
   dieType: DieTypeValue,
   testConditions:
     | TestConditionsInstance
     | { testType: TestTypeValue; [key: string]: any },
-  options?: AnalyzeTestOptions
+  options?: analyseTestOptions
 ): TestAnalysis;

@@ -1,5 +1,5 @@
 /**
- * @module @platonic-dice/core/src/analyzeModTest
+ * @module @platonic-dice/core/src/analyseModTest
  */
 
 import type { DieTypeValue } from "./entities/DieType";
@@ -36,7 +36,7 @@ export interface ModifiedTestAnalysis {
 /**
  * Options for modified test analysis.
  */
-export interface AnalyzeModTestOptions {
+export interface analyseModTestOptions {
   /**
    * If true, natural max/min rolls trigger critical outcomes.
    * Defaults to true for Skill tests, false otherwise.
@@ -45,7 +45,7 @@ export interface AnalyzeModTestOptions {
 }
 
 /**
- * Analyzes modified test conditions without performing an actual roll.
+ * analyses modified test conditions without performing an actual roll.
  * Provides probability information considering the modifier.
  *
  * @param dieType - The type of die
@@ -56,9 +56,9 @@ export interface AnalyzeModTestOptions {
  *
  * @example
  * ```ts
- * import { analyzeModTest, DieType, TestType } from "@platonic-dice/core";
+ * import { analyseModTest, DieType, TestType } from "@platonic-dice/core";
  *
- * const analysis = analyzeModTest(
+ * const analysis = analyseModTest(
  *   DieType.D20,
  *   (n) => n + 5,
  *   { testType: TestType.AtLeast, target: 20 }
@@ -69,11 +69,11 @@ export interface AnalyzeModTestOptions {
  * console.log(`Need to roll (base): ${analysis.rollsByOutcome.success}`);
  * ```
  */
-export function analyzeModTest(
+export function analyseModTest(
   dieType: DieTypeValue,
   modifier: RollModifierFunction | RollModifierInstance,
   testConditions:
     | TestConditionsInstance
     | { testType: TestTypeValue; [key: string]: any },
-  options?: AnalyzeModTestOptions
+  options?: analyseModTestOptions
 ): ModifiedTestAnalysis;

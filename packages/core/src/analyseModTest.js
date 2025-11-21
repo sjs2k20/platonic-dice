@@ -1,14 +1,14 @@
 /**
- * @module @platonic-dice/core/src/analyzeModTest
+ * @module @platonic-dice/core/src/analyseModTest
  * @description
- * Analyzes modified test conditions without performing an actual roll.
+ * analyses modified test conditions without performing an actual roll.
  * Provides probability information and possible outcomes for a given test configuration
  * with modifiers applied.
  *
  * @example
- * import { analyzeModTest, DieType, TestType } from "@platonic-dice/core";
+ * import { analyseModTest, DieType, TestType } from "@platonic-dice/core";
  *
- * const analysis = analyzeModTest(
+ * const analysis = analyseModTest(
  *   DieType.D20,
  *   (n) => n + 5,
  *   { testType: TestType.AtLeast, target: 20 }
@@ -44,28 +44,28 @@ const { numSides } = require("./utils");
  */
 
 /**
- * @typedef {Object} AnalyzeModTestOptions
+ * @typedef {Object} analyseModTestOptions
  * @property {boolean} [useNaturalCrits] - If true, natural max/min rolls trigger
  *   critical outcomes. Defaults to true for Skill tests, false otherwise.
  */
 
 /**
- * Analyzes modified test conditions without performing an actual roll.
+ * analyses modified test conditions without performing an actual roll.
  *
- * @function analyzeModTest
+ * @function analyseModTest
  * @param {DieTypeValue} dieType - The type of die (e.g., `DieType.D20`).
  * @param {RollModifierFunction|RollModifierInstance} modifier - The modifier to apply to the roll.
  * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
  *   Can be:
  *   - A `TestConditions` instance
  *   - A plain object `{ testType, ...conditions }`
- * @param {AnalyzeModTestOptions} [options={}] - Optional configuration
+ * @param {analyseModTestOptions} [options={}] - Optional configuration
  * @returns {ModifiedTestAnalysis} Detailed analysis of the modified test outcomes
  * @throws {TypeError} If `dieType`, `modifier`, or `testConditions` are invalid.
  *
  * @example
- * // Analyze a D20+5 skill check with DC 20
- * const analysis = analyzeModTest(
+ * // analyse a D20+5 skill check with DC 20
+ * const analysis = analyseModTest(
  *   DieType.D20,
  *   (n) => n + 5,
  *   {
@@ -82,13 +82,13 @@ const { numSides } = require("./utils");
  *
  * @example
  * // See how modifier affects outcomes
- * const noMod = analyzeTest(DieType.D20, { testType: TestType.AtLeast, target: 15 });
- * const withMod = analyzeModTest(DieType.D20, n => n + 5, { testType: TestType.AtLeast, target: 15 });
+ * const noMod = analyseTest(DieType.D20, { testType: TestType.AtLeast, target: 15 });
+ * const withMod = analyseModTest(DieType.D20, n => n + 5, { testType: TestType.AtLeast, target: 15 });
  *
  * console.log(`Without modifier: ${(noMod.outcomeProbabilities.success * 100).toFixed(1)}%`);
  * console.log(`With +5 modifier: ${(withMod.outcomeProbabilities.success * 100).toFixed(1)}%`);
  */
-function analyzeModTest(dieType, modifier, testConditions, options = {}) {
+function analyseModTest(dieType, modifier, testConditions, options = {}) {
   if (!dieType) throw new TypeError("dieType is required.");
   if (!modifier) throw new TypeError("modifier is required.");
   if (!testConditions) throw new TypeError("testConditions is required.");
@@ -177,5 +177,5 @@ function analyzeModTest(dieType, modifier, testConditions, options = {}) {
 }
 
 module.exports = {
-  analyzeModTest,
+  analyseModTest,
 };

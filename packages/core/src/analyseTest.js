@@ -1,13 +1,13 @@
 /**
- * @module @platonic-dice/core/src/analyzeTest
+ * @module @platonic-dice/core/src/analyseTest
  * @description
- * Analyzes test conditions without performing an actual roll.
+ * analyses test conditions without performing an actual roll.
  * Provides probability information and possible outcomes for a given test configuration.
  *
  * @example
- * import { analyzeTest, DieType, TestType } from "@platonic-dice/core";
+ * import { analyseTest, DieType, TestType } from "@platonic-dice/core";
  *
- * const analysis = analyzeTest(DieType.D20, {
+ * const analysis = analyseTest(DieType.D20, {
  *   testType: TestType.AtLeast,
  *   target: 15
  * });
@@ -41,27 +41,27 @@ const { numSides } = require("./utils");
  */
 
 /**
- * @typedef {Object} AnalyzeTestOptions
+ * @typedef {Object} analyseTestOptions
  * @property {boolean} [useNaturalCrits] - If true, natural max/min rolls trigger
  *   critical outcomes. Defaults to true for Skill tests, false otherwise.
  */
 
 /**
- * Analyzes test conditions without performing an actual roll.
+ * analyses test conditions without performing an actual roll.
  *
- * @function analyzeTest
+ * @function analyseTest
  * @param {DieTypeValue} dieType - The type of die (e.g., `DieType.D20`).
  * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
  *   Can be:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
- * @param {AnalyzeTestOptions} [options={}] - Optional configuration for analysis
+ * @param {analyseTestOptions} [options={}] - Optional configuration for analysis
  * @returns {TestAnalysis} Detailed analysis of the test outcomes
  * @throws {TypeError} If `dieType` or `testConditions` are invalid.
  *
  * @example
- * // Analyze a D20 skill check with DC 15
- * const analysis = analyzeTest(DieType.D20, {
+ * // analyse a D20 skill check with DC 15
+ * const analysis = analyseTest(DieType.D20, {
  *   testType: TestType.Skill,
  *   target: 15,
  *   critical_success: 20,
@@ -72,14 +72,14 @@ const { numSides } = require("./utils");
  * console.log(`Critical success on: ${analysis.rollsByOutcome.critical_success}`);
  *
  * @example
- * // Analyze without natural crits
- * const analysis = analyzeTest(
+ * // analyse without natural crits
+ * const analysis = analyseTest(
  *   DieType.D20,
  *   { testType: TestType.AtLeast, target: 15 },
  *   { useNaturalCrits: false }
  * );
  */
-function analyzeTest(dieType, testConditions, options = {}) {
+function analyseTest(dieType, testConditions, options = {}) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions (skip if already a TestConditions instance)
@@ -137,5 +137,5 @@ function analyzeTest(dieType, testConditions, options = {}) {
 }
 
 module.exports = {
-  analyzeTest,
+  analyseTest,
 };
