@@ -36,13 +36,15 @@ npm test
 
 ### @platonic-dice/core
 
-- Exposes functions for rolling dice (`roll`, `rollDice`, `rollMod`, `rollTest`), enums (`DieType`, `RollType`, `TestType`), and utilities.
+- Exposes functions for rolling dice (`roll`, `rollDice`, `rollMod`, `rollTest`, `rollModTest`), enums (`DieType`, `RollType`, `TestType`, `Outcome`), and utilities.
+- **Version 2.1.0** adds `rollModTest()` for combining modifiers with test evaluation, and `analyseModTest()` for probability analysis.
 - Sources: `packages/core/src`
 - Entry: `packages/core/src/index.js`
 
 ### @platonic-dice/dice
 
 - Provides the `Die` class and history tooling which consumes `@platonic-dice/core`.
+- **Version 2.1.0** adds `Die.rollModTest()` method with separate history tracking for modified test rolls.
 - Written in TypeScript; built output is `packages/dice/dist`.
 - Entry: `packages/dice/dist/index.js` (after build)
 
@@ -51,21 +53,44 @@ npm test
 CommonJS (Node):
 
 ```js
-const { roll } = require("@platonic-dice/core");
+const { roll, rollModTest } = require("@platonic-dice/core");
 const { Die } = require("@platonic-dice/dice");
 
 console.log(roll("d20"));
+
+// New in 2.1.0: combine modifier with test evaluation
+const result = rollModTest("d20", (n) => n + 5, {
+  testType: "skill",
+  target: 15,
+});
+console.log(
+  `Base: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`
+);
+
 const d = new Die("d12");
 console.log(d.roll());
+
+// Die class also supports rollModTest
+const testResult = d.rollModTest((n) => n + 3, {
+  testType: "at_least",
+  target: 10,
+});
+console.log(`Result: ${testResult}`);
 ```
 
 TypeScript / ESM:
 
 ```ts
-import { roll, DieType } from "@platonic-dice/core";
+import { roll, rollModTest, DieType } from "@platonic-dice/core";
 import { Die } from "@platonic-dice/dice";
 
 console.log(roll(DieType.D20));
+
+// Apply modifier and evaluate test in one call
+const result = rollModTest(DieType.D20, (n) => n + 5, {
+  testType: "skill",
+  target: 15,
+});
 ```
 
 ## Publishing

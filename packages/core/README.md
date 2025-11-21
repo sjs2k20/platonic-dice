@@ -2,7 +2,7 @@
 
 Core JavaScript/TypeScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs.
 
-This package contains the pure logic used by higher-level packages (for example `@platonic-dice/dice`). It exports rolling helpers, entities (die types, roll types, outcomes), and utility functions.
+This package contains the pure logic used by higher-level packages (for example `@platonic-dice/dice`). It exports rolling helpers including `roll`, `rollMod`, `rollTest`, and `rollModTest` (combining modifiers with test evaluation), entities (die types, roll types, outcomes), and utility functions.
 
 ## Installation
 
@@ -17,17 +17,38 @@ npm install @platonic-dice/core
 CommonJS:
 
 ```js
-const { roll, rollDice, DieType, RollType } = require("@platonic-dice/core");
+const {
+  roll,
+  rollDice,
+  rollModTest,
+  DieType,
+  RollType,
+} = require("@platonic-dice/core");
 
 console.log(roll(DieType.D20));
 console.log(rollDice(DieType.D6, { count: 3 }));
+
+// New in 2.1.0: rollModTest combines modifiers with test evaluation
+const result = rollModTest(DieType.D20, (n) => n + 5, {
+  testType: "skill",
+  target: 15,
+});
+console.log(
+  `Roll: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`
+);
 ```
 
 ESM / TypeScript:
 
 ```ts
-import { roll, DieType } from "@platonic-dice/core";
+import { roll, rollModTest, DieType } from "@platonic-dice/core";
 console.log(roll(DieType.D20));
+
+// Combine modifiers with test evaluation
+const result = rollModTest(DieType.D20, (n) => n + 5, {
+  testType: "at_least",
+  target: 15,
+});
 ```
 
 ## Build & Test
