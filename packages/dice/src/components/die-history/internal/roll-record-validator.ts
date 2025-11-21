@@ -1,4 +1,5 @@
-import { Outcome } from "@platonic-dice/core";
+import core from "@platonic-dice/core";
+const { Outcome } = core;
 import type {
   RollRecord,
   DieRollRecord,

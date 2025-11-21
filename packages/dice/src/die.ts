@@ -1,4 +1,5 @@
-import { DieType, RollType } from "@platonic-dice/core";
+import core from "@platonic-dice/core";
+const { DieType, RollType } = core;
 
 import type {
   DieTypeValue,

@@ -1,10 +1,10 @@
-import {
-  DieType,
+import core from "@platonic-dice/core";
+const {
   RollType,
-  roll as coreRoll,
-  rollMod as coreRollMod,
-  rollTest as coreRollTest,
-} from "@platonic-dice/core";
+  roll: coreRoll,
+  rollMod: coreRollMod,
+  rollTest: coreRollTest,
+} = core;
 
 import type {
   RollModifierFunction,
