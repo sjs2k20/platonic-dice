@@ -11,6 +11,8 @@ export { Die } from "./die.js";
 // Note: Import from default due to CommonJS/ESM interop
 import core from "@platonic-dice/core";
 export const { DieType, RollType } = core;
+// rollModTest is available on core but not typed in dist-types, export directly
+export const rollModTest = (core as any).rollModTest;
 export type {
   DieTypeValue,
   RollModifierFunction,
@@ -26,4 +28,5 @@ export type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
+  ModifiedTestDieRollRecord,
 } from "./types/roll-record.types.js";

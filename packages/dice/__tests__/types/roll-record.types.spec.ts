@@ -4,6 +4,7 @@ import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
+  ModifiedTestDieRollRecord,
   RollRecord,
 } from "@dice/types";
 
@@ -23,6 +24,13 @@ describe("RollRecord types (runtime shape validation)", () => {
 
   const targetRecord: TestDieRollRecord = {
     roll: 17,
+    outcome: Outcome.Success,
+    timestamp: now,
+  };
+
+  const modifiedTestRecord: ModifiedTestDieRollRecord = {
+    roll: 15,
+    modified: 20,
     outcome: Outcome.Success,
     timestamp: now,
   };
@@ -48,8 +56,24 @@ describe("RollRecord types (runtime shape validation)", () => {
     expect(targetRecord.timestamp).toBeInstanceOf(Date);
   });
 
+  it("should have the correct shape for ModifiedTestDieRollRecord", () => {
+    expect(modifiedTestRecord).toHaveProperty("roll");
+    expect(modifiedTestRecord).toHaveProperty("modified");
+    expect(modifiedTestRecord).toHaveProperty("outcome");
+    expect(modifiedTestRecord).toHaveProperty("timestamp");
+    expect(modifiedTestRecord.timestamp).toBeInstanceOf(Date);
+    expect(modifiedTestRecord.roll).toBe(15);
+    expect(modifiedTestRecord.modified).toBe(20);
+    expect(modifiedTestRecord.outcome).toBe(Outcome.Success);
+  });
+
   it("should be compatible with the RollRecord union", () => {
-    const records: RollRecord[] = [dieRecord, modifiedRecord, targetRecord];
-    expect(records).toHaveLength(3);
+    const records: RollRecord[] = [
+      dieRecord,
+      modifiedRecord,
+      targetRecord,
+      modifiedTestRecord,
+    ];
+    expect(records).toHaveLength(4);
   });
 });

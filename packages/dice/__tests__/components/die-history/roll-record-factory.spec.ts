@@ -47,6 +47,29 @@ describe("RollRecordFactory", () => {
     );
   });
 
+  it("should create a valid ModifiedTestDieRollRecord for modified test rolls", () => {
+    const record = factory.createModifiedTestRoll(
+      DieType.D20,
+      (n: number) => n + 5,
+      {
+        testType: "at_least",
+        target: 15,
+      }
+    );
+    expect(record).toMatchObject({
+      roll: expect.any(Number),
+      modified: expect.any(Number),
+      outcome: expect.any(String),
+      timestamp: expect.any(Date),
+    });
+    expect(record.roll).toBeGreaterThanOrEqual(1);
+    expect(record.roll).toBeLessThanOrEqual(20);
+    expect(record.modified).toBe(record.roll + 5);
+    expect(
+      ["success", "failure", "critical_success", "critical_failure"]
+    ).toContain(record.outcome.toLowerCase());
+  });
+
   it("should throw an error for invalid RollType in createNormalRoll", () => {
     expect(() =>
       factory.createNormalRoll(DieType.D6, "InvalidRollType" as any)

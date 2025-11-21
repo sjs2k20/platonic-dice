@@ -41,6 +41,7 @@ export class Die {
   private static readonly NORMAL_KEY = "normal";
   private static readonly MODIFIER_KEY = "modifier";
   private static readonly TEST_KEY = "test";
+  private static readonly MODIFIED_TEST_KEY = "modifiedTest";
 
   /**
    * Create a new Die instance.
@@ -222,6 +223,42 @@ export class Die {
   }
 
   /**
+   * Perform a roll with a modifier and evaluate against test conditions.
+   * Combines rollMod and rollTest functionality.
+   *
+   * @param {RollModifierFunction | RollModifierInstance} modifier - Numeric or functional modifier applied to the base roll.
+   * @param {TestConditionsInstance | { testType: TestTypeValue; [k: string]: any }} testConditions - Test conditions (plain object or normalized `TestConditions` instance).
+   * @param {RollTypeValue} [rollType] - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`).
+   * @param {{useNaturalCrits?: boolean}} [options] - Optional configuration for natural crits behavior.
+   * @returns {number} The modified numeric result.
+   * @throws {Error} If inputs are invalid (delegated to core).
+   * @example
+   * d20.rollModTest(n => n + 5, { testType: "at_least", target: 15 });
+   */
+  rollModTest(
+    modifier: RollModifierFunction | RollModifierInstance,
+    testConditions:
+      | TestConditionsInstance
+      | { testType: TestTypeValue; [k: string]: any },
+    rollType?: RollTypeValue,
+    options?: { useNaturalCrits?: boolean }
+  ): number {
+    const record = this.recordFactory.createModifiedTestRoll(
+      this.typeValue,
+      modifier,
+      testConditions,
+      rollType,
+      options
+    );
+    this.resultValue = record.modified;
+
+    this.rolls.setActiveKey(Die.MODIFIED_TEST_KEY);
+    this.rolls.add(record);
+
+    return record.modified;
+  }
+
+  /**
    * Retrieve roll history for a given key.
    *
    * @param key - `"normal" | "modifier" | "test"`
@@ -231,7 +268,7 @@ export class Die {
   /**
    * Retrieve roll history for a given key.
    *
-   * @param {string} [key=Die.NORMAL_KEY] - One of "normal" | "modifier" | "test".
+   * @param {string} [key=Die.NORMAL_KEY] - One of "normal" | "modifier" | "test" | "modifiedTest".
    * @param {boolean} [verbose=false] - Include timestamps when true.
    * @returns {Array} Array of roll records (timestamps included when verbose).
    */

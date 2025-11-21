@@ -3,6 +3,7 @@ import {
   isDieRollRecord,
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
+  isModifiedTestDieRollRecord,
   stripTimestamp,
 } from "../roll-record-validator";
 import { RollRecordStorage } from "./internal";
@@ -85,10 +86,11 @@ export class RollRecordManager<R extends RollRecord = RollRecord> {
     if (
       !isDieRollRecord(record as any) &&
       !isModifiedDieRollRecord(record as any) &&
-      !isTargetDieRollRecord(record as any)
+      !isTargetDieRollRecord(record as any) &&
+      !isModifiedTestDieRollRecord(record as any)
     ) {
       throw new TypeError(
-        "Record must be a valid DieRollRecord, ModifiedDieRollRecord, or TargetDieRollRecord"
+        "Record must be a valid DieRollRecord, ModifiedDieRollRecord, TestDieRollRecord, or ModifiedTestDieRollRecord"
       );
     }
 

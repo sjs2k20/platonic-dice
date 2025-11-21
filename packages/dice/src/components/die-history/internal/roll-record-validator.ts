@@ -5,6 +5,7 @@ import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
+  ModifiedTestDieRollRecord,
 } from "@dice/types";
 
 /**
@@ -43,6 +44,20 @@ export function isTargetDieRollRecord(
     typeof (record as any).roll === "number" &&
     "outcome" in (record as any) &&
     Object.values(Outcome).includes((record as any).outcome) &&
+    (record as any).timestamp instanceof Date &&
+    !("modified" in (record as any))
+  );
+}
+
+export function isModifiedTestDieRollRecord(
+  record: RollRecord | null | undefined
+): record is ModifiedTestDieRollRecord {
+  return (
+    !!record &&
+    typeof (record as any).roll === "number" &&
+    typeof (record as any).modified === "number" &&
+    "outcome" in (record as any) &&
+    Object.values(Outcome).includes((record as any).outcome) &&
     (record as any).timestamp instanceof Date
   );
 }
@@ -65,5 +80,6 @@ export default {
   isDieRollRecord,
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
+  isModifiedTestDieRollRecord,
   stripTimestamp,
 };

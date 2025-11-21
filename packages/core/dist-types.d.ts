@@ -22,8 +22,11 @@ export * from "./dist/rollMod";
 export * from "./dist/rollDice";
 export * from "./dist/rollDiceMod";
 export * from "./dist/rollTest";
+export * from "./dist/rollModTest";
+export * from "./dist/analyseTest";
+export * from "./dist/analyseModTest";
 
-// The `rollMod`/`rollTest` d.ts files are emitted using a CommonJS `export =`
+// The `rollMod`/`rollTest`/`rollModTest` d.ts files are emitted using a CommonJS `export =`
 // shape which doesn't always expose named exports for consumers under some
 // moduleResolution strategies. Provide explicit ESM-style type declarations
 // here so TypeScript imports like `import { rollMod } from '@platonic-dice/core'`
@@ -46,3 +49,22 @@ export function rollTest(
       },
   rollType?: import("./dist/entities/RollType").RollTypeValue
 ): { base: number; outcome: import("./dist/entities/Outcome").OutcomeValue };
+
+export function rollModTest(
+  dieType: import("./dist/entities/DieType").DieTypeValue,
+  modifier:
+    | import("./dist/entities/RollModifier").RollModifierFunction
+    | import("./dist/entities/RollModifier").RollModifierInstance,
+  testConditions:
+    | import("./dist/entities/TestConditions").TestConditionsInstance
+    | {
+        testType: import("./dist/entities/TestType").TestTypeValue;
+        [k: string]: any;
+      },
+  rollType?: import("./dist/entities/RollType").RollTypeValue,
+  options?: { useNaturalCrits?: boolean }
+): {
+  base: number;
+  modified: number;
+  outcome: import("./dist/entities/Outcome").OutcomeValue;
+};

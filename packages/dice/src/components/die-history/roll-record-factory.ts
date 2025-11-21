@@ -1,10 +1,10 @@
-import core from "@platonic-dice/core";
-const {
+import core, {
   RollType,
-  roll: coreRoll,
-  rollMod: coreRollMod,
-  rollTest: coreRollTest,
-} = core;
+  roll as coreRoll,
+  rollMod as coreRollMod,
+  rollTest as coreRollTest,
+} from "@platonic-dice/core";
+// rollModTest is available on core but not typed in dist-types, accessed via core object in method
 
 import type {
   RollModifierFunction,
@@ -21,12 +21,14 @@ import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
+  ModifiedTestDieRollRecord,
 } from "@dice/types";
 
 import {
   isDieRollRecord,
   isModifiedDieRollRecord,
   isTargetDieRollRecord,
+  isModifiedTestDieRollRecord,
 } from "./internal";
 
 // Runtime validation for rollType values uses the runtime `RollType` object.
@@ -89,6 +91,26 @@ export interface IRollRecordFactory {
       | { testType: TestTypeValue; [k: string]: any },
     rollType?: RollTypeValue
   ): TestDieRollRecord;
+
+  /**
+   * Create a modified test roll record. Combines modifier and test evaluation.
+   *
+   * @param {DieTypeValue} dieType - The die type to roll.
+   * @param {RollModifierFunction|RollModifierInstance} modifier - Modifier applied to the base roll.
+   * @param {TestConditionsInstance|{ testType: TestTypeValue; [k: string]: any }} testConditions - Test descriptor or instance.
+   * @param {RollTypeValue} [rollType] - Optional roll mode.
+   * @param {{useNaturalCrits?: boolean}} [options] - Optional configuration for natural crits.
+   * @returns {ModifiedTestDieRollRecord} A validated modified test roll record containing `roll`, `modified`, `outcome`, and `timestamp`.
+   */
+  createModifiedTestRoll(
+    dieType: DieTypeValue,
+    modifier: RollModifierFunction | RollModifierInstance,
+    testConditions:
+      | TestConditionsInstance
+      | { testType: TestTypeValue; [k: string]: any },
+    rollType?: RollTypeValue,
+    options?: { useNaturalCrits?: boolean }
+  ): ModifiedTestDieRollRecord;
 }
 
 /**
@@ -162,6 +184,39 @@ export class RollRecordFactory implements IRollRecordFactory {
 
     if (!isTargetDieRollRecord(record)) {
       throw new Error("Factory produced invalid TestDieRollRecord");
+    }
+
+    return record;
+  }
+
+  createModifiedTestRoll(
+    dieType: DieTypeValue,
+    modifier: RollModifierFunction | RollModifierInstance,
+    testConditions:
+      | TestConditionsInstance
+      | { testType: TestTypeValue; [k: string]: any },
+    rollType?: RollTypeValue,
+    options?: { useNaturalCrits?: boolean }
+  ): ModifiedTestDieRollRecord {
+    // Delegate to core rollModTest which combines modifier and test logic
+    // Access via core object since it's not typed in dist-types
+    const { base, modified, outcome } = (core as any).rollModTest(
+      dieType,
+      modifier,
+      testConditions,
+      rollType,
+      options
+    );
+    const ts = new Date();
+    const record: ModifiedTestDieRollRecord = {
+      roll: base,
+      modified,
+      outcome,
+      timestamp: ts,
+    };
+
+    if (!isModifiedTestDieRollRecord(record)) {
+      throw new Error("Factory produced invalid ModifiedTestDieRollRecord");
     }
 
     return record;

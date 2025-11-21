@@ -31,9 +31,20 @@ export interface TestDieRollRecord {
 }
 
 /**
+ * Modified test roll record (combines modifier and test evaluation).
+ */
+export interface ModifiedTestDieRollRecord {
+  roll: number;
+  modified: number;
+  outcome: OutcomeValue;
+  timestamp: Date;
+}
+
+/**
  * Union type for all possible roll records.
  */
 export type RollRecord =
   | DieRollRecord
   | ModifiedDieRollRecord
-  | TestDieRollRecord;
+  | TestDieRollRecord
+  | ModifiedTestDieRollRecord;

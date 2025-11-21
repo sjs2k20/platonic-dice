@@ -4,6 +4,7 @@ import type {
   DieRollRecord,
   ModifiedDieRollRecord,
   TestDieRollRecord,
+  ModifiedTestDieRollRecord,
 } from "@dice/types/roll-record.types";
 import {
   DEFAULT_MAX_RECORDS,
@@ -26,6 +27,13 @@ describe("RollRecordManager", () => {
 
   const targetDieRoll: TestDieRollRecord = {
     roll: 20,
+    outcome: Outcome.Success,
+    timestamp: new Date(),
+  };
+
+  const modifiedTestDieRoll: ModifiedTestDieRollRecord = {
+    roll: 15,
+    modified: 20,
     outcome: Outcome.Success,
     timestamp: new Date(),
   };
@@ -68,6 +76,17 @@ describe("RollRecordManager", () => {
     });
   });
 
+  it("should add ModifiedTestDieRollRecord correctly", () => {
+    manager.add(modifiedTestDieRoll);
+    expect(manager.length).toBe(1);
+    expect(manager.full[0]).toEqual(modifiedTestDieRoll);
+    expect(manager.all[0]).toEqual({
+      roll: modifiedTestDieRoll.roll,
+      modified: modifiedTestDieRoll.modified,
+      outcome: modifiedTestDieRoll.outcome,
+    });
+  });
+
   it("should throw TypeError for invalid records", () => {
     // @ts-expect-error testing runtime validation
     expect(() => manager.add({})).toThrow(TypeError);
@@ -90,20 +109,29 @@ describe("RollRecordManager", () => {
     manager.add(dieRoll);
     manager.add(modifiedDieRoll);
     manager.add(targetDieRoll);
+    manager.add(modifiedTestDieRoll);
 
     const lastOne = manager.last();
     expect(lastOne).toEqual([
-      { roll: targetDieRoll.roll, outcome: targetDieRoll.outcome },
+      {
+        roll: modifiedTestDieRoll.roll,
+        modified: modifiedTestDieRoll.modified,
+        outcome: modifiedTestDieRoll.outcome,
+      },
     ]);
 
     const lastTwo = manager.last(2);
     expect(lastTwo).toEqual([
-      { roll: modifiedDieRoll.roll, modified: modifiedDieRoll.modified },
       { roll: targetDieRoll.roll, outcome: targetDieRoll.outcome },
+      {
+        roll: modifiedTestDieRoll.roll,
+        modified: modifiedTestDieRoll.modified,
+        outcome: modifiedTestDieRoll.outcome,
+      },
     ]);
 
     const verboseLastTwo = manager.last(2, true);
-    expect(verboseLastTwo).toEqual([modifiedDieRoll, targetDieRoll]);
+    expect(verboseLastTwo).toEqual([targetDieRoll, modifiedTestDieRoll]);
   });
 
   it("should report records with report()", () => {
