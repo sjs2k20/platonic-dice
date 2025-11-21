@@ -24,7 +24,7 @@
 const { DieType, TestType } = require("./entities");
 const tc = require("./entities/TestConditions.js");
 const r = require("./roll.js");
-const utils = require("./utils");
+const { createOutcomeMap } = require("./utils/outcomeMapper");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -32,6 +32,15 @@ const utils = require("./utils");
  * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
  * @typedef {import("./entities/TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./entities/TestConditions").TestConditionsInstance} TestConditionsInstance
+ */
+
+/**
+ * @typedef {Object} RollTestOptions
+ * @property {boolean} [useNaturalCrits] - If true, rolling the die's maximum value
+ *   triggers CriticalSuccess (for Skill tests) or Success (for AtLeast/AtMost tests),
+ *   and rolling 1 triggers CriticalFailure (for Skill tests) or Failure (for AtLeast)
+ *   or Success (for AtMost). If undefined, defaults to true for TestType.Skill
+ *   and false for all other test types.
  */
 
 /**
@@ -44,20 +53,33 @@ const utils = require("./utils");
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
  * @param {RollTypeValue} [rollType=undefined] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param {RollTestOptions} [options={}] - Optional configuration for natural crits
  * @returns {{ base: number, outcome: OutcomeValue }} The raw roll and its evaluated outcome.
  * @throws {TypeError} If `dieType` or `testConditions` are invalid.
  */
-function rollTest(dieType, testConditions, rollType = undefined) {
+function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
   if (!dieType) throw new TypeError("dieType is required.");
 
-  // Normalise testConditions
-  const conditionSet = tc.normaliseTestConditions(testConditions, dieType);
+  // Normalise testConditions (skip if already a TestConditions instance)
+  const conditionSet =
+    testConditions instanceof tc.TestConditions
+      ? testConditions
+      : tc.normaliseTestConditions(testConditions, dieType);
+
+  // Create outcome map for all possible rolls
+  const outcomeMap = createOutcomeMap(
+    dieType,
+    conditionSet.testType,
+    conditionSet,
+    null, // no modifier
+    options.useNaturalCrits
+  );
 
   // Perform the roll
   const base = r.roll(dieType, rollType);
 
-  // Determine the outcome using the normalized conditions
-  const outcome = utils.determineOutcome(base, conditionSet);
+  // Look up outcome from pre-computed map
+  const outcome = outcomeMap[base];
 
   return { base, outcome };
 }

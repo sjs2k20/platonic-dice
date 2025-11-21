@@ -18,9 +18,17 @@
  */
 const { determineOutcome } = require("./determineOutcome.js");
 const { generateResult, numSides } = require("./generateResult.js");
+const {
+  createOutcomeMap,
+  clearOutcomeMapCache,
+  getOutcomeMapCacheSize,
+} = require("./outcomeMapper.js");
 
 module.exports = {
   determineOutcome,
   generateResult,
   numSides,
+  createOutcomeMap,
+  clearOutcomeMapCache,
+  getOutcomeMapCacheSize,
 };

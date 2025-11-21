@@ -26,6 +26,11 @@ const {
   areValidTestConditions,
   normaliseTestConditions,
 } = require("./TestConditions.js");
+const {
+  ModifiedTestConditions,
+  areValidModifiedTestConditions,
+  computeModifiedRange,
+} = require("./ModifiedTestConditions.js");
 const { TestType, isValidTestType } = require("./TestType.js");
 
 module.exports = {
@@ -41,6 +46,9 @@ module.exports = {
   TestConditions,
   areValidTestConditions,
   normaliseTestConditions,
+  ModifiedTestConditions,
+  areValidModifiedTestConditions,
+  computeModifiedRange,
   TestType,
   isValidTestType,
 };

@@ -4,6 +4,7 @@ export * from "./RollType";
 export * from "./TestType";
 export * from "./RollModifier";
 export * from "./TestConditions";
+export * from "./ModifiedTestConditions";
 
 // Explicit type re-exports for downstream TypeScript consumers
 export type {
@@ -12,3 +13,4 @@ export type {
 } from "./RollModifier";
 export type { OutcomeValue } from "./Outcome";
 export type { TestConditionsInstance } from "./TestConditions";
+export type { ModifiedTestConditionsInstance } from "./ModifiedTestConditions";

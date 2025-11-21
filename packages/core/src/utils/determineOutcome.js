@@ -46,9 +46,21 @@ function getEntities() {
  */
 function determineOutcome(value, testConditions) {
   const { Outcome, TestType, TestConditions } = getEntities();
+  const {
+    ModifiedTestConditions,
+  } = require("../entities/ModifiedTestConditions");
 
   if (typeof value !== "number" || Number.isNaN(value)) {
     throw new TypeError("value must be a valid number.");
+  }
+
+  // Handle ModifiedTestConditions instances - no need to re-validate
+  if (testConditions instanceof ModifiedTestConditions) {
+    /** @type {TestConditionsInstance} */
+    // @ts-ignore - ModifiedTestConditions has compatible structure for outcome evaluation
+    const { testType, conditions } = testConditions;
+    // Use the switch statement below to determine outcome
+    return evaluateOutcome(value, testType, conditions, Outcome, TestType);
   }
 
   // Normalise plain object input into a TestConditions instance
@@ -66,6 +78,20 @@ function determineOutcome(value, testConditions) {
   /** @type {TestConditionsInstance} */
   const { testType, conditions } = testConditions;
 
+  return evaluateOutcome(value, testType, conditions, Outcome, TestType);
+}
+
+/**
+ * Core evaluation logic extracted for reuse.
+ * @private
+ * @param {number} value
+ * @param {TestTypeValue} testType
+ * @param {Conditions | any} conditions
+ * @param {any} Outcome
+ * @param {any} TestType
+ * @returns {OutcomeValue}
+ */
+function evaluateOutcome(value, testType, conditions, Outcome, TestType) {
   switch (testType) {
     case TestType.AtLeast:
     case TestType.AtMost:

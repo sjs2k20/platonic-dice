@@ -46,18 +46,12 @@ describe("@platonic-dice/core/rollTest", () => {
       const testConditions = { testType: TestType.AtLeast, target: 4 };
 
       jest.spyOn(r, "roll").mockReturnValue(5);
-      jest.spyOn(utils, "determineOutcome").mockReturnValue("success");
 
       const result = rollTestModule.rollTest(dieType, testConditions);
 
       expect(result.base).toBe(5);
-      expect(result.outcome).toBe("success");
+      expect(result.outcome).toBe("success"); // 5 >= 4
       expect(r.roll).toHaveBeenCalledWith(dieType, undefined);
-      // determineOutcome receives a normalized TestConditions instance
-      expect(utils.determineOutcome).toHaveBeenCalledWith(
-        5,
-        expect.any(td.TestConditions)
-      );
     });
 
     it("should pass rollType through to underlying roll", () => {
@@ -65,7 +59,6 @@ describe("@platonic-dice/core/rollTest", () => {
       const testConditions = { testType: TestType.AtMost, target: 10 };
 
       jest.spyOn(r, "roll").mockReturnValue(7);
-      jest.spyOn(utils, "determineOutcome").mockReturnValue("success");
 
       const result = rollTestModule.rollTest(
         dieType,
@@ -74,7 +67,7 @@ describe("@platonic-dice/core/rollTest", () => {
       );
 
       expect(result.base).toBe(7);
-      expect(result.outcome).toBe("success");
+      expect(result.outcome).toBe("success"); // 7 <= 10
       expect(r.roll).toHaveBeenCalledWith(dieType, "advantage");
     });
   });
@@ -105,7 +98,6 @@ describe("@platonic-dice/core/rollTest", () => {
     testAliases.forEach(({ aliasName, dieType, testType }) => {
       it(`alias ${aliasName} should return base and outcome correctly`, () => {
         jest.spyOn(r, "roll").mockReturnValue(4);
-        jest.spyOn(utils, "determineOutcome").mockReturnValue("failure");
 
         const aliasFn = rollTestModule[aliasName];
         expect(typeof aliasFn).toBe("function");
@@ -113,13 +105,14 @@ describe("@platonic-dice/core/rollTest", () => {
         const result = aliasFn(3, "disadvantage"); // target = 3, rollType = disadvantage
 
         expect(result.base).toBe(4);
-        expect(result.outcome).toBe("failure");
+        // Outcome depends on test type:
+        // AtLeast: 4 >= 3 = success
+        // AtMost: 4 <= 3 = failure
+        // Exact: 4 === 3 = failure
+        const expectedOutcome =
+          testType === TestType.AtLeast ? "success" : "failure";
+        expect(result.outcome).toBe(expectedOutcome);
         expect(r.roll).toHaveBeenCalledWith(dieType, "disadvantage");
-        // determineOutcome now receives a normalized TestConditions instance
-        expect(utils.determineOutcome).toHaveBeenCalledWith(
-          4,
-          expect.any(td.TestConditions)
-        );
       });
     });
 
@@ -127,18 +120,12 @@ describe("@platonic-dice/core/rollTest", () => {
       const aliasFn = rollTestModule.rollD6AtLeast;
 
       jest.spyOn(r, "roll").mockReturnValue(5);
-      jest.spyOn(utils, "determineOutcome").mockReturnValue("success");
 
       const result = aliasFn(4); // default rollType = undefined
 
       expect(result.base).toBe(5);
-      expect(result.outcome).toBe("success");
+      expect(result.outcome).toBe("success"); // 5 >= 4
       expect(r.roll).toHaveBeenCalledWith(DieType.D6, undefined);
-      // determineOutcome now receives a normalized TestConditions instance
-      expect(utils.determineOutcome).toHaveBeenCalledWith(
-        5,
-        expect.any(td.TestConditions)
-      );
     });
   });
 });

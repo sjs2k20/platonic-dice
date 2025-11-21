@@ -4,4 +4,6 @@ export * from "./rollDice";
 export * from "./rollDiceMod";
 export * from "./rollMod";
 export * from "./rollTest";
-export * from "./entities";
+export * from "./rollModTest";
+export * from "./analyzeTest";
+export * from "./analyzeModTest";
