@@ -6,7 +6,9 @@ permissions:
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "core-v*.*.*" # Core package releases
+      - "dice-v*.*.*" # Dice package releases
+      # Note: Only publishable packages have tag patterns.
 
 jobs:
   typecheck:
@@ -66,8 +68,12 @@ jobs:
       - name: Determine tag version
         id: tag
         run: |
-          TAG_VERSION=${GITHUB_REF_NAME#v}
+          # Strip 'v' prefix and optional package prefix (core-v, dice-v)
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          TAG_VERSION="${TAG_VERSION#core-v}"
+          TAG_VERSION="${TAG_VERSION#dice-v}"
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $TAG_VERSION from tag: $GITHUB_REF_NAME"
 
       - name: Verify workspace package versions and publish matching packages
         run: |
@@ -78,14 +84,21 @@ jobs:
           # Create a temporary npmrc so npm uses the token for npmjs.
           printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > ~/.npmrc
 
-          # Publish packages in deterministic order to respect inter-package deps
-          PACKAGES=("packages/core" "packages/dice")
+          # Only these packages are published to npm
+          # Packages are listed in dependency order
+          PUBLISHABLE_PACKAGES=("packages/core" "packages/dice")
+          PACKAGES=("${PUBLISHABLE_PACKAGES[@]}")
 
           for pkg in "${PACKAGES[@]}"; do
             if [ -f "$pkg/package.json" ]; then
               PKG_NAME=$(node -p "require('./$pkg/package.json').name")
               PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
-              echo "Found package: $PKG_NAME@$PKG_VERSION in $pkg"
+              PKG_PRIVATE=$(node -p "require('./$pkg/package.json').private || false")
+              echo "Found package: $PKG_NAME@$PKG_VERSION in $pkg (private: $PKG_PRIVATE)"
+              if [ "$PKG_PRIVATE" = "true" ]; then
+                echo "Skipping $PKG_NAME (marked as private)"
+                continue
+              fi
               if [ "$PKG_VERSION" = "$TAG_VERSION" ]; then
                 echo "Checking if $PKG_NAME@$PKG_VERSION already exists on npmjs.org"
                 if npm view "$PKG_NAME@$PKG_VERSION" >/dev/null 2>&1; then

@@ -1,185 +1,251 @@
-# :package: Release workflow — detailed step-by-step publish guide
+# :package: Release Workflow — Step-by-Step Publishing Guide
 
-This repository uses GitHub Actions to publish the workspace packages when you push a version tag (e.g. `v2.0.0`). The workflow will:
+This repository uses GitHub Actions to publish workspace packages when you push package-specific version tags.
 
-- Run TypeScript checks across packages.
-- Build the `@platonic-dice/core` package (declaration emit and curated type shim).
-- Publish any workspace packages whose package.json `version` matches the pushed tag.
-- Create a GitHub Release.
+## Overview
 
-This document walks through a safe, repeatable release process you can follow in the terminal (VS Code) and on GitHub.
+**The workflow:**
 
-## Prerequisites (one-time)
+- Triggers on package-specific tags: `core-v*.*.*` or `dice-v*.*.*`
+- Runs TypeScript checks across all packages
+- Builds and publishes only the package(s) matching the tag version
+- Creates a GitHub Release for each tag
 
-- Node.js and npm installed (the workflow uses Node 20 in CI).
-- You have push access to the repository and permission to publish the npm packages.
+**Why package-specific tags?**
 
-### Repo secrets you must add
+- Safe for monorepos with private packages (won't accidentally publish the root)
+- Supports independent versioning (core and dice can have different versions)
+- Clear git history showing exactly what was released
 
-1. `NPM_TOKEN` — an npm automation token with publish permissions. Create at https://www.npmjs.com/settings/<your-account>/tokens and add it as a repository secret (Settings → Secrets → Actions).
-2. (Optional) `GHPKG_TOKEN` — a GitHub personal access token with `write:packages` (and `repo` if needed) if you want the workflow to publish to GitHub Packages using an alternate token. If unset the workflow falls back to `GITHUB_TOKEN`.
+---
 
-## 1) Prepare changes on a branch
+## Prerequisites (One-Time Setup)
 
-- Work in a feature branch (example: `feat/whatever`) and open a PR to `main`.
-- Get all reviews and merge the PR into `main` as usual.
+**Required:**
 
-## 2) Decide the release version
+- Node.js 20+ and npm installed
+- Push access to the repository
+- npm publish permissions for `@platonic-dice` scope
 
-Pick a semantic version for this release, for example `2.0.0`.
+**GitHub Secrets:**
 
-Important: the GitHub Actions workflow triggers only when you push a tag that matches `v*.*.*` and it looks for packages whose `package.json` `version` exactly equals the tag version (without the leading `v`).
+1. **`NPM_TOKEN`** — npm automation token with publish permissions  
+   Create at: https://www.npmjs.com/settings/[your-account]/tokens  
+   Add at: Repository Settings → Secrets → Actions
 
-## 3) Update package versions (monorepo-safe)
+---
 
-You need both workspace packages to have their `version` updated to the release version (e.g. `2.0.0`). Two safe approaches:
+## Release Process
 
-Option A — explicit per-package update (recommended and precise):
+### Step 1: Prepare Your Changes
+
+1. Work in a feature branch (e.g., `feat/add-feature`)
+2. Open a PR to `main` and get reviews
+3. Merge to `main`
+
+### Step 2: Update Package Versions
+
+Update the version in each package's `package.json` **without creating git tags**.
+
+**For independent versioning (most common):**
 
 ```bash
-# from repo root — update core and dice without creating a git tag
-npm version 2.0.0 --prefix packages/core --no-git-tag-version
-npm version 2.0.0 --prefix packages/dice --no-git-tag-version
+# Update individual packages to different versions
+npm version 2.1.2 --prefix packages/core --no-git-tag-version
+npm version 2.1.1 --prefix packages/dice --no-git-tag-version
 
-git add packages/core/package.json packages/dice/package.json
-git commit -m "chore(release): set package versions to 2.0.0"
+# Update dice's dependency on core if needed
+# Edit packages/dice/package.json: "@platonic-dice/core": "^2.1.2"
+
+git add packages/*/package.json
+git commit -m "chore(release): bump core to 2.1.2, dice to 2.1.1"
+git push origin main
 ```
 
-Option B — root workspace version bump (if you prefer):
+**For synchronized versioning (rare):**
 
 ```bash
-# This can bump workspace packages if your npm supports it and you have configured workspaces
-npm version 2.0.0 --workspaces --no-git-tag-version
+# Update both packages to the same version
+npm version 2.2.0 --prefix packages/core --no-git-tag-version
+npm version 2.2.0 --prefix packages/dice --no-git-tag-version
+
+git add packages/*/package.json
+git commit -m "chore(release): bump all packages to 2.2.0"
+git push origin main
 ```
 
-Notes:
+**Important:** Always use `--no-git-tag-version` so you control tag creation manually.
 
-- We use `--no-git-tag-version` so we control the tag creation (the CI triggers on pushed tags).
-- The workflow will only publish packages if `package.json` `version` equals the tag number (without `v`).
+### Step 3: Build and Verify Locally
 
-## 4) Build locally and verify publish contents (strongly recommended)
-
-Before pushing tags or depending on CI builds, do a local verification of the publish artifacts.
-
-1. Install dependencies and build both packages:
+Before creating tags, verify the packages build correctly and contain expected files.
 
 ```bash
+# Install and build
 npm ci
 npm run -w @platonic-dice/core build
 npm run -w @platonic-dice/dice build
-```
 
-2. Verify the `@platonic-dice/core` curated type shim is included in the pack list.
-
-```bash
+# Verify core package contents
 cd packages/core
 npm pack --dry-run
-# Look for dist/ and dist-types.d.ts in the Tarball Contents list
+# Look for: dist/, dist-types.d.ts
 cd ../..
-```
 
-3. Verify `@platonic-dice/dice` pack contents:
-
-```bash
+# Verify dice package contents
 cd packages/dice
 npm pack --dry-run
+# Look for: dist/
 cd ../..
 ```
 
-If the `npm pack --dry-run` lists the expected files (dist, declaration files, and `dist-types.d.ts` for `core`) you're good.
+### Step 4: Run Local Checks
 
-## 5) Run the repo checks locally (sanity before tagging)
-
-Run the same checks the workflow will run so you catch issues earlier:
+Run the same checks the CI will run:
 
 ```bash
-# Per-package TypeScript checks
+# TypeScript checks
 for dir in packages/*; do
-	if [ -f "$dir/tsconfig.json" ]; then
-		npx tsc -p "$dir/tsconfig.json" --noEmit
-	fi
+  if [ -f "$dir/tsconfig.json" ]; then
+    npx tsc -p "$dir/tsconfig.json" --noEmit
+  fi
 done
 
-# Run tests
+# Tests
 npm test --workspaces --if-present
 ```
 
-All checks should pass locally. If they fail, fix issues locally and re-run before tagging.
+All checks must pass before proceeding.
 
-## 6) Create the Git tag and push
+### Step 5: Create and Push Tags
 
-Create an annotated tag matching `v<version>` and push it. The CI is triggered by tags.
+Create package-specific annotated tags and push them:
 
 ```bash
-# from repo root
-git tag -a v2.0.0 -m "release: v2.0.0"
-git push origin main --tags
+# Tag for core package
+git tag -a core-v2.1.2 -m "release: core v2.1.2 - fix rollModTest types"
+
+# Tag for dice package
+git tag -a dice-v2.1.1 -m "release: dice v2.1.1 - fix rollModTest usage"
+
+# Push both tags (triggers two separate workflow runs)
+git push origin core-v2.1.2 dice-v2.1.1
 ```
 
-Replace `main` with your default branch name if different. Pushing the tag will start the `Publish Packages & Release` workflow.
-
-## 7) What the workflow does (what to expect)
-
-- `typecheck` job: checks each package with `npx tsc -p <pkg>/tsconfig.json --noEmit`.
-- `publish` job: builds `@platonic-dice/core` and then iterates packages in a deterministic order (`packages/core`, `packages/dice`). For each package whose `version` equals the tag version it will attempt:
-  1.  `npm publish --registry https://registry.npmjs.org/ --access public` (publishes to npmjs.org). If the version already exists it logs and continues.
-  2.  `npm publish --registry https://npm.pkg.github.com/ --access public` (attempt to publish to GitHub Packages). This is best-effort and will not fail the job if it fails.
-- A GitHub Release is created for the tag via `softprops/action-gh-release`.
-
-## 8) Monitor and troubleshoot
-
-Where to look:
-
-- GitHub Actions → the `Publish Packages & Release` workflow run logs. Inspect the `typecheck` and `publish` steps.
-- The `publish` job prints which package it's publishing and npm output. Auth errors (401) indicate token problems.
-
-Common issues and resolutions:
-
-- Authentication (401): ensure `NPM_TOKEN` is set and valid in repository secrets. The token must have publish rights for the package scope.
-- Version already exists on npm: the workflow will skip or log the failure and continue. Bump the version and retry.
-- Missing files/types in published package: run `npm pack --dry-run` locally to inspect which files are packaged. If a file is missing, add it to the package `files` array or copy it into `dist/` in your build step.
-
-## 9) Post-publish smoke tests
-
-After the workflow completes and the publish step succeeds, test the published package with a temp project:
+**Or push individually:**
 
 ```bash
-mkdir /tmp/pd-test && cd /tmp/pd-test
+git push origin core-v2.1.2   # Publishes core only
+git push origin dice-v2.1.1   # Publishes dice only
+```
+
+**Tag format rules:**
+
+- ✅ Use: `core-v2.1.2`, `dice-v2.1.1` (package-specific)
+- ❌ Don't use: `v2.1.2` (no package prefix — unsafe for monorepos)
+
+### Step 6: Monitor the Workflow
+
+1. Go to GitHub Actions → "Publish Packages & Release" workflow
+2. Watch the `typecheck` and `publish` jobs
+3. Each tag triggers a separate workflow run
+
+**What happens:**
+
+- TypeScript checks run on all packages
+- Core builds and publishes to npm
+- Dice builds and publishes to npm
+- GitHub Releases are created for each tag
+
+### Step 7: Verify Publication
+
+After the workflow completes, test the published packages:
+
+```bash
+# Test in a temporary directory
+mkdir /tmp/test-platonic && cd /tmp/test-platonic
 npm init -y
-npm i @platonic-dice/core@2.0.0
+
+# Test core
+npm i @platonic-dice/core@2.1.2
 node -e "console.log(require('@platonic-dice/core'))"
 
-# For TypeScript consumers, create a small tsconfig and import types to ensure declarations are resolved.
+# Test dice
+npm i @platonic-dice/dice@2.1.1
+node -e "const { Die, DieType } = require('@platonic-dice/dice'); console.log(new Die(DieType.D20))"
 ```
 
-## 10) Extra recommendations (optional)
+---
 
-- Add an ESLint job to CI for style and lint checks.
-- Consider automating `dist-types.d.ts` placement in the `build` script so all published artifacts live under `dist/`.
-- Create a pull request template that reminds maintainers to bump package versions before tagging.
+## Troubleshooting
 
-## Quick checklist (copyable)
+**Authentication Error (401)**
+
+- Verify `NPM_TOKEN` is set in repository secrets
+- Token must have publish permissions for `@platonic-dice` scope
+- Re-generate token if needed
+
+**Version Already Exists**
+
+- Workflow will skip and log "Version already exists"
+- Bump the version number and create a new tag
+
+**Missing Files in Published Package**
+
+- Run `npm pack --dry-run` locally to see what's included
+- Add missing files to `"files"` array in package.json
+- Ensure build step creates all necessary files
+
+**TypeScript Errors in CI**
+
+- Run `npx tsc -p packages/[package]/tsconfig.json --noEmit` locally
+- Fix errors before pushing tags
+
+---
+
+## Adding New Packages
+
+**For publishable packages (like a future API client):**
+
+1. Add package directory to `PUBLISHABLE_PACKAGES` array in `.github/workflows/publish.yml`
+2. Add tag trigger pattern: `"newpkg-v*.*.*"` in workflow
+3. Ensure `"private": true` is NOT set in package.json
+4. Follow normal release process with `newpkg-v1.0.0` tags
+
+**For private packages (like UI components):**
+
+1. Set `"private": true` in package.json
+2. Do NOT add tag patterns to workflow
+3. Do NOT add to `PUBLISHABLE_PACKAGES` array
+4. Package will be automatically skipped if accidentally included
+
+---
+
+## Quick Reference
 
 ```bash
-# 1. Ensure secrets are set: NPM_TOKEN (and optional GHPKG_TOKEN)
-# 2. Build and verify locally
+# 1. Update versions
+npm version 2.1.2 --prefix packages/core --no-git-tag-version
+npm version 2.1.1 --prefix packages/dice --no-git-tag-version
+git add packages/*/package.json
+git commit -m "chore(release): core 2.1.2, dice 2.1.1"
+git push origin main
+
+# 2. Build and verify
 npm ci
 npm run -w @platonic-dice/core build
 npm run -w @platonic-dice/dice build
 cd packages/core && npm pack --dry-run && cd -
 cd packages/dice && npm pack --dry-run && cd -
 
-# 3. Update package versions (example)
-npm version 2.0.0 --prefix packages/core --no-git-tag-version
-npm version 2.0.0 --prefix packages/dice --no-git-tag-version
-git add packages/core/package.json packages/dice/package.json
-git commit -m "chore(release): set package versions to 2.0.0"
+# 3. Run checks
+for dir in packages/*; do [ -f "$dir/tsconfig.json" ] && npx tsc -p "$dir/tsconfig.json" --noEmit; done
+npm test --workspaces --if-present
 
-# 4. Tag and push
-git tag -a v2.0.0 -m "release: v2.0.0"
-git push origin main --tags
+# 4. Create and push tags
+git tag -a core-v2.1.2 -m "release: core v2.1.2"
+git tag -a dice-v2.1.1 -m "release: dice v2.1.1"
+git push origin core-v2.1.2 dice-v2.1.1
 
-# 5. Monitor CI and perform post-publish smoke tests
+# 5. Monitor workflow and verify publication
 ```
-
-If you want, I can create a small release PR that contains the version bumps and a short release note, or I can apply the tag locally and create a test tag (you'll need to push it). If you'd like the doc adjusted (tone, shorter checklist, or extra troubleshooting), tell me which section to tune.
