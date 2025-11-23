@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/dice",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Persistent dice objects with roll history and TypeScript support.",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@platonic-dice/core": "^2.1.0"
+    "@platonic-dice/core": "^2.1.2"
   },
   "devDependencies": {
     "tsc-alias": "^1.8.16",

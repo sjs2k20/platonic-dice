@@ -1,10 +1,10 @@
-import core, {
+import {
   RollType,
   roll as coreRoll,
   rollMod as coreRollMod,
   rollTest as coreRollTest,
+  rollModTest as coreRollModTest,
 } from "@platonic-dice/core";
-// rollModTest is available on core but not typed in dist-types, accessed via core object in method
 
 import type {
   RollModifierFunction,
@@ -199,8 +199,7 @@ export class RollRecordFactory implements IRollRecordFactory {
     options?: { useNaturalCrits?: boolean }
   ): ModifiedTestDieRollRecord {
     // Delegate to core rollModTest which combines modifier and test logic
-    // Access via core object since it's not typed in dist-types
-    const { base, modified, outcome } = (core as any).rollModTest(
+    const { base, modified, outcome } = coreRollModTest(
       dieType,
       modifier,
       testConditions,
