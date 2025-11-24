@@ -1,9 +1,10 @@
 # Platonic Dice
 
-A monorepo containing two publishable packages:
+A monorepo containing dice-rolling packages and an interactive showcase:
 
-- `@platonic-dice/core` — pure JavaScript/TypeScript dice-roll logic, entities and utilities.
+- `@platonic-dice/core` — pure JavaScript dice-roll logic, entities and utilities.
 - `@platonic-dice/dice` — higher-level persistent dice objects (history, validators, TypeScript types) built on `@platonic-dice/core`.
+- `@platonic-dice/ui` — React showcase application ([live demo](https://sjs2k20.github.io/platonic-dice/)) deployed to GitHub Pages.
 
 This repository is structured as an npm workspace. Each package lives under `packages/<name>` and has its own `package.json`, README and build/test scripts.
 
@@ -47,6 +48,14 @@ npm test
 - **Version 2.1.0** adds `Die.rollModTest()` method with separate history tracking for modified test rolls.
 - Written in TypeScript; built output is `packages/dice/dist`.
 - Entry: `packages/dice/dist/index.js` (after build)
+
+### @platonic-dice/ui
+
+- React showcase application demonstrating the dice packages.
+- **Version 0.0.1 (PREVIEW)** — not a finished product, for demo purposes.
+- Live demo: https://sjs2k20.github.io/platonic-dice/
+- Automatically deploys to GitHub Pages on pushes to `main`
+- See `.github/workflows/GITHUB_PAGES.md` for deployment details
 
 ## Quick examples
 
@@ -95,13 +104,27 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
 
 ## Publishing
 
-We publish packages by tagging the repository and letting GitHub Actions run the release workflow.
+### npm Packages (core & dice)
 
-1.  Bump package versions in the packages you want to publish (e.g. `packages/core/package.json` and `packages/dice/package.json`) to the desired release (e.g. `1.0.0`).
-2.  Commit the changes and create a git tag: `git tag v1.0.0`.
-3.  Push the tag: `git push origin v1.0.0`.
+We publish packages by creating package-specific tags and letting GitHub Actions run the release workflow.
 
-The workflow at `.github/workflows/publish.yml` looks for the tag version and publishes any package in `packages/*` whose `package.json` version matches that tag. The workflow expects a repo secret named `NPM_TOKEN` containing an npm granular token with `read & write` permissions for the package scope.
+**Quick process:**
+
+1. Bump package versions (e.g., `packages/core/package.json` to `2.1.2`)
+2. Commit: `git commit -m "chore(release): core 2.1.2"`
+3. Tag: `git tag -a core-v2.1.2 -m "release: core v2.1.2"`
+4. Push: `git push origin core-v2.1.2`
+
+The workflow at `.github/workflows/publish.yml` publishes packages matching the tag version to npm. See `.github/workflows/RELEASE_WORKFLOW.md` for detailed instructions.
+
+**Requirements:**
+
+- Repository secret `NPM_TOKEN` with publish permissions for `@platonic-dice` scope
+- Use package-specific tags: `core-v*.*.*` or `dice-v*.*.*`
+
+### GitHub Pages (ui)
+
+The UI package automatically deploys to https://sjs2k20.github.io/platonic-dice/ when changes are pushed to `main`. See `.github/workflows/GITHUB_PAGES.md` for configuration details.
 
 ### Publishing to GitHub Packages
 

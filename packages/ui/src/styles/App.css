@@ -1,0 +1,151 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  padding: 2rem 0;
+}
+
+.app-header h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.app-header p {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.version-badge {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(255, 193, 7, 0.5);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffc107;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.demo-section {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.demo-section h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.roll-button {
+  font-size: 1.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.roll-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+}
+
+.roll-button:active {
+  transform: translateY(0);
+}
+
+.result {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.result-label {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.result-value {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.history {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.history h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.history-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.app-footer {
+  padding: 2rem 0;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 2rem;
+  }
+
+  .demo-section {
+    padding: 1.5rem;
+  }
+
+  .roll-button {
+    font-size: 1.2rem;
+    padding: 0.8rem 1.5rem;
+  }
+
+  .result-value {
+    font-size: 2rem;
+  }
+}
