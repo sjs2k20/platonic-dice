@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Layout } from '@components/Layout';
 import { routes } from '@config/routes';
+import { NotFound } from '@pages/NotFound';
 
 export const AppRouter = () => {
   return (
@@ -17,6 +18,8 @@ export const AppRouter = () => {
             />
           );
         })}
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );

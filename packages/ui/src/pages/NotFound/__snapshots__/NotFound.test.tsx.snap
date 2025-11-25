@@ -1,0 +1,309 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`NotFound > renders 404 page for invalid routes 1`] = `
+<div>
+  <div
+    class="layout"
+  >
+    <header
+      class="header"
+    >
+      <div
+        class="header-container"
+      >
+        <div
+          class="header-brand"
+        >
+          <span
+            class="header-logo"
+          >
+            🎲
+          </span>
+          <span
+            class="header-title"
+          >
+            Platonic Dice
+          </span>
+          <span
+            class="version-badge"
+          >
+            v
+            0.1.0
+             - PREVIEW
+          </span>
+        </div>
+        <nav
+          class="navbar"
+        >
+          <button
+            aria-expanded="false"
+            aria-label="Toggle navigation menu"
+            class="nav-toggle"
+          >
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+          </button>
+          <ul
+            class="nav-links "
+          >
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/die"
+              >
+                Die Demo
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/core"
+              >
+                Core Explorer
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/about"
+              >
+                About
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main
+      class="main-content"
+    >
+      <div
+        class="not-found"
+      >
+        <div
+          class="not-found-content"
+        >
+          <h1
+            class="not-found-title"
+          >
+            404
+          </h1>
+          <h2
+            class="not-found-subtitle"
+          >
+            Page Not Found
+          </h2>
+          <p
+            class="not-found-message"
+          >
+            The page you're looking for doesn't exist or has been moved.
+          </p>
+          <a
+            class="not-found-link"
+            data-discover="true"
+            href="/"
+          >
+            Return to Home
+          </a>
+        </div>
+      </div>
+    </main>
+    <footer
+      class="footer"
+    >
+      <div
+        class="footer-content"
+      >
+        <p>
+          © 
+          2025
+           
+          Platonic Dice
+           |
+           
+          <a
+            href="https://github.com/sjs2k20/platonic-dice"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub
+          </a>
+        </p>
+      </div>
+    </footer>
+  </div>
+</div>
+`;
+
+exports[`NotFound > shows link to return home 1`] = `
+<div>
+  <div
+    class="layout"
+  >
+    <header
+      class="header"
+    >
+      <div
+        class="header-container"
+      >
+        <div
+          class="header-brand"
+        >
+          <span
+            class="header-logo"
+          >
+            🎲
+          </span>
+          <span
+            class="header-title"
+          >
+            Platonic Dice
+          </span>
+          <span
+            class="version-badge"
+          >
+            v
+            0.1.0
+             - PREVIEW
+          </span>
+        </div>
+        <nav
+          class="navbar"
+        >
+          <button
+            aria-expanded="false"
+            aria-label="Toggle navigation menu"
+            class="nav-toggle"
+          >
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+          </button>
+          <ul
+            class="nav-links "
+          >
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/die"
+              >
+                Die Demo
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/core"
+              >
+                Core Explorer
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/about"
+              >
+                About
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main
+      class="main-content"
+    >
+      <div
+        class="not-found"
+      >
+        <div
+          class="not-found-content"
+        >
+          <h1
+            class="not-found-title"
+          >
+            404
+          </h1>
+          <h2
+            class="not-found-subtitle"
+          >
+            Page Not Found
+          </h2>
+          <p
+            class="not-found-message"
+          >
+            The page you're looking for doesn't exist or has been moved.
+          </p>
+          <a
+            class="not-found-link"
+            data-discover="true"
+            href="/"
+          >
+            Return to Home
+          </a>
+        </div>
+      </div>
+    </main>
+    <footer
+      class="footer"
+    >
+      <div
+        class="footer-content"
+      >
+        <p>
+          © 
+          2025
+           
+          Platonic Dice
+           |
+           
+          <a
+            href="https://github.com/sjs2k20/platonic-dice"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub
+          </a>
+        </p>
+      </div>
+    </footer>
+  </div>
+</div>
+`;

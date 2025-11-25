@@ -1,0 +1,1 @@
+export { useGitHubPagesRedirect } from "./useGitHubPagesRedirect";
