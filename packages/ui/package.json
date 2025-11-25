@@ -4,6 +4,24 @@
   "private": true,
   "description": "React showcase application for @platonic-dice packages (PREVIEW)",
   "type": "module",
+  "keywords": [
+    "ui",
+    "TTRPG",
+    "random",
+    "game",
+    "d20",
+    "dnd"
+  ],
+  "author": "Stephen James Saunders",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjs2k20/platonic-dice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sjs2k20/platonic-dice.git/issues"
+  },
+  "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
