@@ -1,9 +1,8 @@
-import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navigation } from './Navigation';
 import './Layout.css';
 
-export const Layout: React.FC = () => {
+export function Layout() {
   return (
     <div className="layout">
       <Navigation />
@@ -26,4 +25,4 @@ export const Layout: React.FC = () => {
       </footer>
     </div>
   );
-};
+}

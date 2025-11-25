@@ -1,7 +1,6 @@
-import React from 'react';
 import './Home.css';
 
-export const Home: React.FC = () => {
+export function Home() {
   return (
     <div className="page-container">
       <header className="home-header">
@@ -18,4 +17,4 @@ export const Home: React.FC = () => {
       </main>
     </div>
   );
-};
+}

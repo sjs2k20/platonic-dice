@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Die as DieClass, DieType } from '@platonic-dice/dice';
 import type { RollRecord } from '@platonic-dice/dice';
 import './Die.css';
 
-export const Die: React.FC = () => {
+export function Die() {
   const [d20] = useState(() => new DieClass(DieType.D20));
   const [result, setResult] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
@@ -48,4 +48,4 @@ export const Die: React.FC = () => {
       </section>
     </div>
   );
-};
+}

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import './Navigation.css';
 
-export const Navigation: React.FC = () => {
+export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -74,4 +74,4 @@ export const Navigation: React.FC = () => {
       </div>
     </nav>
   );
-};
+}
