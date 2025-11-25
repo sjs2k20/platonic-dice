@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Footer > renders GitHub link with correct attributes 1`] = `
+<div>
+  <footer
+    class="footer"
+  >
+    <div
+      class="footer-content"
+    >
+      <p>
+        © 
+        2025
+         
+        Platonic Dice
+         |
+         
+        <a
+          href="https://github.com/sjs2k20/platonic-dice"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          GitHub
+        </a>
+      </p>
+    </div>
+  </footer>
+</div>
+`;
+
+exports[`Footer > renders copyright text 1`] = `
+<div>
+  <footer
+    class="footer"
+  >
+    <div
+      class="footer-content"
+    >
+      <p>
+        © 
+        2025
+         
+        Platonic Dice
+         |
+         
+        <a
+          href="https://github.com/sjs2k20/platonic-dice"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          GitHub
+        </a>
+      </p>
+    </div>
+  </footer>
+</div>
+`;

@@ -1,0 +1,91 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Home > renders info section 1`] = `
+<div>
+  <div
+    class="page-container"
+  >
+    <header
+      class="home-header"
+    >
+      <h1>
+        🎲 Platonic Dice
+      </h1>
+      <p>
+        Interactive showcase for the platonic-dice packages
+      </p>
+    </header>
+    <main
+      class="home-main"
+    >
+      <section
+        class="info-section"
+      >
+        <p>
+          Explore the full capabilities of the platonic-dice packages using the navigation above.
+        </p>
+      </section>
+    </main>
+  </div>
+</div>
+`;
+
+exports[`Home > renders page description 1`] = `
+<div>
+  <div
+    class="page-container"
+  >
+    <header
+      class="home-header"
+    >
+      <h1>
+        🎲 Platonic Dice
+      </h1>
+      <p>
+        Interactive showcase for the platonic-dice packages
+      </p>
+    </header>
+    <main
+      class="home-main"
+    >
+      <section
+        class="info-section"
+      >
+        <p>
+          Explore the full capabilities of the platonic-dice packages using the navigation above.
+        </p>
+      </section>
+    </main>
+  </div>
+</div>
+`;
+
+exports[`Home > renders page title 1`] = `
+<div>
+  <div
+    class="page-container"
+  >
+    <header
+      class="home-header"
+    >
+      <h1>
+        🎲 Platonic Dice
+      </h1>
+      <p>
+        Interactive showcase for the platonic-dice packages
+      </p>
+    </header>
+    <main
+      class="home-main"
+    >
+      <section
+        class="info-section"
+      >
+        <p>
+          Explore the full capabilities of the platonic-dice packages using the navigation above.
+        </p>
+      </section>
+    </main>
+  </div>
+</div>
+`;

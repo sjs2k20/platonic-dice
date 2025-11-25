@@ -1,0 +1,451 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`App > renders home page by default 1`] = `
+<div>
+  <div
+    class="layout"
+  >
+    <header
+      class="header"
+    >
+      <div
+        class="header-container"
+      >
+        <div
+          class="header-brand"
+        >
+          <span
+            class="header-logo"
+          >
+            🎲
+          </span>
+          <span
+            class="header-title"
+          >
+            Platonic Dice
+          </span>
+          <span
+            class="version-badge"
+          >
+            v
+            0.1.0
+             - PREVIEW
+          </span>
+        </div>
+        <nav
+          class="navbar"
+        >
+          <button
+            aria-expanded="false"
+            aria-label="Toggle navigation menu"
+            class="nav-toggle"
+          >
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+          </button>
+          <ul
+            class="nav-links "
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="nav-link nav-link--active"
+                data-discover="true"
+                href="/"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/die"
+              >
+                Die Demo
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/core"
+              >
+                Core Explorer
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/about"
+              >
+                About
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main
+      class="main-content"
+    >
+      <div
+        class="page-container"
+      >
+        <header
+          class="home-header"
+        >
+          <h1>
+            🎲 Platonic Dice
+          </h1>
+          <p>
+            Interactive showcase for the platonic-dice packages
+          </p>
+        </header>
+        <main
+          class="home-main"
+        >
+          <section
+            class="info-section"
+          >
+            <p>
+              Explore the full capabilities of the platonic-dice packages using the navigation above.
+            </p>
+          </section>
+        </main>
+      </div>
+    </main>
+    <footer
+      class="footer"
+    >
+      <div
+        class="footer-content"
+      >
+        <p>
+          © 
+          2025
+           
+          Platonic Dice
+           |
+           
+          <a
+            href="https://github.com/sjs2k20/platonic-dice"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub
+          </a>
+        </p>
+      </div>
+    </footer>
+  </div>
+</div>
+`;
+
+exports[`App > renders navigation 1`] = `
+<div>
+  <div
+    class="layout"
+  >
+    <header
+      class="header"
+    >
+      <div
+        class="header-container"
+      >
+        <div
+          class="header-brand"
+        >
+          <span
+            class="header-logo"
+          >
+            🎲
+          </span>
+          <span
+            class="header-title"
+          >
+            Platonic Dice
+          </span>
+          <span
+            class="version-badge"
+          >
+            v
+            0.1.0
+             - PREVIEW
+          </span>
+        </div>
+        <nav
+          class="navbar"
+        >
+          <button
+            aria-expanded="false"
+            aria-label="Toggle navigation menu"
+            class="nav-toggle"
+          >
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+          </button>
+          <ul
+            class="nav-links "
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="nav-link nav-link--active"
+                data-discover="true"
+                href="/"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/die"
+              >
+                Die Demo
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/core"
+              >
+                Core Explorer
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/about"
+              >
+                About
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main
+      class="main-content"
+    >
+      <div
+        class="page-container"
+      >
+        <header
+          class="home-header"
+        >
+          <h1>
+            🎲 Platonic Dice
+          </h1>
+          <p>
+            Interactive showcase for the platonic-dice packages
+          </p>
+        </header>
+        <main
+          class="home-main"
+        >
+          <section
+            class="info-section"
+          >
+            <p>
+              Explore the full capabilities of the platonic-dice packages using the navigation above.
+            </p>
+          </section>
+        </main>
+      </div>
+    </main>
+    <footer
+      class="footer"
+    >
+      <div
+        class="footer-content"
+      >
+        <p>
+          © 
+          2025
+           
+          Platonic Dice
+           |
+           
+          <a
+            href="https://github.com/sjs2k20/platonic-dice"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub
+          </a>
+        </p>
+      </div>
+    </footer>
+  </div>
+</div>
+`;
+
+exports[`App > renders without crashing 1`] = `
+<div>
+  <div
+    class="layout"
+  >
+    <header
+      class="header"
+    >
+      <div
+        class="header-container"
+      >
+        <div
+          class="header-brand"
+        >
+          <span
+            class="header-logo"
+          >
+            🎲
+          </span>
+          <span
+            class="header-title"
+          >
+            Platonic Dice
+          </span>
+          <span
+            class="version-badge"
+          >
+            v
+            0.1.0
+             - PREVIEW
+          </span>
+        </div>
+        <nav
+          class="navbar"
+        >
+          <button
+            aria-expanded="false"
+            aria-label="Toggle navigation menu"
+            class="nav-toggle"
+          >
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+            <span
+              class="hamburger-line"
+            />
+          </button>
+          <ul
+            class="nav-links "
+          >
+            <li>
+              <a
+                aria-current="page"
+                class="nav-link nav-link--active"
+                data-discover="true"
+                href="/"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/die"
+              >
+                Die Demo
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/core"
+              >
+                Core Explorer
+              </a>
+            </li>
+            <li>
+              <a
+                class="nav-link"
+                data-discover="true"
+                href="/about"
+              >
+                About
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main
+      class="main-content"
+    >
+      <div
+        class="page-container"
+      >
+        <header
+          class="home-header"
+        >
+          <h1>
+            🎲 Platonic Dice
+          </h1>
+          <p>
+            Interactive showcase for the platonic-dice packages
+          </p>
+        </header>
+        <main
+          class="home-main"
+        >
+          <section
+            class="info-section"
+          >
+            <p>
+              Explore the full capabilities of the platonic-dice packages using the navigation above.
+            </p>
+          </section>
+        </main>
+      </div>
+    </main>
+    <footer
+      class="footer"
+    >
+      <div
+        class="footer-content"
+      >
+        <p>
+          © 
+          2025
+           
+          Platonic Dice
+           |
+           
+          <a
+            href="https://github.com/sjs2k20/platonic-dice"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub
+          </a>
+        </p>
+      </div>
+    </footer>
+  </div>
+</div>
+`;

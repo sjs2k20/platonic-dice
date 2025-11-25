@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platonic Dice - Interactive Demo</title>
+    <script>
+      // GitHub Pages will serve this file for any path that doesn't exist.
+      // We redirect to index.html with the path stored in sessionStorage
+      // so the React app can restore the correct route.
+      sessionStorage.setItem(
+        "redirect",
+        location.pathname + location.search + location.hash
+      );
+      location.replace("/platonic-dice/");
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
