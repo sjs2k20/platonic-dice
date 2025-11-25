@@ -1,0 +1,307 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`NavBar > accepts custom items via props 1`] = `
+<div>
+  <nav
+    class="navbar"
+  >
+    <button
+      aria-expanded="false"
+      aria-label="Toggle navigation menu"
+      class="nav-toggle"
+    >
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+    </button>
+    <ul
+      class="nav-links "
+    >
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/custom1"
+        >
+          Custom Link 1
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/custom2"
+        >
+          Custom Link 2
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`NavBar > closes menu when a link is clicked 1`] = `
+<div>
+  <nav
+    class="navbar"
+  >
+    <button
+      aria-expanded="false"
+      aria-label="Toggle navigation menu"
+      class="nav-toggle"
+    >
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+    </button>
+    <ul
+      class="nav-links "
+    >
+      <li>
+        <a
+          aria-current="page"
+          class="nav-link nav-link--active"
+          data-discover="true"
+          href="/"
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/die"
+        >
+          Die Demo
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/core"
+        >
+          Core Explorer
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/about"
+        >
+          About
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`NavBar > renders hamburger menu toggle button 1`] = `
+<div>
+  <nav
+    class="navbar"
+  >
+    <button
+      aria-expanded="false"
+      aria-label="Toggle navigation menu"
+      class="nav-toggle"
+    >
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+    </button>
+    <ul
+      class="nav-links "
+    >
+      <li>
+        <a
+          aria-current="page"
+          class="nav-link nav-link--active"
+          data-discover="true"
+          href="/"
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/die"
+        >
+          Die Demo
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/core"
+        >
+          Core Explorer
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/about"
+        >
+          About
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`NavBar > renders navigation links from routes config 1`] = `
+<div>
+  <nav
+    class="navbar"
+  >
+    <button
+      aria-expanded="false"
+      aria-label="Toggle navigation menu"
+      class="nav-toggle"
+    >
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+    </button>
+    <ul
+      class="nav-links "
+    >
+      <li>
+        <a
+          aria-current="page"
+          class="nav-link nav-link--active"
+          data-discover="true"
+          href="/"
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/die"
+        >
+          Die Demo
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/core"
+        >
+          Core Explorer
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/about"
+        >
+          About
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`NavBar > toggles menu state when hamburger is clicked 1`] = `
+<div>
+  <nav
+    class="navbar"
+  >
+    <button
+      aria-expanded="false"
+      aria-label="Toggle navigation menu"
+      class="nav-toggle"
+    >
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+      <span
+        class="hamburger-line"
+      />
+    </button>
+    <ul
+      class="nav-links "
+    >
+      <li>
+        <a
+          aria-current="page"
+          class="nav-link nav-link--active"
+          data-discover="true"
+          href="/"
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/die"
+        >
+          Die Demo
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/core"
+        >
+          Core Explorer
+        </a>
+      </li>
+      <li>
+        <a
+          class="nav-link"
+          data-discover="true"
+          href="/about"
+        >
+          About
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;

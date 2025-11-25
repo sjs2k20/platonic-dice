@@ -1,13 +1,16 @@
+import { config } from '@config/app.config';
 import './Footer.css';
 
 export const Footer = () => {
+  const currentYear = new Date().getFullYear();
+  
   return (
     <footer className="footer">
       <div className="footer-content">
         <p>
-          &copy; 2025 Platonic Dice |{' '}
+          &copy; {currentYear} {config.app.name} |{' '}
           <a
-            href="https://github.com/sjs2k20/platonic-dice"
+            href={config.repository.url}
             target="_blank"
             rel="noopener noreferrer"
           >

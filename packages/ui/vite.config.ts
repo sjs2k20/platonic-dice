@@ -3,9 +3,9 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  // Base path for GitHub Pages (must match repository name)
-  base: "/platonic-dice/",
+export default defineConfig(({ mode }) => ({
+  // Base path: production (GitHub Pages) uses /platonic-dice/, dev uses /
+  base: mode === "production" ? "/platonic-dice/" : "/",
 
   plugins: [react()],
 
@@ -47,4 +47,4 @@ export default defineConfig({
     port: 3000,
     open: true,
   },
-});
+}));
