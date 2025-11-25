@@ -11,15 +11,15 @@ Foundation for the entire application.
 **Priority: Critical**
 **Labels: `infrastructure`, `navigation`**
 
-- [ ] Install React Router (`react-router-dom`)
-- [ ] Create main navigation component with links
-- [ ] Implement routes:
+- [x] Install React Router (`react-router-dom`)
+- [x] Create main navigation component with links
+- [x] Implement routes:
   - `/` - Home/Landing page
   - `/die` - Die class interactive demo
   - `/core` - Core package API explorer
   - `/about` - Package info and documentation links
-- [ ] Add active route highlighting
-- [ ] Mobile-responsive hamburger menu
+- [x] Add active route highlighting
+- [x] Mobile-responsive hamburger menu
 
 **Acceptance Criteria:**
 
