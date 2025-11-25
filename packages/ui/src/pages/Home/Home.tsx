@@ -1,6 +1,6 @@
 import './Home.css';
 
-export function Home() {
+export const Home = () => {
   return (
     <div className="page-container">
       <header className="home-header">
@@ -17,4 +17,4 @@ export function Home() {
       </main>
     </div>
   );
-}
+};

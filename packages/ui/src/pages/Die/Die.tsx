@@ -3,7 +3,7 @@ import { Die as DieClass, DieType } from '@platonic-dice/dice';
 import type { RollRecord } from '@platonic-dice/dice';
 import './Die.css';
 
-export function Die() {
+export const Die = () => {
   const [d20] = useState(() => new DieClass(DieType.D20));
   const [result, setResult] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]);
@@ -48,4 +48,4 @@ export function Die() {
       </section>
     </div>
   );
-}
+};

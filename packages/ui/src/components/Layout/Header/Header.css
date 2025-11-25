@@ -1,0 +1,58 @@
+.header {
+  background-color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 60px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.header-logo {
+  font-size: 1.5rem;
+}
+
+.header-title {
+  display: none;
+}
+
+.version-badge {
+  display: none;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(255, 193, 7, 0.9);
+  color: #1a202c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (min-width: 480px) {
+  .header-title {
+    display: inline;
+  }
+}
+
+@media (min-width: 768px) {
+  .version-badge {
+    display: inline-block;
+  }
+}
