@@ -30,7 +30,8 @@
       "@pages/*": ["./src/pages/*"],
       "@router/*": ["./src/router/*"],
       "@styles/*": ["./src/styles/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@assets/*": ["./src/assets/*"]
     }
   },
   "include": ["src"],

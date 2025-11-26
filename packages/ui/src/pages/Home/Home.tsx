@@ -1,10 +1,20 @@
+import { Logo } from '@/assets';
 import './Home.css';
 
 export const Home = () => {
   return (
     <div className="page-container">
       <header className="home-header">
-        <h1>🎲 Platonic Dice</h1>
+        <h1>
+          <Logo 
+            width={80} 
+            height={80} 
+            alt=""
+            className="home-logo"
+            style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}
+          />
+          Platonic Dice
+        </h1>
         <p>Interactive showcase for the platonic-dice packages</p>
       </header>
 

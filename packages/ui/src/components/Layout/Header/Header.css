@@ -26,7 +26,9 @@
 }
 
 .header-logo {
-  font-size: 1.5rem;
+  background-color: white;
+  padding: 0.25rem;
+  border-radius: 4px;
 }
 
 .header-title {
