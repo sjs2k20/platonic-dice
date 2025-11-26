@@ -7,7 +7,7 @@ describe("Header", () => {
   it("renders branding elements", () => {
     const { container } = render(<Header />, { wrapper: MemoryRouter });
     
-    expect(screen.getByText("🎲")).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Platonic Dice logo/i })).toBeInTheDocument();
     expect(screen.getByText("Platonic Dice")).toBeInTheDocument();
     expect(screen.getByText(/v0.1.0 - PREVIEW/i)).toBeInTheDocument();
     expect(container).toMatchSnapshot();

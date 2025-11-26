@@ -18,7 +18,7 @@ describe("App", () => {
 
   it("renders navigation", () => {
     const { container } = render(<AppRouter />, { wrapper: createWrapper(['/']) });
-    expect(screen.getByText("Platonic Dice")).toBeInTheDocument();
+    expect(screen.getAllByText("Platonic Dice").length).toBeGreaterThan(0);
     expect(container).toMatchSnapshot();
   });
 

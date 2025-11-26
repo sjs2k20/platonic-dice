@@ -6,7 +6,7 @@ describe("Home", () => {
   it("renders page title", () => {
     const { container } = render(<Home />);
     
-    expect(screen.getByRole('heading', { name: /🎲 Platonic Dice/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Platonic Dice/i })).toBeInTheDocument();
     expect(container).toMatchSnapshot();
   });
 
