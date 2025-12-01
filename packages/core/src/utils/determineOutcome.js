@@ -69,9 +69,31 @@ function determineOutcome(value, testConditions) {
       testConditions
     );
 
-    // Inject dieType into the conditions object to satisfy TestConditions
+    // Inject dieType into the conditions object to satisfy validators
     const fullConditions = { ...rest, dieType };
 
+    // Fast-path validation using shared validators to provide clearer,
+    // centralized error messages for plain-object inputs before attempting
+    // construction of a TestConditions instance.
+    const validators = require("../utils/testValidators");
+    const { isValidTestType } = require("../entities/TestType");
+
+    if (!isValidTestType(testType)) {
+      // Mirror the constructor's TypeError for unsupported test types.
+      throw new TypeError(`Invalid test type: ${testType}`);
+    }
+
+    if (!validators.areValidTestConditions(fullConditions, testType)) {
+      // Fail fast with a clear TypeError for invalid shapes. The validator
+      // returns false for malformed conditions (range errors, missing keys,
+      // etc.). Consumers constructing TestConditions directly will still
+      // receive more specific RangeError messages from the constructor;
+      // here we centralize failure for plain-object inputs.
+      throw new TypeError("Invalid test conditions shape.");
+    }
+
+    // At this point the plain object is well-formed; normalize via the
+    // constructor to obtain a proper TestConditions instance.
     testConditions = new TestConditions(testType, fullConditions, dieType);
   }
 

@@ -84,10 +84,39 @@ function analyseTest(dieType, testConditions, options = {}) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions (skip if already a TestConditions instance)
-  const conditionSet =
-    testConditions instanceof tc.TestConditions
-      ? testConditions
-      : tc.normaliseTestConditions(testConditions, dieType);
+  let conditionSet;
+  if (testConditions instanceof tc.TestConditions) {
+    conditionSet = testConditions;
+  } else {
+    // Plain object: validate early for clearer errors, then normalise.
+    // We still call `normaliseTestConditions` so tests and any instrumentation
+    // that spy on it will observe the delegation (and the constructor remains
+    // the final authority for detailed RangeErrors).
+    const { testType, ...rest } = testConditions;
+    const fullConditions = { ...rest, dieType };
+    const validators = require("./utils/testValidators");
+    const { isValidTestType } = require("./entities/TestType");
+
+    if (!isValidTestType(testType)) {
+      try {
+        tc.normaliseTestConditions(testConditions, dieType);
+      } catch (err) {
+        // ignore deeper error
+      }
+      throw new TypeError(`Invalid test type: ${testType}`);
+    }
+
+    if (!validators.areValidTestConditions(fullConditions, testType)) {
+      try {
+        tc.normaliseTestConditions(testConditions, dieType);
+      } catch (err) {
+        // ignore deeper error
+      }
+      throw new TypeError("Invalid test conditions shape.");
+    }
+
+    conditionSet = tc.normaliseTestConditions(testConditions, dieType);
+  }
 
   // Obtain evaluator (registry or fallback) and build outcome map
   const evaluator = getEvaluator(

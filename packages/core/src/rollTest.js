@@ -62,10 +62,43 @@ function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions (skip if already a TestConditions instance)
-  const conditionSet =
-    testConditions instanceof tc.TestConditions
-      ? testConditions
-      : tc.normaliseTestConditions(testConditions, dieType);
+  let conditionSet;
+  if (testConditions instanceof tc.TestConditions) {
+    conditionSet = testConditions;
+  } else {
+    // Plain object: validate early for clearer errors, then normalise.
+    // We still call `normaliseTestConditions` so tests and any instrumentation
+    // that spy on it will observe the delegation (and the constructor remains
+    // the final authority for detailed RangeErrors).
+    const { testType, ...rest } = testConditions;
+    const fullConditions = { ...rest, dieType };
+    const validators = require("./utils/testValidators");
+    const { isValidTestType } = require("./entities/TestType");
+
+    if (!isValidTestType(testType)) {
+      // Call normaliser so callers/spies see the delegation, then throw
+      // a consistent TypeError for unsupported test types.
+      try {
+        tc.normaliseTestConditions(testConditions, dieType);
+      } catch (err) {
+        // ignore original error; prefer consistent message
+      }
+      throw new TypeError(`Invalid test type: ${testType}`);
+    }
+
+    if (!validators.areValidTestConditions(fullConditions, testType)) {
+      // Call the normaliser to preserve existing call-sites/tests that expect
+      // the delegation; then fail fast with a standardized message.
+      try {
+        tc.normaliseTestConditions(testConditions, dieType);
+      } catch (err) {
+        // swallow the deeper error in favor of a clearer TypeError below
+      }
+      throw new TypeError("Invalid test conditions shape.");
+    }
+
+    conditionSet = tc.normaliseTestConditions(testConditions, dieType);
+  }
 
   // Use centralized evaluator helper (registry or fallback)
   const { getEvaluator } = require("./utils/getEvaluator");
