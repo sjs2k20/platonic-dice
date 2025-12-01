@@ -67,38 +67,18 @@ function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
       ? testConditions
       : tc.normaliseTestConditions(testConditions, dieType);
 
-  // Create outcome map for all possible rolls
-  // Prefer registry evaluator if available; otherwise build outcome map.
-  /** @type {Record<number, OutcomeValue>|undefined} */
-  let outcomeMap;
-  try {
-    const { getRegistration } = require("./utils/testRegistry");
-    const reg = getRegistration(conditionSet.testType);
-    if (reg && typeof reg.buildEvaluator === "function") {
-      /** @type {import("./utils/testRegistry").Evaluator} */
-      const evaluator = reg.buildEvaluator(
-        dieType,
-        conditionSet,
-        null,
-        options.useNaturalCrits
-      );
-      outcomeMap = {};
-      const sides = numSides(dieType);
-      for (let b = 1; b <= sides; b++) outcomeMap[b] = evaluator(b);
-    }
-  } catch (err) {
-    // fall through to legacy logic
-  }
-
-  if (!outcomeMap) {
-    outcomeMap = createOutcomeMap(
-      dieType,
-      conditionSet.testType,
-      conditionSet,
-      null, // no modifier
-      options.useNaturalCrits
-    );
-  }
+  // Use centralized evaluator helper (registry or fallback)
+  const { getEvaluator } = require("./utils/getEvaluator");
+  const evaluator = getEvaluator(
+    dieType,
+    conditionSet,
+    null,
+    options.useNaturalCrits
+  );
+  const sides = numSides(dieType);
+  /** @type {Record<number, OutcomeValue>} */
+  const outcomeMap = {};
+  for (let b = 1; b <= sides; b++) outcomeMap[b] = evaluator(b);
 
   // Perform the roll
   const base = r.roll(dieType, rollType);

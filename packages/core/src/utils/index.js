@@ -25,6 +25,7 @@ const {
 } = require("./outcomeMapper.js");
 const testRegistry = require("./testRegistry.js");
 const testValidators = require("./testValidators.js");
+const { getEvaluator } = require("./getEvaluator.js");
 
 module.exports = {
   determineOutcome,
@@ -33,6 +34,7 @@ module.exports = {
   createOutcomeMap,
   clearOutcomeMapCache,
   getOutcomeMapCacheSize,
+  getEvaluator,
   // Runtime re-exports for registry and validators to match `index.d.ts`
   ...testRegistry,
   ...testValidators,

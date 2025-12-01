@@ -137,6 +137,32 @@ function createOutcomeMap(
     return cached;
   }
 
+  // Prefer registry builder when available to keep behavior consistent
+  // with registered evaluators. Fall back to per-base determineOutcome loop.
+  try {
+    const { getRegistration } = require("./testRegistry");
+    const reg = getRegistration(testType);
+    if (reg && typeof reg.buildEvaluator === "function") {
+      const evaluator = reg.buildEvaluator(
+        dieType,
+        testConditions,
+        modifier,
+        shouldUseNaturalCrits
+      );
+      const sides = numSides(dieType);
+      /** @type {Object.<number, import("../entities/Outcome").OutcomeValue>} */
+      const outcomeMap = {};
+      for (let baseRoll = 1; baseRoll <= sides; baseRoll++) {
+        outcomeMap[baseRoll] = evaluator(baseRoll);
+      }
+      outcomeMapCache.set(cacheKey, outcomeMap);
+      return outcomeMap;
+    }
+  } catch (e) {
+    // If registry cannot be loaded for any reason, gracefully fall back
+    // to the existing per-base logic below.
+  }
+
   const sides = numSides(dieType);
   /** @type {Object.<number, import("../entities/Outcome").OutcomeValue>} */
   const outcomeMap = {};

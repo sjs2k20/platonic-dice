@@ -34,7 +34,9 @@ import type { RollModifierInstance } from "../entities/RollModifier";
 export function createOutcomeMap(
   dieType: DieTypeValue,
   testType: TestTypeValue,
-  testConditions: TestConditionsInstance,
+  testConditions:
+    | TestConditionsInstance
+    | { testType: TestTypeValue; [key: string]: any },
   modifier?: RollModifierInstance | null,
   useNaturalCrits?: boolean | null
 ): Record<number, OutcomeValue>;

@@ -22,6 +22,7 @@ const { DieType, TestType } = require("./entities");
 const tc = require("./entities/TestConditions.js");
 const { createOutcomeMap } = require("./utils/outcomeMapper");
 const { numSides } = require("./utils");
+const { getEvaluator } = require("./utils/getEvaluator");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -88,16 +89,17 @@ function analyseTest(dieType, testConditions, options = {}) {
       ? testConditions
       : tc.normaliseTestConditions(testConditions, dieType);
 
-  // Create outcome map for all possible rolls
-  const outcomeMap = createOutcomeMap(
+  // Obtain evaluator (registry or fallback) and build outcome map
+  const evaluator = getEvaluator(
     dieType,
-    conditionSet.testType,
     conditionSet,
-    null, // no modifier
+    null,
     options.useNaturalCrits
   );
-
   const sides = numSides(dieType);
+  /** @type {Object.<number, OutcomeValue>} */
+  const outcomeMap = {};
+  for (let roll = 1; roll <= sides; roll++) outcomeMap[roll] = evaluator(roll);
   const totalPossibilities = sides;
 
   // Count outcomes

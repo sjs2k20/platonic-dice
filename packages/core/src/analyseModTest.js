@@ -21,6 +21,7 @@ const { normaliseRollModifier } = require("./entities");
 const { ModifiedTestConditions } = require("./entities/ModifiedTestConditions");
 const { createOutcomeMap } = require("./utils/outcomeMapper");
 const { numSides } = require("./utils");
+const { getEvaluator } = require("./utils/getEvaluator");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -111,17 +112,18 @@ function analyseModTest(dieType, modifier, testConditions, options = {}) {
     conditionSet = new ModifiedTestConditions(testType, rest, dieType, mod);
   }
 
-  // Create outcome map for all possible rolls (with modifier applied)
-  const outcomeMap = createOutcomeMap(
+  // Obtain evaluator (registry or fallback) and build outcome map
+  const evaluator = getEvaluator(
     dieType,
-    conditionSet.testType,
     // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
     conditionSet,
-    mod, // include modifier
+    mod,
     options.useNaturalCrits
   );
-
   const sides = numSides(dieType);
+  /** @type {Object.<number, OutcomeValue>} */
+  const outcomeMap = {};
+  for (let roll = 1; roll <= sides; roll++) outcomeMap[roll] = evaluator(roll);
   const totalPossibilities = sides;
 
   // Calculate modified values for each roll

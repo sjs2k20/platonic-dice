@@ -167,7 +167,8 @@ function rollModTest(
       );
       outcomeMap = {};
       const sides = numSides(dieType);
-      for (let b = 1; b <= sides; b++) outcomeMap[b] = evaluator(b);
+      for (let roll = 1; roll <= sides; roll++)
+        outcomeMap[roll] = evaluator(roll);
     }
   } catch (err) {
     // fall through to legacy logic
