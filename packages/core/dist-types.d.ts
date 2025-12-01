@@ -12,6 +12,10 @@ export type { RollTypeValue } from "./dist/entities/RollType";
 export type { TestTypeValue } from "./dist/entities/TestType";
 export type { DieTypeValue } from "./dist/entities/DieType";
 
+// Re-export useful utils-level types (Evaluator and Conditions) at package root
+export type { Evaluator, BuildEvaluator } from "./dist/utils/testRegistry";
+export type { Conditions, ConditionsLike } from "./dist/utils/testValidators";
+
 // Re-export other commonly used entity types
 export * from "./dist/entities/index";
 

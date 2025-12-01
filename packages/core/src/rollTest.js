@@ -25,6 +25,7 @@ const { DieType, TestType } = require("./entities");
 const tc = require("./entities/TestConditions.js");
 const r = require("./roll.js");
 const { createOutcomeMap } = require("./utils/outcomeMapper");
+const { numSides } = require("./utils");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -67,13 +68,37 @@ function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
       : tc.normaliseTestConditions(testConditions, dieType);
 
   // Create outcome map for all possible rolls
-  const outcomeMap = createOutcomeMap(
-    dieType,
-    conditionSet.testType,
-    conditionSet,
-    null, // no modifier
-    options.useNaturalCrits
-  );
+  // Prefer registry evaluator if available; otherwise build outcome map.
+  /** @type {Record<number, OutcomeValue>|undefined} */
+  let outcomeMap;
+  try {
+    const { getRegistration } = require("./utils/testRegistry");
+    const reg = getRegistration(conditionSet.testType);
+    if (reg && typeof reg.buildEvaluator === "function") {
+      /** @type {import("./utils/testRegistry").Evaluator} */
+      const evaluator = reg.buildEvaluator(
+        dieType,
+        conditionSet,
+        null,
+        options.useNaturalCrits
+      );
+      outcomeMap = {};
+      const sides = numSides(dieType);
+      for (let b = 1; b <= sides; b++) outcomeMap[b] = evaluator(b);
+    }
+  } catch (err) {
+    // fall through to legacy logic
+  }
+
+  if (!outcomeMap) {
+    outcomeMap = createOutcomeMap(
+      dieType,
+      conditionSet.testType,
+      conditionSet,
+      null, // no modifier
+      options.useNaturalCrits
+    );
+  }
 
   // Perform the roll
   const base = r.roll(dieType, rollType);

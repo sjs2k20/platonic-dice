@@ -12,10 +12,13 @@
 const { isValidDieType } = require("./DieType");
 const { isValidTestType } = require("./TestType");
 const { numSides } = require("../utils");
+const validators = require("../utils/testValidators");
 
 /**
  * @typedef {import("./TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("../utils/testValidators").Conditions} Conditions
+ * @typedef {import("../utils/testValidators").ConditionsLike} ConditionsLike
  */
 
 /**
@@ -101,27 +104,8 @@ class TestConditions {
  * @returns {boolean}
  */
 function areValidTestConditions(c, testType) {
-  switch (testType) {
-    case "at_least":
-    case "at_most":
-    case "exact":
-      // @ts-expect-error: we know c is TargetConditions for these test types
-      return isValidTargetConditions(c);
-    case "within":
-      // @ts-expect-error: we know c is WithinConditions for this test type
-      return isValidWithinConditions(c);
-    case "in_list":
-      // @ts-expect-error: we know c is SpecificListConditions
-      return isValidSpecificListConditions(c);
-    // case "odd":
-    // case "even":
-    //   return isValidOddEvenCondition(c);
-    case "skill":
-      // @ts-expect-error: we know c is SkillConditions
-      return isValidSkillTestCondition(c);
-    default:
-      return false;
-  }
+  // Delegate master validation to utils/testValidators for consistency
+  return validators.areValidTestConditions(c, testType);
 }
 
 /**
@@ -161,18 +145,6 @@ function normaliseTestConditions(tc, dieType) {
     `Invalid TestConditions: must be a TestConditions instance or a plain object.`
   );
 }
-
-/**
- * Represents any valid dice roll test condition.
- *
- * This is a union type of all the internal test condition shapes:
- * - `TargetConditions` – single target value
- * - `SkillConditions` – target with optional critical thresholds
- * - `WithinConditions` – min/max range
- * - `SpecificListConditions` – array of specific allowed values
- *
- * @typedef {TargetConditions | SkillConditions | WithinConditions | SpecificListConditions} Conditions
- */
 
 /**
  * @typedef {InstanceType<typeof TestConditions>} TestConditionsInstance
