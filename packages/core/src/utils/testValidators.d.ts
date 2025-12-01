@@ -55,3 +55,9 @@ export function areValidTestConditions(
   c: Record<string, any>,
   testType: TestTypeValue | string
 ): boolean;
+export function areValidValuesInRange(
+  obj: Record<string, any>,
+  min: number,
+  max: number,
+  keys: string[]
+): boolean;

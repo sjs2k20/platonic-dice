@@ -1,5 +1,5 @@
 const { isValidDieType } = require("../entities/DieType");
-const { numSides } = require(".");
+const { numSides } = require("./generateResult.js");
 
 /**
  * @typedef {import("../entities/TestType").TestTypeValue} TestTypeValue
@@ -119,6 +119,36 @@ function isValidSpecificListConditions(c) {
 }
 
 /**
+ * Validates that the given keys on an object are integer values within
+ * an explicit inclusive range `[min, max]`.
+ *
+ * This is useful for modified-range validation where the permissible
+ * faces aren't 1..sides but an arbitrary min..max after applying modifiers.
+ *
+ * @param {Record<string, any>} obj
+ * @param {number} min
+ * @param {number} max
+ * @param {(string)[]} keys
+ * @returns {boolean}
+ */
+function areValidValuesInRange(obj, min, max, keys) {
+  if (!obj) return false;
+  if (!Number.isInteger(min) || !Number.isInteger(max) || min > max)
+    return false;
+  return keys.every((key) => {
+    const v = obj[key];
+    if (v == null) return true;
+    if (Array.isArray(v)) {
+      if (v.length === 0) return false;
+      return v.every(
+        (item) => Number.isInteger(item) && item >= min && item <= max
+      );
+    }
+    return Number.isInteger(v) && v >= min && v <= max;
+  });
+}
+
+/**
  * Master validation function for all test conditions.
  */
 /**
@@ -152,4 +182,5 @@ module.exports = {
   isValidWithinConditions,
   isValidSpecificListConditions,
   areValidTestConditions,
+  areValidValuesInRange,
 };

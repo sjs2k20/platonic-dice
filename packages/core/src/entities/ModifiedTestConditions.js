@@ -21,6 +21,7 @@ const { isValidDieType } = require("./DieType");
 const { isValidTestType } = require("./TestType");
 const { normaliseRollModifier } = require("./RollModifier");
 const { numSides } = require("../utils");
+const validators = require("../utils/testValidators");
 
 /**
  * @typedef {import("./TestType").TestTypeValue} TestTypeValue
@@ -185,13 +186,12 @@ function areValidModifiedTestConditions(c, testType) {
       );
 
     case "in_list":
+      // Use shared validator helper for range checks (accepts arrays)
       return (
         Array.isArray(c.values) &&
-        c.values.length > 0 &&
-        c.values.every(
-          (v) =>
-            typeof v === "number" && Number.isInteger(v) && v >= min && v <= max
-        )
+        validators.areValidValuesInRange({ values: c.values }, min, max, [
+          "values",
+        ])
       );
 
     case "skill":
@@ -205,33 +205,17 @@ function areValidModifiedTestConditions(c, testType) {
         return false;
       }
 
-      // critical_success is optional but must be valid if present
-      if (c.critical_success !== undefined) {
-        if (
-          typeof c.critical_success !== "number" ||
-          !Number.isInteger(c.critical_success) ||
-          c.critical_success < min ||
-          c.critical_success > max ||
-          c.critical_success < c.target
-        ) {
-          return false;
-        }
-      }
+      // Validate critical thresholds are within range if present using helper
+      if (
+        !validators.areValidValuesInRange(c, min, max, [
+          "critical_success",
+          "critical_failure",
+        ])
+      )
+        return false;
 
-      // critical_failure is optional but must be valid if present
-      if (c.critical_failure !== undefined) {
-        if (
-          typeof c.critical_failure !== "number" ||
-          !Number.isInteger(c.critical_failure) ||
-          c.critical_failure < min ||
-          c.critical_failure > max ||
-          c.critical_failure > c.target
-        ) {
-          return false;
-        }
-      }
-
-      return true;
+      // Check logical ordering using shared helper
+      return validators.isValidThresholdOrder(c);
 
     default:
       return false;
