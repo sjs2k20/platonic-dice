@@ -41,7 +41,7 @@ describe("testRegistry parity with createOutcomeMap", () => {
     const mod = new RollModifier((n) => n + 3);
     const conditions = new TestConditions(
       TestType.Skill,
-      { target: 12, critical_success: 20, critical_failure: 1 },
+      { target: 12, critical_success: 20, critical_failure: 4 },
       DieType.D20
     );
     const evalFn = reg.buildEvaluator(DieType.D20, conditions, mod, true);
@@ -79,5 +79,50 @@ describe("testRegistry parity with createOutcomeMap", () => {
     for (let b = 1; b <= 8; b++) {
       expect(evalFn(b)).toBe(map[b]);
     }
+  });
+
+  it("analyseTest outcomes match createOutcomeMap for D6 at_least", () => {
+    const analyseTest = require("../../src/analyseTest").analyseTest;
+    const conditions = new TestConditions(
+      TestType.AtLeast,
+      { target: 4 },
+      DieType.D6
+    );
+
+    const analysis = analyseTest(DieType.D6, conditions, {});
+    const map = createOutcomeMap(
+      DieType.D6,
+      TestType.AtLeast,
+      conditions,
+      null,
+      null
+    );
+
+    expect(analysis.outcomesByRoll).toEqual(map);
+  });
+
+  it("analyseModTest outcomes match createOutcomeMap for D20 Skill with modifier", () => {
+    const analyseModTest = require("../../src/analyseModTest").analyseModTest;
+    const mod = new RollModifier((n) => n + 3);
+    const plain = {
+      testType: TestType.Skill,
+      target: 12,
+      critical_success: 20,
+      critical_failure: 4,
+      dieType: DieType.D20,
+    };
+
+    const analysis = analyseModTest(DieType.D20, mod, plain, {});
+    // Create a ModifiedTestConditions instance for parity mapping
+    const mtc =
+      new (require("../../src/entities/ModifiedTestConditions").ModifiedTestConditions)(
+        TestType.Skill,
+        { target: 12, critical_success: 20, critical_failure: 4 },
+        DieType.D20,
+        mod
+      );
+    const map = createOutcomeMap(DieType.D20, TestType.Skill, mtc, mod, null);
+
+    expect(analysis.outcomesByRoll).toEqual(map);
   });
 });

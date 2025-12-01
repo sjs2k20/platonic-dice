@@ -120,9 +120,32 @@ function createOutcomeMap(
 ) {
   const { TestType } = getEntities();
 
-  // Auto-determine useNaturalCrits if not specified
-  // Default: true for Skill tests, false for all others
-  const shouldUseNaturalCrits = useNaturalCrits ?? testType === TestType.Skill;
+  // Resolve `useNaturalCrits` with the following precedence:
+  // 1. Caller-provided `useNaturalCrits` (boolean)
+  // 2. Registry-provided `defaultUseNaturalCrits` (optional boolean)
+  // 3. Fallback default: true for Skill tests, false otherwise
+  let shouldUseNaturalCrits = useNaturalCrits;
+  // Try to get registry metadata (if registry is available) to consult any
+  // declared `defaultUseNaturalCrits` for this testType. We swallow errors
+  // to remain resilient if the registry cannot be loaded.
+  let reg;
+  try {
+    const tr = require("./testRegistry");
+    reg = tr.getRegistration(testType);
+    if (
+      shouldUseNaturalCrits == null &&
+      reg &&
+      typeof reg.defaultUseNaturalCrits === "boolean"
+    ) {
+      shouldUseNaturalCrits = reg.defaultUseNaturalCrits;
+    }
+  } catch (e) {
+    // ignore registry errors and fall back to heuristic below
+  }
+
+  if (shouldUseNaturalCrits == null) {
+    shouldUseNaturalCrits = testType === TestType.Skill;
+  }
 
   // Check cache first
   const cacheKey = createCacheKey(
@@ -140,8 +163,6 @@ function createOutcomeMap(
   // Prefer registry builder when available to keep behavior consistent
   // with registered evaluators. Fall back to per-base determineOutcome loop.
   try {
-    const { getRegistration } = require("./testRegistry");
-    const reg = getRegistration(testType);
     if (reg && typeof reg.buildEvaluator === "function") {
       const evaluator = reg.buildEvaluator(
         dieType,

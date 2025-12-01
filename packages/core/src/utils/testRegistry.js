@@ -19,8 +19,9 @@ const validators = require("./testValidators");
  * BuildEvaluator: factory that builds an Evaluator for a specific die/conditions.
  * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: ConditionsLike, modifier?: import("../entities/RollModifier").RollModifierInstance|null, useNaturalCrits?: boolean|null) => Evaluator} BuildEvaluator
  *
- * RegistryEntry: describes the shape validator and optional evaluator builder for a test type.
- * @typedef {{ validateShape: (c: ConditionsLike) => boolean, buildEvaluator?: BuildEvaluator }} RegistryEntry
+ * RegistryEntry: describes the shape validator, optional evaluator builder, and
+ * optional default for `useNaturalCrits` for that test type.
+ * @typedef {{ validateShape: (c: ConditionsLike) => boolean, buildEvaluator?: BuildEvaluator, defaultUseNaturalCrits?: boolean }} RegistryEntry
  */
 
 /** Internal registry map: testType -> { validateShape, buildEvaluator? } */

@@ -23,6 +23,11 @@ export interface RegistryEntry {
   validateShape: (c: ConditionsLike) => boolean;
   /** Optional evaluator builder used to construct a per-base-roll evaluator. */
   buildEvaluator?: BuildEvaluator;
+  /** Optional registry-provided default for `useNaturalCrits`. If present,
+   * this boolean will be used when callers pass `null`/`undefined` for the
+   * `useNaturalCrits` option.
+   */
+  defaultUseNaturalCrits?: boolean;
 }
 
 /** Register a new test type with its validator and optional evaluator builder. */
