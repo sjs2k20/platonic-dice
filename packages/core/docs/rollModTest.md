@@ -155,7 +155,7 @@ console.log(`Rolled ${boostedD6.base}, modified to ${boostedD6.modified}`);
 // Base: 5, Modified: 15 → success
 
 // D20 (1-20) - 5 = range -4 to 15
-const penalizedD20 = rollModTest(DieType.D20, (n) => n - 5, {
+const penalisedD20 = rollModTest(DieType.D20, (n) => n - 5, {
   testType: TestType.AtMost,
   target: 0, // Valid! 0 is within -4 to 15
 });

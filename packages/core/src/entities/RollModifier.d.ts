@@ -99,3 +99,7 @@ export function normaliseRollModifier(
 
 /** Alias type for instances of {@link RollModifier}. */
 export type RollModifierInstance = InstanceType<typeof RollModifier>;
+export type RollModifierLike =
+  | RollModifierInstance
+  | RollModifierFunction
+  | DiceModifier;

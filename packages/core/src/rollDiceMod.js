@@ -34,10 +34,7 @@ const rd = require("./rollDice.js");
  * @typedef {import("./entities/RollModifier").RollModifierFunction} RollModifierFunction
  * @typedef {import("./entities/RollModifier").RollModifierInstance} RollModifierInstance
  * @typedef {import("./entities/RollModifier").DiceModifier} DiceModifier
- */
-
-/**
- * @typedef {RollModifierInstance | RollModifierFunction | DiceModifier} rollDiceModModifier
+ * @typedef {import("./entities/RollModifier").RollModifierLike} RollModifierLike
  */
 
 /**
@@ -45,7 +42,7 @@ const rd = require("./rollDice.js");
  *
  * @function rollDiceMod
  * @param {DieTypeValue} dieType - The die type (e.g., `DieType.D6`).
- * @param {rollDiceModModifier} [modifier={}] - The modifier(s) to apply.
+ * @param {RollModifierLike} [modifier={}] - The modifier(s) to apply.
  * @param {{ count?: number }} [options={}] - Optional roll count (default: 1).
  * @returns {{
  *   base: { array: number[], sum: number },
@@ -103,19 +100,27 @@ function rollDiceMod(dieType, modifier = {}, { count = 1 } = {}) {
 /**
  * @private
  * Generates a simple accessor alias for `rollDiceMod`.
- *
- * @template {keyof { eachArray: number[]; net: number }} K
- * @param {K} key
+ * Returns either the `each.array` or the `net.value` depending on `key`.
+ * We keep the implementation untyped to avoid complex conditional JSDoc generics
+ * which cause TypeScript complaints; callers below provide explicit typings.
+ */
+/**
+ * @param {'eachArray'|'net'} key
+ * @returns {(dieType: DieTypeValue, modifier?: RollModifierLike, options?: { count?: number }) => number|number[]}
  */
 function alias(key) {
-  /** @type {(...args: Parameters<typeof rollDiceMod>) => K extends 'eachArray' ? number[] : number} */
+  /**
+   * @param {DieTypeValue} dieType
+   * @param {RollModifierLike} [modifier]
+   * @param {{ count?: number }} [options]
+   */
   return (dieType, modifier = {}, options = {}) => {
     const result = rollDiceMod(dieType, modifier, options);
     switch (key) {
       case "eachArray":
-        return /** @type {any} */ (result.modified.each.array);
+        return result.modified.each.array;
       case "net":
-        return /** @type {any} */ (result.modified.net.value);
+        return result.modified.net.value;
       default:
         throw new TypeError(`Unknown alias key: ${key}`);
     }
@@ -124,11 +129,15 @@ function alias(key) {
 
 // --- Exports ---
 
-/** @type {(dieType: DieTypeValue, modifier?: rollDiceModModifier, options?: { count?: number }) => number[]} */
-const rollDiceModArr = alias("eachArray");
+const rollDiceModArr =
+  /** @type {(dieType: DieTypeValue, modifier?: RollModifierLike, options?: { count?: number }) => number[]} */ (
+    alias("eachArray")
+  );
 
-/** @type {(dieType: DieTypeValue, modifier?: rollDiceModModifier, options?: { count?: number }) => number} */
-const rollDiceModNet = alias("net");
+const rollDiceModNet =
+  /** @type {(dieType: DieTypeValue, modifier?: RollModifierLike, options?: { count?: number }) => number} */ (
+    alias("net")
+  );
 
 module.exports = {
   rollDiceMod,

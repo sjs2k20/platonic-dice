@@ -49,7 +49,7 @@ const { numSides } = require("./utils");
  *
  * @function rollTest
  * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
- * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
+ * @param {TestConditionsInstance|import("./entities/TestConditions").TestConditionsLike} testConditions
  *   Can be:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
@@ -88,7 +88,7 @@ function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
 
     if (!validators.areValidTestConditions(fullConditions, testType)) {
       // Call the normaliser to preserve existing call-sites/tests that expect
-      // the delegation; then fail fast with a standardized message.
+      // the delegation; then fail fast with a standardised message.
       try {
         tc.normaliseTestConditions(testConditions, dieType);
       } catch (err) {
@@ -100,7 +100,7 @@ function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
     conditionSet = tc.normaliseTestConditions(testConditions, dieType);
   }
 
-  // Use centralized evaluator helper (registry or fallback)
+  // Use centralised evaluator helper (registry or fallback)
   const { getEvaluator } = require("./utils/getEvaluator");
   const evaluator = getEvaluator(
     dieType,

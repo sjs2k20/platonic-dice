@@ -62,7 +62,7 @@ git commit -m "chore(release): bump core to 2.1.2, dice to 2.1.1"
 git push origin main
 ```
 
-**For synchronized versioning (rare):**
+**For synchronised versioning (rare):**
 
 ```bash
 # Update both packages to the same version

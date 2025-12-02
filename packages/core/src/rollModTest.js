@@ -38,8 +38,7 @@ const { numSides } = require("./utils");
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/Outcome").OutcomeValue} OutcomeValue
  * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
- * @typedef {import("./entities/RollModifier").RollModifierFunction} RollModifierFunction
- * @typedef {import("./entities/RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./entities/RollModifier").RollModifierLike} RollModifierLike
  * @typedef {import("./entities/TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./entities/TestConditions").TestConditionsInstance} TestConditionsInstance
  */
@@ -71,11 +70,12 @@ function rankOutcome(outcome) {
  *
  * @function rollModTest
  * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param {RollModifierFunction|RollModifierInstance} modifier - The modifier to apply to the roll.
+ * @param {RollModifierLike} modifier - The modifier to apply to the roll.
  *   Can be either:
  *   - A function `(n: number) => number`
  *   - A {@link RollModifier} instance
- * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
+ * @typedef {import("./entities/TestConditions").TestConditionsLike} TestConditionsLike
+ * @param {TestConditionsLike} testConditions
  *   Can be:
  *   - A `TestConditions` instance
  *   - A plain object `{ testType, ...conditions }`
@@ -136,7 +136,7 @@ function rollModTest(
   const mod =
     modifier instanceof RollModifier
       ? modifier
-      : normaliseRollModifier(modifier);
+      : normaliseRollModifier(/** @type {any} */ (modifier));
 
   // Create ModifiedTestConditions if input is a plain object
   let conditionSet;

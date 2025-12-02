@@ -28,6 +28,11 @@ const validators = require("../utils/testValidators");
  * @typedef {import("./DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./RollModifier").RollModifierFunction} RollModifierFunction
  * @typedef {import("./RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./RollModifier").RollModifierLike} RollModifierLike
+ */
+/**
+ * @typedef {import("../utils/testValidators").Conditions} Conditions
+ * @typedef {import("../utils/testValidators").PlainObject} PlainObject
  */
 
 /**
@@ -65,7 +70,7 @@ class ModifiedTestConditions {
    * @param {TestTypeValue} testType - The test type.
    * @param {Conditions} conditions - The test conditions object.
    * @param {DieTypeValue} dieType - The base die type.
-   * @param {RollModifierFunction | RollModifierInstance} modifier - The modifier to apply.
+   * @param {RollModifierLike} modifier - The modifier to apply.
    * @throws {TypeError|RangeError} If the test type or conditions are invalid.
    */
   constructor(testType, conditions, dieType, modifier) {
@@ -85,8 +90,8 @@ class ModifiedTestConditions {
       throw new TypeError("modifier is required.");
     }
 
-    // Normalize the modifier
-    const mod = normaliseRollModifier(modifier);
+    // normalise the modifier
+    const mod = normaliseRollModifier(/** @type {any} */ (modifier));
 
     // Compute the achievable range with this modifier
     const range = computeModifiedRange(dieType, mod);
@@ -154,7 +159,7 @@ class ModifiedTestConditions {
  * Validates test conditions against a modified range.
  *
  * @private
- * @param {Conditions & Record<string, any>} c - Conditions with modifiedRange
+ * @param {ModifiedConditions & PlainObject} c - Conditions with modifiedRange
  * @param {TestTypeValue} testType
  * @returns {boolean}
  */
@@ -223,19 +228,19 @@ function areValidModifiedTestConditions(c, testType) {
 }
 
 /**
- * @typedef {Object} BaseTestCondition
+ * @typedef {Object} ModifiedBaseTestCondition
  * @property {{ min: number, max: number }} modifiedRange
  */
 
 /**
- * @typedef {BaseTestCondition & { target: number }} TargetConditions
- * @typedef {BaseTestCondition & { min: number, max: number }} WithinConditions
- * @typedef {BaseTestCondition & { values: number[] }} SpecificListConditions
- * @typedef {BaseTestCondition & { target: number, critical_success?: number, critical_failure?: number }} SkillConditions
+ * @typedef {ModifiedBaseTestCondition & { target: number }} ModifiedTargetConditions
+ * @typedef {ModifiedBaseTestCondition & { min: number, max: number }} ModifiedWithinConditions
+ * @typedef {ModifiedBaseTestCondition & { values: number[] }} ModifiedSpecificListConditions
+ * @typedef {ModifiedBaseTestCondition & { target: number, critical_success?: number, critical_failure?: number }} ModifiedSkillConditions
  */
 
 /**
- * @typedef {TargetConditions | SkillConditions | WithinConditions | SpecificListConditions} Conditions
+ * @typedef {ModifiedTargetConditions | ModifiedSkillConditions | ModifiedWithinConditions | ModifiedSpecificListConditions} ModifiedConditions
  */
 
 /**

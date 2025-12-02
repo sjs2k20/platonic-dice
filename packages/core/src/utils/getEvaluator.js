@@ -22,8 +22,9 @@ const { numSides } = require("./generateResult");
 /**
  * Get an evaluator function mapping base roll -> OutcomeValue.
  *
+ * @typedef {import("../entities/TestConditions").TestConditionsLike} TestConditionsLike
  * @param {DieTypeValue} dieType
- * @param {TestConditionsInstance|Record<string, any>} testConditions
+ * @param {TestConditionsLike} testConditions
  * @param {import("../entities/RollModifier").RollModifierInstance|null} [modifier=null]
  * @param {boolean|null} [useNaturalCrits=null]
  * @returns {Evaluator}
@@ -64,14 +65,13 @@ function getEvaluator(
   if (!(testConditions instanceof TestConditions)) {
     // Runtime normalization: `normaliseTestConditions` will validate and return a
     // `TestConditions` instance when given a plain object.
-    // @ts-expect-error: safe — `normaliseTestConditions` accepts plain objects and will validate them at runtime
     tcInstance = normaliseTestConditions(testConditions, dieType);
   }
 
   const outcomeMap = createOutcomeMap(
     dieType,
     testType,
-    // @ts-expect-error: safe — `tcInstance` is a validated TestConditions instance at runtime
+    // `tcInstance` is a validated TestConditions instance at runtime
     tcInstance,
     modifier,
     useNaturalCrits

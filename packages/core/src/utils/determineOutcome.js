@@ -18,7 +18,7 @@ function getEntities() {
 
 /**
  * @private
- * @typedef {{ testType: TestTypeValue, dieType: DieTypeValue } & Conditions} TestConditionsLike
+ * @typedef {import("../entities/TestConditions").TestConditionsLike & { dieType: DieTypeValue }} TestConditionsLike
  */
 
 /**
@@ -73,7 +73,7 @@ function determineOutcome(value, testConditions) {
     const fullConditions = { ...rest, dieType };
 
     // Fast-path validation using shared validators to provide clearer,
-    // centralized error messages for plain-object inputs before attempting
+    // centralised error messages for plain-object inputs before attempting
     // construction of a TestConditions instance.
     const validators = require("../utils/testValidators");
     const { isValidTestType } = require("../entities/TestType");
@@ -88,17 +88,23 @@ function determineOutcome(value, testConditions) {
       // returns false for malformed conditions (range errors, missing keys,
       // etc.). Consumers constructing TestConditions directly will still
       // receive more specific RangeError messages from the constructor;
-      // here we centralize failure for plain-object inputs.
+      // here we centralise failure for plain-object inputs.
       throw new TypeError("Invalid test conditions shape.");
     }
 
-    // At this point the plain object is well-formed; normalize via the
+    // At this point the plain object is well-formed; normalise via the
     // constructor to obtain a proper TestConditions instance.
-    testConditions = new TestConditions(testType, fullConditions, dieType);
+    testConditions = new TestConditions(
+      testType,
+      /** @type {any} */ (fullConditions),
+      dieType
+    );
   }
 
   /** @type {TestConditionsInstance} */
-  const { testType, conditions } = testConditions;
+  const { testType, conditions } = /** @type {TestConditionsInstance} */ (
+    testConditions
+  );
 
   return evaluateOutcome(value, testType, conditions, Outcome, TestType);
 }
@@ -108,9 +114,9 @@ function determineOutcome(value, testConditions) {
  * @private
  * @param {number} value
  * @param {TestTypeValue} testType
- * @param {Conditions | any} conditions
- * @param {any} Outcome
- * @param {any} TestType
+ * @param {Conditions} conditions
+ * @param {typeof import("../entities/Outcome").Outcome} Outcome
+ * @param {typeof import("../entities/TestType").TestType} TestType
  * @returns {OutcomeValue}
  */
 function evaluateOutcome(value, testType, conditions, Outcome, TestType) {

@@ -54,7 +54,7 @@ for (const t of builtIns) {
       // t is a string matching TestType values; TS/JSDoc will accept via runtime checks
       const outcomeMap = createOutcomeMap(
         dieType,
-        /** @type {any} */ (t),
+        /** @type {import("../entities/TestType").TestTypeValue} */ (t),
         /** @type {any} */ (testConditions),
         modifier,
         useNaturalCrits

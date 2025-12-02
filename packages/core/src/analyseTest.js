@@ -52,7 +52,8 @@ const { getEvaluator } = require("./utils/getEvaluator");
  *
  * @function analyseTest
  * @param {DieTypeValue} dieType - The type of die (e.g., `DieType.D20`).
- * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
+ * @typedef {import("./entities/TestConditions").TestConditionsLike} TestConditionsLike
+ * @param {TestConditionsLike} testConditions
  *   Can be:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.

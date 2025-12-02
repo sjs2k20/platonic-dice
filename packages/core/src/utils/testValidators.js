@@ -1,6 +1,10 @@
 const { isValidDieType } = require("../entities/DieType");
 const { numSides } = require("./generateResult.js");
 
+/* Typedef ownership:
+ * - `PlainObject`, `Conditions`, `ConditionsLike`
+ */
+
 /**
  * @typedef {import("../entities/TestType").TestTypeValue} TestTypeValue
  * @typedef {import("../entities/DieType").DieTypeValue} DieTypeValue
@@ -15,7 +19,7 @@ const { numSides } = require("./generateResult.js");
  *
  * @typedef {TargetConditions | SkillConditions | WithinConditions | SpecificListConditions} Conditions
  *
- * @typedef {Record<string, unknown>} PlainObject
+ * @typedef {Record<string, any>} PlainObject
  * @typedef {Conditions|PlainObject} ConditionsLike
  */
 
@@ -54,7 +58,7 @@ function areValidFaceValues(obj, sides, keys) {
  * Validates the ordering of target and critical thresholds.
  */
 /**
- * @param {SkillConditions|Record<string, any>} thresholds
+ * @param {SkillConditions|PlainObject} thresholds
  * @returns {boolean}
  */
 function isValidThresholdOrder({ target, critical_success, critical_failure }) {
@@ -64,7 +68,7 @@ function isValidThresholdOrder({ target, critical_success, critical_failure }) {
 }
 
 /**
- * @param {TargetConditions|Record<string, any>} c
+ * @param {TargetConditions|PlainObject} c
  * @returns {boolean}
  */
 function isValidTargetConditions(c) {
@@ -73,7 +77,7 @@ function isValidTargetConditions(c) {
 }
 
 /**
- * @param {SkillConditions|Record<string, any>} c
+ * @param {SkillConditions|PlainObject} c
  * @returns {boolean}
  */
 function isValidSkillTestCondition(c) {
@@ -94,7 +98,7 @@ function isValidSkillTestCondition(c) {
 }
 
 /**
- * @param {WithinConditions|Record<string, any>} c
+ * @param {WithinConditions|PlainObject} c
  * @returns {boolean}
  */
 function isValidWithinConditions(c) {
@@ -108,7 +112,7 @@ function isValidWithinConditions(c) {
 }
 
 /**
- * @param {SpecificListConditions|Record<string, any>} c
+ * @param {SpecificListConditions|PlainObject} c
  * @returns {boolean}
  */
 function isValidSpecificListConditions(c) {
@@ -125,7 +129,7 @@ function isValidSpecificListConditions(c) {
  * This is useful for modified-range validation where the permissible
  * faces aren't 1..sides but an arbitrary min..max after applying modifiers.
  *
- * @param {Record<string, any>} obj
+ * @param {PlainObject} obj
  * @param {number} min
  * @param {number} max
  * @param {(string)[]} keys
@@ -152,7 +156,7 @@ function areValidValuesInRange(obj, min, max, keys) {
  * Master validation function for all test conditions.
  */
 /**
- * @param {Conditions|Record<string, any>} c
+ * @param {Conditions|PlainObject} c
  * @param {TestTypeValue|string} testType
  * @returns {boolean}
  */

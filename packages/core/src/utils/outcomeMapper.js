@@ -2,7 +2,7 @@
  * @module @platonic-dice/core/src/utils/outcomeMapper
  * @description
  * Creates outcome maps for die rolls, handling natural crits and modifiers.
- * This provides a centralized way to determine all possible outcomes for a
+ * This provides a centralised way to determine all possible outcomes for a
  * given die configuration.
  *
  * Includes memoization cache for performance optimization.
@@ -88,7 +88,7 @@ function createCacheKey(
   modifier,
   useNaturalCrits
 ) {
-  // Serialize the conditions object for hashing
+  // serialise the conditions object for hashing
   const conditionsKey = JSON.stringify({
     testType: testConditions.testType,
     conditions: testConditions.conditions,

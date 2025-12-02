@@ -14,11 +14,24 @@ const { isValidTestType } = require("./TestType");
 const { numSides } = require("../utils");
 const validators = require("../utils/testValidators");
 
+/* Typedef ownership:
+ * - `TestConditionsLike`
+ */
+
 /**
  * @typedef {import("./TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./DieType").DieTypeValue} DieTypeValue
  * @typedef {import("../utils/testValidators").Conditions} Conditions
  * @typedef {import("../utils/testValidators").ConditionsLike} ConditionsLike
+ */
+
+/**
+ * A public 'like' type for test conditions accepted by many APIs.
+ * - Either a fully constructed `TestConditions` instance, or a plain
+ *   object containing at minimum a `testType` property and other condition
+ *   fields. We reuse `PlainObject` from `testValidators` for the plain case.
+ *
+ * @typedef {InstanceType<typeof TestConditions>|({ testType: TestTypeValue } & import("../utils/testValidators").PlainObject)} TestConditionsLike
  */
 
 /**
@@ -80,7 +93,7 @@ class TestConditions {
 
   /**
    * Validates that the test conditions still conforms to spec.
-   * (Useful if they are loaded dynamically or serialized.)
+   * (Useful if they are loaded dynamically or serialised.)
    * @throws {TypeError} If the test conditions are invalid.
    */
   validate() {
@@ -114,7 +127,7 @@ function areValidTestConditions(c, testType) {
  * Automatically validates all conditions for the specified die type.
  *
  * @function normaliseTestConditions
- * @param {TestConditions | { testType: TestTypeValue, [key: string]: any }} tc
+ * @param {TestConditions | TestConditionsLike} tc
  *   A {@link TestConditions} instance or plain object with `testType` and other fields.
  * @param {DieTypeValue} dieType
  *   The die type (e.g., `'d6'`, `'d20'`) used for validation.

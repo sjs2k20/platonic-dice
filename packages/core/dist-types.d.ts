@@ -5,6 +5,8 @@
 export type {
   RollModifierFunction,
   RollModifierInstance,
+  DiceModifier,
+  RollModifierLike,
 } from "./dist/entities/RollModifier";
 export type { OutcomeValue } from "./dist/entities/Outcome";
 export type { TestConditionsInstance } from "./dist/entities/TestConditions";
@@ -37,9 +39,7 @@ export * from "./dist/analyseModTest";
 // resolve correctly.
 export function rollMod(
   dieType: import("./dist/entities/DieType").DieTypeValue,
-  modifier:
-    | import("./dist/entities/RollModifier").RollModifierFunction
-    | import("./dist/entities/RollModifier").RollModifierInstance,
+  modifier: import("./dist/entities/RollModifier").RollModifierLike,
   rollType?: import("./dist/entities/RollType").RollTypeValue
 ): { base: number; modified: number };
 
@@ -56,9 +56,7 @@ export function rollTest(
 
 export function rollModTest(
   dieType: import("./dist/entities/DieType").DieTypeValue,
-  modifier:
-    | import("./dist/entities/RollModifier").RollModifierFunction
-    | import("./dist/entities/RollModifier").RollModifierInstance,
+  modifier: import("./dist/entities/RollModifier").RollModifierLike,
   testConditions:
     | import("./dist/entities/TestConditions").TestConditionsInstance
     | {
