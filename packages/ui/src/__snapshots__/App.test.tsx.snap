@@ -165,7 +165,7 @@ exports[`App > renders home page by default 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -349,7 +349,7 @@ exports[`App > renders navigation 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -533,7 +533,7 @@ exports[`App > renders without crashing 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |

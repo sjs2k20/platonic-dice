@@ -150,7 +150,7 @@ exports[`AppRouter > renders 404 page for unknown routes 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -312,7 +312,7 @@ exports[`AppRouter > renders all route pages correctly 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -462,7 +462,7 @@ exports[`AppRouter > renders all route pages correctly 2`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -612,7 +612,7 @@ exports[`AppRouter > renders all route pages correctly 3`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -796,7 +796,7 @@ exports[`AppRouter > renders home page at root path 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |

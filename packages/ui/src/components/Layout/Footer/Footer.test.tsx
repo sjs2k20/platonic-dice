@@ -6,7 +6,7 @@ describe("Footer", () => {
   it("renders copyright text", () => {
     const { container } = render(<Footer />);
     
-    expect(screen.getByText(/© 2025 Platonic Dice/i)).toBeInTheDocument();
+    expect(screen.getByText(/© 2026 Platonic Dice/i)).toBeInTheDocument();
     expect(container).toMatchSnapshot();
   });
 

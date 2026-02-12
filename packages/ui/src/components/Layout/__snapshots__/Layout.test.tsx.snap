@@ -120,7 +120,7 @@ exports[`Layout > renders header, main content area, and footer 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |
@@ -259,7 +259,7 @@ exports[`Layout > renders navigation links 1`] = `
       >
         <p>
           © 
-          2025
+          2026
            
           Platonic Dice
            |

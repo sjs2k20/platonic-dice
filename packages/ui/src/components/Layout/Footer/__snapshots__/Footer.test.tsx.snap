@@ -10,7 +10,7 @@ exports[`Footer > renders GitHub link with correct attributes 1`] = `
     >
       <p>
         © 
-        2025
+        2026
          
         Platonic Dice
          |
@@ -38,7 +38,7 @@ exports[`Footer > renders copyright text 1`] = `
     >
       <p>
         © 
-        2025
+        2026
          
         Platonic Dice
          |
