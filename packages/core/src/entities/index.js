@@ -169,6 +169,20 @@ Object.defineProperty(exports, "normaliseTestConditions", {
   },
 });
 
+// TestConditionsArray
+/** @type {typeof import("./TestConditionsArray").TestConditionsArray | undefined} */
+let _TestConditionsArray;
+Object.defineProperty(exports, "TestConditionsArray", {
+  enumerable: true,
+  configurable: true,
+  get() {
+    if (_TestConditionsArray !== undefined) return _TestConditionsArray;
+    _TestConditionsArray =
+      require("./TestConditionsArray.js").TestConditionsArray;
+    return _TestConditionsArray;
+  },
+});
+
 // ModifiedTestConditions
 /** @type {typeof import("./ModifiedTestConditions").ModifiedTestConditions | undefined} */
 let _ModifiedTestConditions;
