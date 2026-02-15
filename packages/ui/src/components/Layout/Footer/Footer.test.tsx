@@ -6,7 +6,8 @@ describe("Footer", () => {
   it("renders copyright text", () => {
     const { container } = render(<Footer />);
     
-    expect(screen.getByText(/© 2026 Platonic Dice/i)).toBeInTheDocument();
+    // accept any 4-digit year to avoid yearly snapshot churn
+    expect(screen.getByText(/© \d{4} Platonic Dice/i)).toBeInTheDocument();
     expect(container).toMatchSnapshot();
   });
 

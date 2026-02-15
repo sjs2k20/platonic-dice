@@ -7,8 +7,8 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "npm run test --workspaces",
-    "build": "npm run build --workspaces"
+    "test": "CI=true pnpm -r test",
+    "build": "pnpm -r build"
   },
   "author": "Stephen James Saunders",
   "license": "MIT",
