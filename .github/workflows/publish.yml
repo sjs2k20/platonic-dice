@@ -22,11 +22,16 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Enable Corepack and prepare pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
       - name: Install dependencies
-        run: npm ci --workspaces
+        run: pnpm -w install --frozen-lockfile
 
       - name: Build core package (emit declarations)
-        run: npm run -w @platonic-dice/core build
+        run: pnpm --filter @platonic-dice/core run build
 
       # (debug steps removed)
 
@@ -59,11 +64,16 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Enable Corepack and prepare pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
       - name: Install dependencies
-        run: npm ci --workspaces
+        run: pnpm -w install --frozen-lockfile
 
       - name: Build core package
-        run: npm run -w @platonic-dice/core build
+        run: pnpm --filter @platonic-dice/core run build
 
       - name: Determine tag version
         id: tag

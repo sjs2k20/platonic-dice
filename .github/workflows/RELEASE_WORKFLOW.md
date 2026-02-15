@@ -82,9 +82,9 @@ Before creating tags, verify the packages build correctly and contain expected f
 
 ```bash
 # Install and build
-npm ci
-npm run -w @platonic-dice/core build
-npm run -w @platonic-dice/dice build
+pnpm -w install --frozen-lockfile
+pnpm --filter @platonic-dice/core run build
+pnpm --filter @platonic-dice/dice run build
 
 # Verify core package contents
 cd packages/core
@@ -112,7 +112,7 @@ for dir in packages/*; do
 done
 
 # Tests
-npm test --workspaces --if-present
+pnpm -r test --if-present
 ```
 
 All checks must pass before proceeding.
@@ -240,7 +240,7 @@ cd packages/dice && npm pack --dry-run && cd -
 
 # 3. Run checks
 for dir in packages/*; do [ -f "$dir/tsconfig.json" ] && npx tsc -p "$dir/tsconfig.json" --noEmit; done
-npm test --workspaces --if-present
+pnpm -r test --if-present
 
 # 4. Create and push tags
 git tag -a core-v2.1.2 -m "release: core v2.1.2"

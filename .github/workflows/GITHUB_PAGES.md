@@ -13,12 +13,10 @@ The UI showcase application is automatically deployed to GitHub Pages when chang
 The deployment is handled by `.github/workflows/deploy-pages.yml`:
 
 1. **Triggers** on:
-
    - Push to `main` branch affecting UI, core, or dice packages
    - Manual workflow dispatch (via GitHub Actions UI)
 
 2. **Build Process**:
-
    - Install all workspace dependencies
    - Build `@platonic-dice/core` (generates CommonJS modules)
    - Build `@platonic-dice/dice` (generates ES modules + type definitions)
@@ -60,10 +58,10 @@ To test the production build locally:
 
 ```bash
 # Build the production version
-npm run build -w @platonic-dice/ui
+pnpm --filter @platonic-dice/ui run build
 
 # Preview it locally
-npm run preview -w @platonic-dice/ui
+pnpm --filter @platonic-dice/ui run preview
 ```
 
 This runs at http://localhost:4173 (different from dev server port 3000).
