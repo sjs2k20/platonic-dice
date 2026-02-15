@@ -41,15 +41,15 @@ importers:
   packages/dice:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^2.2.2
+        specifier: ^3.0.0
         version: link:../core
+      '@types/platonic-dice__core':
+        specifier: ^3.0.0
+        version: link:../types-core
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
         version: 24.10.13
-      '@types/platonic-dice__core':
-        specifier: workspace:*
-        version: link:../types-core
       tsc-alias:
         specifier: ^1.8.16
         version: 1.8.16
@@ -72,7 +72,7 @@ importers:
   packages/ui:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^2.2.2
+        specifier: ^3.0.0
         version: link:../core
       '@platonic-dice/dice':
         specifier: ^2.2.1
