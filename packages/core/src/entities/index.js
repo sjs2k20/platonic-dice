@@ -169,6 +169,19 @@ Object.defineProperty(exports, "normaliseTestConditions", {
   },
 });
 
+// DiceTestConditions
+/** @type {typeof import("./DiceTestConditions").DiceTestConditions | undefined} */
+let _DiceTestConditions;
+Object.defineProperty(exports, "DiceTestConditions", {
+  enumerable: true,
+  configurable: true,
+  get() {
+    if (_DiceTestConditions !== undefined) return _DiceTestConditions;
+    _DiceTestConditions = require("./DiceTestConditions.js").DiceTestConditions;
+    return _DiceTestConditions;
+  },
+});
+
 // TestConditionsArray
 /** @type {typeof import("./TestConditionsArray").TestConditionsArray | undefined} */
 let _TestConditionsArray;
