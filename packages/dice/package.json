@@ -2,6 +2,9 @@
   "name": "@platonic-dice/dice",
   "version": "2.2.1",
   "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": ">=24"
+  },
   "description": "Persistent dice objects with roll history and TypeScript support.",
   "type": "module",
   "main": "dist/index.js",
@@ -46,6 +49,6 @@
     "tsc-alias": "^1.8.16",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.9",
-    "@types/node": "^22.13.8"
+    "@types/node": "^24.0.0"
   }
 }

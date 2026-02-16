@@ -3,6 +3,9 @@
   "version": "0.2.2",
   "private": true,
   "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": ">=24"
+  },
   "description": "React showcase application for @platonic-dice packages (PREVIEW)",
   "type": "module",
   "keywords": [
@@ -37,7 +40,7 @@
     "@platonic-dice/dice": "^2.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^7.9.6"
+    "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

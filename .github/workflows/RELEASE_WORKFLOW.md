@@ -23,7 +23,7 @@ This repository uses GitHub Actions to publish workspace packages when you push 
 
 **Required:**
 
-- Node.js 20+ and npm installed
+- Node.js 24+ and npm installed
 - Push access to the repository
 - npm publish permissions for `@platonic-dice` scope
 
