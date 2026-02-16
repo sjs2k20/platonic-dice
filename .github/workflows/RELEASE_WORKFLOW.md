@@ -205,7 +205,7 @@ node -e "const { Die, DieType } = require('@platonic-dice/dice'); console.log(ne
 
 ### Label-driven releases (optional)
 
-You can control semantic version bumps from the PR UI by adding one of the labels `semver/patch`, `semver/minor`, or `semver/major` (also accepts `patch`, `minor`, `major`). When such a label is applied by a repo maintainer the repository will:
+You can control semantic version bumps from the PR UI by adding one of the labels `semver/patch`, `semver/minor`, or `semver/major`. When such a label is applied by a repo maintainer the repository will:
 
 - Bump the appropriate package `version` _inside the PR branch_ (the workflow commits the bump into the PR),
 - Re-run CI so the bumped PR is validated, and
