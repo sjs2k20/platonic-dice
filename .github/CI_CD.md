@@ -6,7 +6,7 @@ This document explains the workflows, labels, and safe release process used by t
 
 - CI jobs: `CI / typecheck` and `CI / tests` — required before merging.
 - Dependabot opens dependency/security PRs. You review and approve them. After approval, the PR is set to auto‑merge (when CI passes).
-- If you want a PR to bump package versions, add one of: `semver/patch`, `semver/minor`, `semver/major` (or `patch`/`minor`/`major`). The workflow will update `package.json` in‑PR.
+- If you want a PR to bump package versions, add one of: `semver/patch`, `semver/minor`, `semver/major`. The workflow will update `package.json` in‑PR.
 - Merges that include package.json version changes cause tags to be created and packages to be published.
 
 ---
@@ -80,7 +80,7 @@ Q: How do I prevent auto-publishing after a dependency merge?
 A: Ensure the merged PR does not include `package.json` version changes; `auto-patch-bump` will create a PR for the bump and you can review it before it auto‑merges.
 
 Q: I labeled a PR but nothing happened.  
-A: Check that the label name is exactly `patch/minor/major` or `semver/*`, that the PR branch is in this repo (not a fork), and that you have write/maintain/admin permission.
+A: Check that the label name is exactly `semver/patch`, `semver/minor` or `semver/major`, that the PR branch is in this repo (not a fork), and that you have write/maintain/admin permission.
 
 Q: Will Dependabot PRs be auto‑merged without review?  
 A: No — a maintainer must approve the PR first (the `enable-automerge-on-approval` workflow then enables auto‑merge).
