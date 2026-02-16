@@ -1,6 +1,7 @@
 {
   "name": "@platonic-dice/dice",
   "version": "2.2.1",
+  "packageManager": "pnpm@8.15.9",
   "description": "Persistent dice objects with roll history and TypeScript support.",
   "type": "module",
   "main": "dist/index.js",
