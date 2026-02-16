@@ -10,8 +10,8 @@ describe("Layout", () => {
     // Header with branding should be present
     expect(screen.getByText("Platonic Dice")).toBeInTheDocument();
     
-    // Footer should be present
-    expect(screen.getByText(/© 2025 Platonic Dice/i)).toBeInTheDocument();
+    // Footer should be present (accept any 4-digit year to avoid yearly churn)
+    expect(screen.getByText(/© \d{4} Platonic Dice/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute(
       'href',
       'https://github.com/sjs2k20/platonic-dice'

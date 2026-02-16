@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/dice",
-  "version": "2.1.1",
+  "version": "2.2.1",
   "description": "Persistent dice objects with roll history and TypeScript support.",
   "type": "module",
   "main": "dist/index.js",
@@ -34,12 +34,12 @@
   "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run build",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@platonic-dice/core": "^2.1.2"
+    "@platonic-dice/core": "^2.2.2"
   },
   "devDependencies": {
     "tsc-alias": "^1.8.16",

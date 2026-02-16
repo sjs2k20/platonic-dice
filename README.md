@@ -24,13 +24,13 @@ Locally (development):
 
 ```bash
 # install workspace dev dependencies and link packages
-npm install
+pnpm install
 
 # build all packages
-npm run build
+pnpm run build
 
 # run tests across workspaces
-npm test
+pnpm -r test
 ```
 
 ## Packages
@@ -73,7 +73,7 @@ const result = rollModTest("d20", (n) => n + 5, {
   target: 15,
 });
 console.log(
-  `Base: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`
+  `Base: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`,
 );
 
 const d = new Die("d12");

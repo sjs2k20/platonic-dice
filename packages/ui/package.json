@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/ui",
-  "version": "0.1.2",
+  "version": "0.2.2",
   "private": true,
   "description": "React showcase application for @platonic-dice packages (PREVIEW)",
   "type": "module",
@@ -32,8 +32,8 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@platonic-dice/core": "^2.1.2",
-    "@platonic-dice/dice": "^2.1.1",
+    "@platonic-dice/core": "^2.2.2",
+    "@platonic-dice/dice": "^2.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.9.6"

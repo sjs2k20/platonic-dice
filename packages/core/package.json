@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/core",
-  "version": "2.1.2",
+  "version": "2.2.2",
   "description": "Core JavaScript logic for simulating TTRPG dice rolls.",
   "main": "dist/index.js",
   "types": "dist-types.d.ts",
@@ -41,10 +41,10 @@
   "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
   "scripts": {
     "build": "rm -rf dist && mkdir -p dist && cp -R src/* dist/ && tsc -p tsconfig.json --emitDeclarationOnly",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run build",
     "test": "jest",
     "test:types": "tsd",
-    "examples": "npm run examples:roll && npm run examples:rollDice && npm run examples:rollMod && npm run examples:rollDiceMod && npm run examples:rollTest && npm run examples:rollModTest",
+    "examples": "pnpm run examples:roll && pnpm run examples:rollDice && pnpm run examples:rollMod && pnpm run examples:rollDiceMod && pnpm run examples:rollTest && pnpm run examples:rollModTest",
     "examples:roll": "node examples/roll-example.js",
     "examples:rollDice": "node examples/rollDice-example.js",
     "examples:rollMod": "node examples/rollMod-example.js",
@@ -55,7 +55,7 @@
     "examples:analyseTest": "node examples/analyseTest-example.js",
     "examples:analyseModTest": "node examples/analyseModTest-example.js",
     "examples:entities": "node examples/entities/DieType-example.js && node examples/entities/RollType-example.js && node examples/entities/RollModifier-example.js && node examples/entities/TestType-example.js && node examples/entities/TestConditions-example.js && node examples/entities/ModifiedTestConditions-example.js && node examples/entities/Outcome-example.js",
-    "examples:all": "npm run examples && npm run examples:rollModTest:advanced && npm run examples:analyseTest && npm run examples:analyseModTest && npm run examples:entities"
+    "examples:all": "pnpm run examples && pnpm run examples:rollModTest:advanced && pnpm run examples:analyseTest && pnpm run examples:analyseModTest && pnpm run examples:entities"
   },
   "tsd": {
     "directory": "src/test-d"

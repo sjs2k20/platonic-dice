@@ -14,16 +14,16 @@ Interactive React showcase application for the `@platonic-dice` packages.
 
 ```bash
 # Install dependencies (from monorepo root)
-npm install
+pnpm install
 
 # Start development server with hot reloading
-npm run dev -w @platonic-dice/ui
+pnpm --filter @platonic-dice/ui run dev
 
 # Build for production
-npm run build -w @platonic-dice/ui
+pnpm --filter @platonic-dice/ui run build
 
 # Preview production build
-npm run preview -w @platonic-dice/ui
+pnpm --filter @platonic-dice/ui run preview
 ```
 
 The development server will start at `http://localhost:3000` with automatic browser opening.
