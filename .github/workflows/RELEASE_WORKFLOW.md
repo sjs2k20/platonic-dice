@@ -203,6 +203,22 @@ node -e "const { Die, DieType } = require('@platonic-dice/dice'); console.log(ne
 
 ---
 
+### Label-driven releases (optional)
+
+You can control semantic version bumps from the PR UI by adding one of the labels `semver/patch`, `semver/minor`, or `semver/major`. When such a label is applied by a repo maintainer the repository will:
+
+- Bump the appropriate package `version` _inside the PR branch_ (the workflow commits the bump into the PR),
+- Re-run CI so the bumped PR is validated, and
+- After you merge the PR the existing `tag-on-version-change` workflow will create package tags (e.g. `core-vX.Y.Z`) and `publish.yml` will publish only the packages whose versions changed.
+
+Important safety rules:
+
+- No label → no automatic bump. You remain in full control.
+- Labels are honoured only for PRs that change files in publishable packages and where `package.json` has not already been edited in the PR.
+- Bump commits are pushed to the PR branch (not directly to `main`) — this prevents infinite loops and ensures the change is reviewed.
+
+See `.github/CI_CD.md` for full operational details and examples.
+
 ## Adding New Packages
 
 **For publishable packages (like a future API client):**

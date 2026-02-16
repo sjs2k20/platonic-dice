@@ -1,0 +1,146 @@
+name: Bump package versions on PR label
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PUBLISHABLE_PACKAGES: "packages/core packages/dice"
+  ALLOWED_LABELS: "semver/patch,semver/minor,semver/major"
+
+jobs:
+  bump-on-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check label is a recognized semver label
+        id: check_label
+        run: |
+          LABEL=${{ github.event.label.name }}
+          echo "label=$LABEL"
+          case ",$ALLOWED_LABELS," in
+            *",$LABEL,"*) echo "ok" ;;
+            *) echo "Label '$LABEL' is not one of allowed: $ALLOWED_LABELS. Exiting."; exit 0 ;;
+          esac
+          echo "::set-output name=label::$LABEL"
+      - name: Ensure PR head is in this repo
+        id: check_head
+        run: |
+          HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
+          BASE_REPO="${{ github.repository }}"
+          echo "head=$HEAD_REPO base=$BASE_REPO"
+          if [ "$HEAD_REPO" != "$BASE_REPO" ]; then
+            echo "PR originates from a fork; cannot push bump commits to forked branches."
+            echo "Posting a comment to request manual bump from contributor."
+            gh pr comment ${{ github.event.pull_request.number }} --body "Label detected (`${{ github.event.label.name }}`) — I can't push version bumps to branches in forks. Please add the version bump to your branch (or open a PR from a branch in this repository) and reapply the label."
+            exit 0
+          fi
+      - name: Verify label added by repository collaborator
+        id: check_permission
+        run: |
+          USER=${{ github.event.sender.login }}
+          PERM=$(gh api repos/${{ github.repository }}/collaborators/$USER/permission --jq .permission)
+          echo "actor=$USER permission=$PERM"
+          if [ "$PERM" = "admin" ] || [ "$PERM" = "write" ] || [ "$PERM" = "maintain" ]; then
+            echo "ok"
+          else
+            echo "Label added by user with insufficient permission ($PERM). Skipping automated bump.";
+            gh pr comment ${{ github.event.pull_request.number }} --body "Label `${{ github.event.label.name }}` was added by @$USER but they don't have write/maintain/admin permissions; automatic version bump skipped." || true
+            exit 0
+          fi
+      - name: Get PR file list
+        id: pr_files
+        run: |
+          PR=${{ github.event.pull_request.number }}
+          gh api repos/${{ github.repository }}/pulls/$PR/files --jq '.[].filename' > pr-files.txt || true
+          echo "::set-output name=list::$(paste -sd',' pr-files.txt || true)"
+      - name: Determine affected publishable packages
+        id: detect_pkgs
+        run: |
+          PUBLISHABLE=("packages/core" "packages/dice")
+          AFFECTED=()
+          while read -r f; do
+            for pkg in "${PUBLISHABLE[@]}"; do
+              case "$f" in
+                $pkg/*) AFFECTED+=("$pkg") ;;
+              esac
+            done
+          done < pr-files.txt || true
+          # unique
+          if [ ${#AFFECTED[@]} -eq 0 ]; then
+            echo "No publishable packages changed in PR; nothing to bump.";
+            gh pr comment ${{ github.event.pull_request.number }} --body "No publishable package files changed in this PR; semantic label `${{ github.event.label.name }}` ignored." || true
+            exit 0
+          fi
+          echo "Affected: ${AFFECTED[*]}"
+          printf '%s\n' "${AFFECTED[@]}" > affected.txt
+          echo "::set-output name=affected::${AFFECTED[*]}"
+      - name: Skip packages where package.json already changed in PR
+        id: filter_pkgjson
+        run: |
+          REMAINING=()
+          while read -r pkg; do
+            if grep -q "^${pkg}/package.json$" pr-files.txt; then
+              echo "${pkg} already has package.json changed in PR — skipping bump for this package."
+              gh pr comment ${{ github.event.pull_request.number }} --body "${pkg}: package.json already changed in this PR — automatic ${ { github.event.label.name } } bump skipped for that package." || true
+            else
+              REMAINING+=("$pkg")
+            fi
+          done < affected.txt
+          if [ ${#REMAINING[@]} -eq 0 ]; then
+            echo "All affected packages already contain package.json changes — nothing to do.";
+            exit 0
+          fi
+          printf '%s\n' "${REMAINING[@]}" > remaining.txt
+          echo "::set-output name=remaining::${REMAINING[*]}"
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Bump versions (in-PR)
+        id: do_bump
+        run: |
+          LABEL=${{ github.event.label.name }}
+          # normalize to patch/minor/major
+          case "$LABEL" in
+            semver/patch) TYPE=patch ;;
+            semver/minor) TYPE=minor ;;
+            semver/major) TYPE=major ;;
+            *) echo "unsupported label"; exit 1 ;;
+          esac
+
+          UPDATED=false
+          while read -r pkg; do
+            FILE="$pkg/package.json"
+            if [ ! -f "$FILE" ]; then
+              echo "Package file missing: $FILE"; continue
+            fi
+            OLD=$(node -p "require('./${pkg}/package.json').version")
+            node -e "const fs=require('fs'); const p=require('./${pkg}/package.json'); const sem=p.version.split('.').map(Number); if('${TYPE}'==='patch'){sem[2]++}else if('${TYPE}'==='minor'){sem[1]++; sem[2]=0;}else{sem[0]++; sem[1]=0; sem[2]=0;} p.version=sem.join('.'); fs.writeFileSync('./${pkg}/package.json', JSON.stringify(p,null,2)+'\n')"
+            NEW=$(node -p "require('./${pkg}/package.json').version")
+            git add "$FILE"
+            echo "Bumped $pkg $OLD -> $NEW"
+            UPDATED=true
+          done < remaining.txt
+
+          if [ "$UPDATED" = "false" ]; then
+            echo "No files updated";
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(release): bump package version(s) (${TYPE}) per PR label '${{ github.event.label.name }}'" || true
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          echo "Pushed version bump(s) to PR branch"
+      - name: Comment on PR with bumped versions
+        run: |
+          echo "Bumped packages in PR per label '${{ github.event.label.name }}'" > comment.md
+          while read -r pkg; do
+            VER=$(node -p "require('./${pkg}/package.json').version")
+            echo "- ${pkg}: ${VER}" >> comment.md
+          done < remaining.txt
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
