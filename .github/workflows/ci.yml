@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
       - name: Enable Corepack and prepare pnpm
         run: |
           corepack enable
@@ -63,6 +67,10 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
       - name: Enable Corepack and prepare pnpm
         run: |
           corepack enable
