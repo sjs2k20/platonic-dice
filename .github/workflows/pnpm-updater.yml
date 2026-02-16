@@ -1,0 +1,60 @@
+# .github/workflows/pnpm-updater.yml
+name: pnpm Updater
+on:
+  schedule:
+    - cron: "0 4 * * 1" # weekly on Monday 04:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-pnpm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Get latest pnpm
+        id: pnpm
+        run: |
+          echo "latest=$(npm view pnpm version)" >> $GITHUB_OUTPUT
+      - name: Update packageManager fields
+        id: update
+        run: |
+          set -euo pipefail
+          LATEST=${{ steps.pnpm.outputs.latest }}
+          UPDATED=false
+          for f in package.json packages/*/package.json; do
+            [ -f "$f" ] || continue
+            CUR=$(node -e "const p=require('./$f'); console.log(p.packageManager||'')")
+            if [ "$CUR" != "pnpm@$LATEST" ]; then
+              node -e "const fs=require('fs'); const p=require('./$f'); p.packageManager='pnpm@$LATEST'; fs.writeFileSync('./$f', JSON.stringify(p,null,2)+'\n')"
+              git add "$f"
+              UPDATED=true
+              echo "Updated $f -> pnpm@$LATEST"
+            fi
+          done
+          if [ "$UPDATED" = "false" ]; then
+            echo "no-updates" > /tmp/pnpm-noop
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH="chore/update-pnpm-${LATEST}"
+          git checkout -b "$BRANCH"
+          git commit -m "chore(deps): update pnpm to ${LATEST}"
+          git push --set-upstream origin "$BRANCH"
+          echo "::set-output name=branch::$BRANCH"
+      - name: Create PR
+        if: steps.update.outputs.branch
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.update.outputs.branch }}
+          title: "chore(deps): update pnpm to ${{ steps.pnpm.outputs.latest }}"
+          body: "Update packageManager to pnpm@${{ steps.pnpm.outputs.latest }} across workspace."
+          labels: chore, dependencies
+          delete-branch: true
