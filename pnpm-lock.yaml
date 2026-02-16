@@ -38,7 +38,7 @@ importers:
   packages/dice:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^2.1.2
+        specifier: ^2.2.2
         version: link:../core
     devDependencies:
       tsc-alias:
@@ -54,10 +54,10 @@ importers:
   packages/ui:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^2.1.2
+        specifier: ^2.2.2
         version: link:../core
       '@platonic-dice/dice':
-        specifier: ^2.1.1
+        specifier: ^2.2.1
         version: link:../dice
       react:
         specifier: ^18.2.0
