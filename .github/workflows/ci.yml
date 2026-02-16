@@ -75,5 +75,9 @@ jobs:
           corepack prepare pnpm@8.15.9 --activate
       - name: Install deps
         run: pnpm -w install --frozen-lockfile
+      - name: Build packages (emit declarations)
+        run: |
+          pnpm --filter @platonic-dice/core run build
+          pnpm --filter @platonic-dice/dice run build
       - name: Run package tests
         run: pnpm -r test --if-present
