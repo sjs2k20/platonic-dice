@@ -1,0 +1,74 @@
+# .github/workflows/auto-patch-bump.yml
+name: Auto patch bump
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-patch-bump-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Detect changed packages
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} || true)
+          echo "$CHANGED" > changed.txt
+          echo "::set-output name=files::$(sed -n '1,200p' changed.txt | sed -z 's/\n/,/g')"
+      - name: Bump patch versions where needed
+        id: bump
+        run: |
+          set -euo pipefail
+          PUBLISHABLE_PACKAGES=(packages/core packages/dice)
+          CHANGED=$(cat changed.txt || true)
+          UPDATED=false
+          for pkg in "${PUBLISHABLE_PACKAGES[@]}"; do
+            if echo "$CHANGED" | grep -q "^${pkg}/"; then
+              if echo "$CHANGED" | grep -q "^${pkg}/package.json$"; then
+                echo "$pkg: version already bumped — skip"
+                continue
+              fi
+              OLD=$(node -p "require('./${pkg}/package.json').version")
+              NEW=$(node -e "let p=require('./${pkg}/package.json'); let v=p.version.split('.').map(Number); v[2]++; console.log(v.join('.'))")
+              node -e "const fs=require('fs'); const p=require('./${pkg}/package.json'); p.version='${NEW}'; fs.writeFileSync('./${pkg}/package.json', JSON.stringify(p,null,2)+'\n')"
+              git add "${pkg}/package.json"
+              UPDATED=true
+              echo "Bumped ${pkg} ${OLD} -> ${NEW}"
+            fi
+          done
+          if [ "$UPDATED" = "false" ]; then
+            echo "no-packages-to-bump" > /tmp/none
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BRANCH="auto/patch-bump-${{ github.sha }}"
+          git checkout -b "$BRANCH"
+          git commit -m "chore(release): auto bump patch versions for changed packages"
+          git push --set-upstream origin "$BRANCH"
+          echo "::set-output name=branch::$BRANCH"
+      - name: Create PR
+        if: steps.bump.outputs.branch
+        id: create_pr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.bump.outputs.branch }}
+          title: "chore(release): auto bump patch versions for changed packages"
+          body: "This PR was opened automatically to bump patch versions for packages changed in a recent merge. CI must pass before auto-merge."
+          labels: auto-patch, release, automerge
+          delete-branch: true
+      - name: Enable auto-merge
+        if: steps.create_pr.outputs.pull-request-number
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
+          merge-method: squash

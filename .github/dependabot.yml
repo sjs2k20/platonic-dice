@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "npm_and_yarn"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "github-actions"
+automerged_updates:
+  - match:
+      update_type: "version-update:semver-patch"
+    merge_method: "squash"
+  - match:
+      update_type: "security"
+    merge_method: "squash"
