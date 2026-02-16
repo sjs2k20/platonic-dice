@@ -33,6 +33,9 @@ jobs:
       - name: Build core package (emit declarations)
         run: pnpm --filter @platonic-dice/core run build
 
+      - name: Build dice package (emit declarations)
+        run: pnpm --filter @platonic-dice/dice run build
+
       # (debug steps removed)
 
       - name: Run TypeScript checks for workspace packages
