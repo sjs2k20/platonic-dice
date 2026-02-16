@@ -1,0 +1,42 @@
+name: Enable auto-merge for Dependabot after human approval
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  enable-automerge:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Fetch PR file list
+        id: files
+        run: |
+          PR=${{ github.event.pull_request.number }}
+          gh api repos/${{ github.repository }}/pulls/$PR/files --jq '.[].filename' > pr-files.txt || true
+          echo "::set-output name=list::$(paste -sd',' pr-files.txt || true)"
+      - name: Validate PR contains only dependency/lockfile/workflow changes
+        run: |
+          OK=true
+          while read -r f; do
+            case "$f" in
+              package.json|pnpm-lock.yaml|package-lock.json|yarn.lock|.github/workflows/*|packages/*/package.json) ;;
+              *) OK=false; echo "Found non-dependency file: $f"; break ;;
+            esac
+          done < pr-files.txt || true
+          if [ "$OK" != "true" ]; then
+            echo "PR modifies files outside allowed dependency list. Skipping auto-merge enablement.";
+            exit 0
+          fi
+      - name: Enable auto-merge for Dependabot PR
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash

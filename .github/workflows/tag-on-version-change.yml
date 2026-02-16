@@ -1,0 +1,45 @@
+name: Tag on package.json version change
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  create-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Create tags for bumped packages
+        run: |
+          set -euo pipefail
+          PUBLISHABLE_PACKAGES=(packages/core packages/dice)
+          git fetch --tags origin
+          CREATED=0
+
+          for pkg in "${PUBLISHABLE_PACKAGES[@]}"; do
+            [ -f "$pkg/package.json" ] || continue
+            NEW=$(node -p "require('./$pkg/package.json').version")
+            PREV=''
+            if git cat-file -e "${{ github.event.before }}:$pkg/package.json" 2>/dev/null; then
+              PREV=$(git show "${{ github.event.before }}:$pkg/package.json" | node -p "JSON.parse(require('fs').readFileSync(0,'utf8')).version")
+            fi
+            if [ "$NEW" != "$PREV" ]; then
+              TAG="$(basename $pkg)-v${NEW}"
+              if git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1; then
+                echo "remote tag $TAG already exists — skipping"
+              else
+                git tag -a "$TAG" -m "release: $(basename $pkg) $NEW"
+                git push origin "$TAG"
+                echo "PUSHED: $TAG"
+                CREATED=1
+              fi
+            fi
+          done
+
+          if [ "$CREATED" -eq 0 ]; then
+            echo "No version changes detected; nothing to tag."
+          fi

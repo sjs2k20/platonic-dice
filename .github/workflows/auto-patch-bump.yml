@@ -1,8 +1,8 @@
 # .github/workflows/auto-patch-bump.yml
 name: Auto patch bump
 on:
-  push:
-    branches: [main]
+  pull_request:
+    types: [closed]
 
 permissions:
   contents: write
@@ -10,18 +10,24 @@ permissions:
 
 jobs:
   create-patch-bump-pr:
+    if: >-
+      github.event.pull_request.merged == true &&
+      (
+        github.event.pull_request.user.login == 'dependabot[bot]' ||
+        contains(github.event.pull_request.labels.*.name, 'dependencies')
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
-      - name: Detect changed packages
+      - name: Detect changed packages (PR files)
         id: changes
         run: |
-          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} || true)
-          echo "$CHANGED" > changed.txt
-          echo "::set-output name=files::$(sed -n '1,200p' changed.txt | sed -z 's/\n/,/g')"
+          PR=${{ github.event.pull_request.number }}
+          gh api repos/${{ github.repository }}/pulls/$PR/files --jq '.[].filename' > changed.txt || true
+          echo "Files in PR:" && sed -n '1,200p' changed.txt || true
       - name: Bump patch versions where needed
         id: bump
         run: |
