@@ -1,6 +1,7 @@
 {
   "name": "platonic-dice-monorepo",
   "private": true,
+  "packageManager": "pnpm@8.15.9",
   "version": "1.0.0",
   "description": "Monorepo containing @platonic-dice/core and @platonic-dice/dice",
   "workspaces": [
