@@ -14,7 +14,10 @@ env:
 
 jobs:
   bump-on-label:
+    if: contains(env.ALLOWED_LABELS, github.event.label.name)
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check label is a recognized semver label
         id: check_label
