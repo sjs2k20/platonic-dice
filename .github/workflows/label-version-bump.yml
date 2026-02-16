@@ -10,7 +10,7 @@ permissions:
 
 env:
   PUBLISHABLE_PACKAGES: "packages/core packages/dice"
-  ALLOWED_LABELS: "patch,minor,major,semver/patch,semver/minor,semver/major"
+  ALLOWED_LABELS: "semver/patch,semver/minor,semver/major"
 
 jobs:
   bump-on-label:
@@ -106,9 +106,9 @@ jobs:
           LABEL=${{ github.event.label.name }}
           # normalize to patch/minor/major
           case "$LABEL" in
-            semver/patch|patch) TYPE=patch ;;
-            semver/minor|minor) TYPE=minor ;;
-            semver/major|major) TYPE=major ;;
+            semver/patch) TYPE=patch ;;
+            semver/minor) TYPE=minor ;;
+            semver/major) TYPE=major ;;
             *) echo "unsupported label"; exit 1 ;;
           esac
 
