@@ -3,6 +3,15 @@
   "version": "3.0.1",
   "description": "Type definitions for @platonic-dice/core",
   "license": "MIT",
+  "author": "Stephen James Saunders",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjs2k20/platonic-dice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sjs2k20/platonic-dice.git/issues"
+  },
+  "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
   "types": "index.d.ts",
   "exports": {
     ".": "./index.d.ts",
