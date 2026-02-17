@@ -16,5 +16,7 @@ import { OutcomeValue, TestConditionsInstance } from "../entities";
  */
 export function determineOutcome(
   value: number,
-  testConditions: TestConditionsInstance | Record<string, any>
+  testConditions:
+    | TestConditionsInstance
+    | import("../entities/TestConditions").TestConditionsLike,
 ): OutcomeValue;

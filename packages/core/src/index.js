@@ -13,6 +13,7 @@ const rollDice = require("./rollDice.js");
 const roll = require("./roll.js");
 const rollMod = require("./rollMod.js");
 const rollDiceMod = require("./rollDiceMod.js");
+const rollDiceTest = require("./rollDiceTest.js");
 const rollTest = require("./rollTest.js");
 const rollModTest = require("./rollModTest.js");
 const analyseTest = require("./analyseTest.js");
@@ -22,30 +23,19 @@ const analyseModTest = require("./analyseModTest.js");
 const entities = require("./entities");
 
 /**
- * Combined exports for Node and TypeScript users.
- * @type {typeof import("./roll") &
- *        typeof import("./rollDice") &
- *        typeof import("./rollMod") &
- *        typeof import("./rollDiceMod") &
- *        typeof import("./rollTest") &
- *        typeof import("./rollModTest") &
- *        typeof import("./analyseTest") &
- *        typeof import("./analyseModTest") &
- *        typeof import("./entities") &
- *        { default: any }}
+ * Attach named exports onto `exports` so TypeScript declaration emit
+ * produces named exports rather than an `export =` wrapper.
  */
-module.exports = {
-  ...roll,
-  ...rollDice,
-  ...rollMod,
-  ...rollDiceMod,
-  ...entities,
-  ...rollTest,
-  ...rollModTest,
-  ...analyseTest,
-  ...analyseModTest,
-  default: undefined, // placeholder; will be overwritten
-};
+Object.assign(exports, roll);
+Object.assign(exports, rollDice);
+Object.assign(exports, rollMod);
+Object.assign(exports, rollDiceMod);
+Object.assign(exports, rollDiceTest);
+Object.assign(exports, entities);
+Object.assign(exports, rollTest);
+Object.assign(exports, rollModTest);
+Object.assign(exports, analyseTest);
+Object.assign(exports, analyseModTest);
 
-// assign default at runtime
-module.exports.default = module.exports;
+// provide a `default` export for compatibility
+exports.default = exports;

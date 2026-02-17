@@ -41,7 +41,7 @@ function applyNaturalCritOverride(
   currentOutcome,
   isNaturalMax,
   isNaturalMin,
-  testType
+  testType,
 ) {
   const { TestType, Outcome } = getEntities();
 
@@ -77,8 +77,8 @@ function applyNaturalCritOverride(
  * @param {import("../entities/DieType").DieTypeValue} dieType
  * @param {import("../entities/TestType").TestTypeValue} testType
  * @param {import("../entities/TestConditions").TestConditionsInstance} testConditions
- * @param {import("../entities/RollModifier").RollModifierInstance|null} modifier
- * @param {boolean} useNaturalCrits
+ * @param {import("../entities/RollModifier").RollModifierInstance|undefined} modifier
+ * @param {boolean|undefined} useNaturalCrits
  * @returns {string}
  */
 function createCacheKey(
@@ -86,7 +86,7 @@ function createCacheKey(
   testType,
   testConditions,
   modifier,
-  useNaturalCrits
+  useNaturalCrits,
 ) {
   // serialise the conditions object for hashing
   const conditionsKey = JSON.stringify({
@@ -107,16 +107,16 @@ function createCacheKey(
  * @param {import("../entities/DieType").DieTypeValue} dieType - The type of die
  * @param {import("../entities/TestType").TestTypeValue} testType - The type of test being performed
  * @param {import("../entities/TestConditions").TestConditionsInstance} testConditions - The test conditions
- * @param {import("../entities/RollModifier").RollModifierInstance|null} modifier - Optional modifier to apply
- * @param {boolean|null} useNaturalCrits - Whether to use natural crits (null = auto-determine)
+ * @param {import("../entities/RollModifier").RollModifierInstance|undefined} modifier - Optional modifier to apply
+ * @param {boolean|undefined} useNaturalCrits - Whether to use natural crits (undefined = auto-determine)
  * @returns {Object.<number, import("../entities/Outcome").OutcomeValue>} Map of baseRoll -> outcome
  */
 function createOutcomeMap(
   dieType,
   testType,
   testConditions,
-  modifier = null,
-  useNaturalCrits = null
+  modifier = undefined,
+  useNaturalCrits = undefined,
 ) {
   const { TestType } = getEntities();
 
@@ -153,7 +153,7 @@ function createOutcomeMap(
     testType,
     testConditions,
     modifier,
-    shouldUseNaturalCrits
+    shouldUseNaturalCrits,
   );
   const cached = outcomeMapCache.get(cacheKey);
   if (cached) {
@@ -168,7 +168,7 @@ function createOutcomeMap(
         dieType,
         testConditions,
         modifier,
-        shouldUseNaturalCrits
+        shouldUseNaturalCrits,
       );
       const sides = numSides(dieType);
       /** @type {Object.<number, import("../entities/Outcome").OutcomeValue>} */
@@ -204,7 +204,7 @@ function createOutcomeMap(
         outcome,
         isNaturalMax,
         isNaturalMin,
-        testType
+        testType,
       );
     }
 

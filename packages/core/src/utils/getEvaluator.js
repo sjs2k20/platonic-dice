@@ -25,19 +25,19 @@ const { numSides } = require("./generateResult");
  * @typedef {import("../entities/TestConditions").TestConditionsLike} TestConditionsLike
  * @param {DieTypeValue} dieType
  * @param {TestConditionsLike} testConditions
- * @param {import("../entities/RollModifier").RollModifierInstance|null} [modifier=null]
- * @param {boolean|null} [useNaturalCrits=null]
+ * @param {import("../entities/RollModifier").RollModifierInstance} [modifier]
+ * @param {boolean} [useNaturalCrits]
  * @returns {Evaluator}
  */
 function getEvaluator(
   dieType,
   testConditions,
-  modifier = null,
-  useNaturalCrits = null
+  modifier = undefined,
+  useNaturalCrits = undefined,
 ) {
   if (!testConditions || !testConditions.testType) {
     throw new TypeError(
-      "testConditions must include a 'testType' field or be a TestConditions instance"
+      "testConditions must include a 'testType' field or be a TestConditions instance",
     );
   }
 
@@ -50,7 +50,7 @@ function getEvaluator(
       dieType,
       testConditions,
       modifier,
-      useNaturalCrits
+      useNaturalCrits,
     );
   }
 
@@ -74,7 +74,7 @@ function getEvaluator(
     // `tcInstance` is a validated TestConditions instance at runtime
     tcInstance,
     modifier,
-    useNaturalCrits
+    useNaturalCrits,
   );
   return /** @param {number} base */ (base) => outcomeMap[base];
 }

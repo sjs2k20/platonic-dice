@@ -7,12 +7,12 @@
   },
   "description": "Core JavaScript logic for simulating TTRPG dice rolls.",
   "main": "dist/index.js",
-  "types": "dist-types.d.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.js",
-      "types": "./dist-types.d.ts"
+      "types": "./dist/index.d.ts"
     },
     "./entities": {
       "import": "./dist/entities/index.js",
@@ -21,8 +21,7 @@
     }
   },
   "files": [
-    "dist",
-    "dist-types.d.ts"
+    "dist"
   ],
   "keywords": [
     "dice",
@@ -44,10 +43,11 @@
   },
   "homepage": "https://github.com/sjs2k20/platonic-dice.git#readme",
   "scripts": {
-    "build": "rm -rf dist && mkdir -p dist && cp -R src/* dist/ && tsc -p tsconfig.json --emitDeclarationOnly",
+    "build": "rm -rf dist && mkdir -p dist && cp -R src/* dist/ && tsc -p tsconfig.json --emitDeclarationOnly && find dist -name \"*.ts\" -not -name \"*.d.ts\" -delete",
     "prepublishOnly": "pnpm run build",
     "test": "jest",
-    "test:types": "tsd",
+    
+    "test:types": "tsd -p tsd.json",
     "examples": "pnpm run examples:roll && pnpm run examples:rollDice && pnpm run examples:rollMod && pnpm run examples:rollDiceMod && pnpm run examples:rollTest && pnpm run examples:rollModTest",
     "examples:roll": "node examples/roll-example.js",
     "examples:rollDice": "node examples/rollDice-example.js",
@@ -62,6 +62,6 @@
     "examples:all": "pnpm run examples && pnpm run examples:rollModTest:advanced && pnpm run examples:analyseTest && pnpm run examples:analyseModTest && pnpm run examples:entities"
   },
   "tsd": {
-    "directory": "src/test-d"
+    "directory": "test-d"
   }
 }

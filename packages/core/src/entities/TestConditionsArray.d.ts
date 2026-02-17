@@ -3,7 +3,9 @@ import type { DieTypeValue } from "./DieType";
 
 export class TestConditionsArray {
   constructor(
-    arr: Array<TestConditionsInstance | { [key: string]: any }>,
+    arr: Array<
+      TestConditionsInstance | import("./TestConditions").TestConditionsLike
+    >,
     dieType?: DieTypeValue,
   );
   defaultDieType?: DieTypeValue;

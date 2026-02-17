@@ -27,8 +27,8 @@ export function rollModTest(
   modifier: RollModifierFunction | RollModifierInstance,
   testConditions:
     | TestConditionsInstance
-    | { testType: TestTypeValue; [key: string]: any },
-  rollType?: RollTypeValue
+    | import("./entities/TestConditions").TestConditionsLike,
+  rollType?: RollTypeValue,
 ): {
   base: number;
   modified: number;

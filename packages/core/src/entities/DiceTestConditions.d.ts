@@ -1,24 +1,27 @@
 import type { TestConditionsLike } from "./TestConditions";
 import type { TestConditionsArrayInstance } from "./TestConditionsArray";
+import type { RollModifierInstance } from "./RollModifier";
+import type { Rule, DiceTestResult } from "./types";
 
 export class DiceTestConditions {
   constructor(opts: {
     count: number;
     conditions: TestConditionsLike[] | TestConditionsArrayInstance;
-    rules?: any[];
+    rules?: Rule[];
+    dieType?: import("./DieType").DieTypeValue;
   });
   count: number;
   tcArray: TestConditionsArrayInstance;
-  rules: any[];
+  rules: Rule[];
   toEvaluator(
-    modifier?: any,
-    useNaturalCrits?: boolean | null,
-  ): (rolls: number[]) => any;
+    modifier?: RollModifierInstance,
+    useNaturalCrits?: boolean,
+  ): (rolls: number[]) => DiceTestResult;
   evaluateRolls(
     rolls: number[],
-    modifier?: any,
-    useNaturalCrits?: boolean | null,
-  ): any;
+    modifier?: RollModifierInstance,
+    useNaturalCrits?: boolean,
+  ): DiceTestResult;
 }
 
 export type DiceTestConditionsInstance = InstanceType<

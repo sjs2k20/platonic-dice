@@ -65,12 +65,16 @@ function rollDiceMod(dieType, modifier = {}, { count = 1 } = {}) {
     eachMod = normaliseRollModifier(undefined); // identity
     netMod = normaliseRollModifier(modifier);
   } else if (typeof modifier === "object" && modifier !== null) {
-    const { each, net } = modifier;
+    let each, net;
+    if (modifier && typeof modifier === "object") {
+      each = modifier.each;
+      net = modifier.net;
+    }
     eachMod = normaliseRollModifier(each);
     netMod = normaliseRollModifier(net);
   } else {
     throw new TypeError(
-      `Invalid modifier: ${modifier}. Must be a function, RollModifier, or object.`
+      `Invalid modifier: ${modifier}. Must be a function, RollModifier, or object.`,
     );
   }
 

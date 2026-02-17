@@ -17,11 +17,15 @@ const { getEvaluator } = require("./getEvaluator");
  * Create an evaluator for a TestConditionsArray instance.
  *
  * @param {TestConditionsArrayInstance} tcArray - The TestConditionsArray instance
- * @param {import("../entities/RollModifier").RollModifierInstance|null} [modifier=null]
- * @param {boolean|null} [useNaturalCrits=null]
+ * @param {import("../entities/RollModifier").RollModifierInstance} [modifier]
+ * @param {boolean} [useNaturalCrits]
  * @returns {(value: number) => string[]} Function mapping numeric value -> array of Outcome values
  */
-function getArrayEvaluator(tcArray, modifier = null, useNaturalCrits = null) {
+function getArrayEvaluator(
+  tcArray,
+  modifier = undefined,
+  useNaturalCrits = undefined,
+) {
   if (!tcArray) throw new TypeError("tcArray is required");
 
   if (typeof tcArray.toArray !== "function") {

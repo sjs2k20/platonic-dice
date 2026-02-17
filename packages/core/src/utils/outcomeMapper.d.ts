@@ -37,8 +37,8 @@ export function createOutcomeMap(
   testConditions:
     | TestConditionsInstance
     | { testType: TestTypeValue; [key: string]: any },
-  modifier?: RollModifierInstance | null,
-  useNaturalCrits?: boolean | null
+  modifier?: RollModifierInstance,
+  useNaturalCrits?: boolean,
 ): Record<number, OutcomeValue>;
 
 /**

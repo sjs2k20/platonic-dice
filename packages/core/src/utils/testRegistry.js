@@ -17,7 +17,7 @@ const validators = require("./testValidators");
  * @typedef {(base: number) => import("../entities/Outcome").OutcomeValue} Evaluator
  *
  * BuildEvaluator: factory that builds an Evaluator for a specific die/conditions.
- * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: ConditionsLike, modifier?: import("../entities/RollModifier").RollModifierInstance|null, useNaturalCrits?: boolean|null) => Evaluator} BuildEvaluator
+ * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: ConditionsLike, modifier?: import("../entities/RollModifier").RollModifierInstance, useNaturalCrits?: boolean) => Evaluator} BuildEvaluator
  *
  * RegistryEntry: describes the shape validator, optional evaluator builder, and
  * optional default for `useNaturalCrits` for that test type.
@@ -38,16 +38,16 @@ for (const t of builtIns) {
     /**
      * @param {import("../entities/DieType").DieTypeValue} dieType
      * @param {ConditionsLike} testConditions
-     * @param {import("../entities/RollModifier").RollModifierInstance|null} [modifier]
-     * @param {boolean|null} [useNaturalCrits]
+     * @param {import("../entities/RollModifier").RollModifierInstance} [modifier]
+     * @param {boolean} [useNaturalCrits]
      * @returns {(base: number) => import("../entities/Outcome").OutcomeValue}
      */
     /** @type {import("./testRegistry").BuildEvaluator} */
     buildEvaluator: (
       dieType,
       testConditions,
-      modifier = null,
-      useNaturalCrits = null
+      modifier = undefined,
+      useNaturalCrits = undefined,
     ) => {
       // require lazily to avoid circular requires at module init
       const { createOutcomeMap } = require("./outcomeMapper");
@@ -57,7 +57,7 @@ for (const t of builtIns) {
         /** @type {import("../entities/TestType").TestTypeValue} */ (t),
         /** @type {any} */ (testConditions),
         modifier,
-        useNaturalCrits
+        useNaturalCrits,
       );
       return /** @param {number} base */ (base) => outcomeMap[base];
     },

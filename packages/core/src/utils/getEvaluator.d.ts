@@ -11,7 +11,9 @@ export type Evaluator = (base: number) => OutcomeValue;
  */
 export function getEvaluator(
   dieType: DieTypeValue,
-  testConditions: TestConditionsInstance | Record<string, any>,
-  modifier?: RollModifierInstance | null,
-  useNaturalCrits?: boolean | null
+  testConditions:
+    | TestConditionsInstance
+    | import("./../entities/TestConditions").TestConditionsLike,
+  modifier?: RollModifierInstance,
+  useNaturalCrits?: boolean,
 ): Evaluator;

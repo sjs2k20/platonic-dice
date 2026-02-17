@@ -14,8 +14,8 @@ export type BuildEvaluator = (
   testConditions:
     | ConditionsLike
     | import("../entities/TestConditions").TestConditionsInstance,
-  modifier?: any | null,
-  useNaturalCrits?: boolean | null
+  modifier?: import("../entities/RollModifier").RollModifierInstance,
+  useNaturalCrits?: boolean,
 ) => Evaluator;
 
 /** Lightweight registry entry describing validation and optional evaluator builder. */

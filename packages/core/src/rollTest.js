@@ -105,8 +105,8 @@ function rollTest(dieType, testConditions, rollType = undefined, options = {}) {
   const evaluator = getEvaluator(
     dieType,
     conditionSet,
-    null,
-    options.useNaturalCrits
+    undefined,
+    options.useNaturalCrits,
   );
   const sides = numSides(dieType);
   /** @type {Record<number, OutcomeValue>} */
@@ -153,8 +153,5 @@ for (const [dieKey, dieValue] of Object.entries(DieType)) {
   }
 }
 
-// Export all generated aliases
-module.exports = {
-  rollTest,
-  ...aliases,
-};
+// Export all generated aliases as named exports so tsc emits named declarations
+Object.assign(exports, { rollTest, ...aliases });

@@ -123,8 +123,8 @@ function analyseTest(dieType, testConditions, options = {}) {
   const evaluator = getEvaluator(
     dieType,
     conditionSet,
-    null,
-    options.useNaturalCrits
+    undefined,
+    options.useNaturalCrits,
   );
   const sides = numSides(dieType);
   /** @type {Object.<number, OutcomeValue>} */
