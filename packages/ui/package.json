@@ -43,6 +43,7 @@
     "react-router-dom": "^7.13.0"
   },
   "devDependencies": {
+    "@types/platonic-dice__core": "workspace:*",
     "@eslint/js": "^9.39.1",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@testing-library/jest-dom": "^6.9.1",

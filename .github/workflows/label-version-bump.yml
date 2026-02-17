@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 env:
-  PUBLISHABLE_PACKAGES: "packages/core packages/dice"
+  PUBLISHABLE_PACKAGES: "packages/core packages/types-core packages/dice"
   ALLOWED_LABELS: "semver/patch,semver/minor,semver/major"
 
 jobs:
@@ -66,7 +66,7 @@ jobs:
       - name: Determine affected publishable packages
         id: detect_pkgs
         run: |
-          PUBLISHABLE=("packages/core" "packages/dice")
+          PUBLISHABLE=("packages/core" "packages/types-core" "packages/dice")
           AFFECTED=()
           while read -r f; do
             for pkg in "${PUBLISHABLE[@]}"; do
@@ -75,6 +75,11 @@ jobs:
               esac
             done
           done < pr-files.txt || true
+
+          # Keep @types package version aligned when core is bumped.
+          if printf '%s\n' "${AFFECTED[@]}" | grep -qx "packages/core"; then
+            AFFECTED+=("packages/types-core")
+          fi
           # unique
           if [ ${#AFFECTED[@]} -eq 0 ]; then
             echo "No publishable packages changed in PR; nothing to bump.";

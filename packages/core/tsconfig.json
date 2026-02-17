@@ -6,11 +6,10 @@
     "noEmit": true,
     "moduleResolution": "Node",
     "baseUrl": ".",
-    "types": ["platonic-dice__core"],
     "paths": {
       "@platonic-dice/core/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "test-d/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

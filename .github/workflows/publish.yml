@@ -7,6 +7,7 @@ on:
   push:
     tags:
       - "core-v*.*.*" # Core package releases
+      - "types-core-v*.*.*" # Types package releases
       - "dice-v*.*.*" # Dice package releases
       # Note: Only publishable packages have tag patterns.
 
@@ -40,6 +41,9 @@ jobs:
 
       - name: Build dice package (emit declarations)
         run: pnpm --filter @platonic-dice/dice run build
+
+      - name: Run core external type-surface tests
+        run: pnpm --filter @types/platonic-dice__core run test:types
 
       # (debug steps removed)
 
@@ -91,9 +95,10 @@ jobs:
       - name: Determine tag version
         id: tag
         run: |
-          # Strip 'v' prefix and optional package prefix (core-v, dice-v)
+          # Strip 'v' prefix and optional package prefix (core-v, types-core-v, dice-v)
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           TAG_VERSION="${TAG_VERSION#core-v}"
+          TAG_VERSION="${TAG_VERSION#types-core-v}"
           TAG_VERSION="${TAG_VERSION#dice-v}"
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $TAG_VERSION from tag: $GITHUB_REF_NAME"
@@ -109,7 +114,7 @@ jobs:
 
           # Only these packages are published to npm
           # Packages are listed in dependency order
-          PUBLISHABLE_PACKAGES=("packages/core" "packages/dice")
+          PUBLISHABLE_PACKAGES=("packages/core" "packages/types-core" "packages/dice")
           PACKAGES=("${PUBLISHABLE_PACKAGES[@]}")
 
           for pkg in "${PACKAGES[@]}"; do

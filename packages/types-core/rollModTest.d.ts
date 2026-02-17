@@ -19,6 +19,7 @@ import type { TestConditionsInstance } from "./entities/TestConditions";
  * @param modifier - The modifier to apply to the roll.
  * @param testConditions - Test conditions (instance or plain object).
  * @param rollType - Optional roll mode (Advantage/Disadvantage).
+ * @param options - Optional configuration for natural crit behavior.
  * @returns Object containing base roll, modified value, and outcome.
  * @throws {TypeError} If inputs are invalid.
  */
@@ -29,6 +30,7 @@ export function rollModTest(
     | TestConditionsInstance
     | import("./entities/TestConditions").TestConditionsLike,
   rollType?: RollTypeValue,
+  options?: { useNaturalCrits?: boolean },
 ): {
   base: number;
   modified: number;

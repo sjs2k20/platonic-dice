@@ -46,6 +46,7 @@
     "@platonic-dice/core": "^2.2.2"
   },
   "devDependencies": {
+    "@types/platonic-dice__core": "workspace:*",
     "tsc-alias": "^1.8.16",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.9",
