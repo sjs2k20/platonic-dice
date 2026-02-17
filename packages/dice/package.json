@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/dice",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "packageManager": "pnpm@8.15.9",
   "engines": {
     "node": ">=24"
