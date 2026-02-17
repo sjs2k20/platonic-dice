@@ -36,8 +36,8 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@platonic-dice/core": "^3.0.1",
-    "@platonic-dice/dice": "^2.3.1",
+    "@platonic-dice/core": "^3.0.2",
+    "@platonic-dice/dice": "^2.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.13.0"
