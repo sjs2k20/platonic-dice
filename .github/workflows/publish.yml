@@ -10,6 +10,12 @@ on:
       - "types-core-v*.*.*" # Types package releases
       - "dice-v*.*.*" # Dice package releases
       # Note: Only publishable packages have tag patterns.
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag to publish (e.g., core-v3.0.2)"
+        required: true
+        type: string
 
 jobs:
   typecheck:
@@ -18,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
@@ -73,6 +80,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
@@ -99,25 +107,32 @@ jobs:
       - name: Determine tag version
         id: tag
         run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAG_NAME="${{ inputs.tag_name }}"
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+
           # Strip 'v' prefix and optional package prefix (core-v, types-core-v, dice-v)
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          TAG_VERSION="${TAG_NAME#v}"
           TAG_VERSION="${TAG_VERSION#core-v}"
           TAG_VERSION="${TAG_VERSION#types-core-v}"
           TAG_VERSION="${TAG_VERSION#dice-v}"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $TAG_VERSION from tag: $GITHUB_REF_NAME"
+          echo "Extracted version: $TAG_VERSION from tag: $TAG_NAME"
 
-          if [[ "${GITHUB_REF_NAME}" == core-v* ]]; then
+          if [[ "${TAG_NAME}" == core-v* ]]; then
             echo "target_packages=packages/core packages/types-core" >> $GITHUB_OUTPUT
             echo "Tag targets: packages/core + packages/types-core"
-          elif [[ "${GITHUB_REF_NAME}" == types-core-v* ]]; then
+          elif [[ "${TAG_NAME}" == types-core-v* ]]; then
             echo "target_packages=packages/types-core" >> $GITHUB_OUTPUT
             echo "Tag targets: packages/types-core"
-          elif [[ "${GITHUB_REF_NAME}" == dice-v* ]]; then
+          elif [[ "${TAG_NAME}" == dice-v* ]]; then
             echo "target_packages=packages/dice" >> $GITHUB_OUTPUT
             echo "Tag targets: packages/dice"
           else
-            echo "Unsupported tag format: ${GITHUB_REF_NAME}"
+            echo "Unsupported tag format: ${TAG_NAME}"
             exit 1
           fi
 
@@ -164,6 +179,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.tag.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

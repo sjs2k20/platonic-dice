@@ -41,10 +41,10 @@ importers:
   packages/dice:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^3.0.1
+        specifier: ^3.0.2
         version: link:../core
       '@platonic-dice/types-core':
-        specifier: ^3.0.1
+        specifier: ^3.0.2
         version: link:../types-core
     devDependencies:
       '@types/node':
@@ -72,10 +72,10 @@ importers:
   packages/ui:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^3.0.1
+        specifier: ^3.0.2
         version: link:../core
       '@platonic-dice/dice':
-        specifier: ^2.3.1
+        specifier: ^2.3.2
         version: link:../dice
       react:
         specifier: ^18.2.0

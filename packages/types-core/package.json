@@ -1,6 +1,6 @@
 {
   "name": "@platonic-dice/types-core",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Type definitions for @platonic-dice/core",
   "license": "MIT",
   "author": "Stephen James Saunders",
@@ -33,7 +33,7 @@
     "entities"
   ],
   "peerDependencies": {
-    "@platonic-dice/core": "^3.0.1"
+    "@platonic-dice/core": "^3.0.2"
   },
   "scripts": {
     "test:types": "tsd"
