@@ -103,21 +103,32 @@ jobs:
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $TAG_VERSION from tag: $GITHUB_REF_NAME"
 
-      - name: Verify workspace package versions and publish matching packages
+          if [[ "${GITHUB_REF_NAME}" == core-v* ]]; then
+            echo "target_packages=packages/core packages/types-core" >> $GITHUB_OUTPUT
+            echo "Tag targets: packages/core + packages/types-core"
+          elif [[ "${GITHUB_REF_NAME}" == types-core-v* ]]; then
+            echo "target_packages=packages/types-core" >> $GITHUB_OUTPUT
+            echo "Tag targets: packages/types-core"
+          elif [[ "${GITHUB_REF_NAME}" == dice-v* ]]; then
+            echo "target_packages=packages/dice" >> $GITHUB_OUTPUT
+            echo "Tag targets: packages/dice"
+          else
+            echo "Unsupported tag format: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+      - name: Verify tag targets and publish
         run: |
           set -euo pipefail
           TAG_VERSION=${{ steps.tag.outputs.tag_version }}
+          TARGET_PACKAGES="${{ steps.tag.outputs.target_packages }}"
           echo "Tag version: $TAG_VERSION"
+          echo "Target packages: $TARGET_PACKAGES"
 
           # Create a temporary npmrc so npm uses the token for npmjs.
           printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > ~/.npmrc
 
-          # Only these packages are published to npm
-          # Packages are listed in dependency order
-          PUBLISHABLE_PACKAGES=("packages/core" "packages/types-core" "packages/dice")
-          PACKAGES=("${PUBLISHABLE_PACKAGES[@]}")
-
-          for pkg in "${PACKAGES[@]}"; do
+          for pkg in $TARGET_PACKAGES; do
             if [ -f "$pkg/package.json" ]; then
               PKG_NAME=$(node -p "require('./$pkg/package.json').name")
               PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
