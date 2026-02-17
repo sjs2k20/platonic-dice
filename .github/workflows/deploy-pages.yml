@@ -37,12 +37,6 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: "8.15.9"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: "8.15.9"
-
       - name: Enable Corepack and prepare pnpm
         run: |
           corepack enable
