@@ -9,7 +9,7 @@ console.log("=== RollType Examples ===\n");
 
 // Example 1: RollType values
 console.log("--- RollType Enum Values ---");
-console.log(`Normal: "${RollType.Normal}"`);
+console.log(`Normal: (use undefined)`);
 console.log(`Advantage: "${RollType.Advantage}"`);
 console.log(`Disadvantage: "${RollType.Disadvantage}"\n`);
 
@@ -22,13 +22,13 @@ console.log(`Disadvantage: ${roll(DieType.D20, RollType.Disadvantage)}\n`);
 // Example 3: Comparing roll types
 console.log("=== Comparing Roll Types (10 rolls each) ===");
 const results = {
-  [RollType.Normal]: [],
+  normal: [],
   [RollType.Advantage]: [],
   [RollType.Disadvantage]: [],
 };
 
 for (let i = 0; i < 10; i++) {
-  results[RollType.Normal].push(roll(DieType.D20));
+  results.normal.push(roll(DieType.D20));
   results[RollType.Advantage].push(roll(DieType.D20, RollType.Advantage));
   results[RollType.Disadvantage].push(roll(DieType.D20, RollType.Disadvantage));
 }
@@ -44,10 +44,10 @@ console.log("=== Attack with Advantage ===");
 const attackAdv = rollTest(
   DieType.D20,
   { testType: TestType.AtLeast, target: 15 },
-  RollType.Advantage
+  RollType.Advantage,
 );
 
-console.log(`Roll: ${attackAdv.roll}, Outcome: ${attackAdv.outcome}`);
+console.log(`Roll: ${attackAdv.base}, Outcome: ${attackAdv.outcome}`);
 console.log("(Hidden, attacking from stealth)\n");
 
 // Example 5: Skill check with disadvantage
@@ -55,22 +55,22 @@ console.log("=== Skill Check with Disadvantage ===");
 const skillDisadv = rollTest(
   DieType.D20,
   { testType: TestType.Skill, target: 12 },
-  RollType.Disadvantage
+  RollType.Disadvantage,
 );
 
-console.log(`Roll: ${skillDisadv.roll}, Outcome: ${skillDisadv.outcome}`);
+console.log(`Roll: ${skillDisadv.base}, Outcome: ${skillDisadv.outcome}`);
 console.log("(Exhaustion, difficult terrain)\n");
 
 // Example 6: Conditional roll type selection
 console.log("=== Conditional Roll Type ===");
 function determineRollType(hasAdvantage, hasDisadvantage) {
   if (hasAdvantage && hasDisadvantage) {
-    return RollType.Normal; // Cancel out
+    return undefined; // Cancel out
   }
 
   if (hasAdvantage) return RollType.Advantage;
   if (hasDisadvantage) return RollType.Disadvantage;
-  return RollType.Normal;
+  return undefined;
 }
 
 const scenarios = [
@@ -94,12 +94,12 @@ function getEffectiveRollType(advantages, disadvantages) {
   const hasDisadv = disadvantages > 0;
 
   if (hasAdv && hasDisadv) {
-    return RollType.Normal;
+    return undefined;
   }
 
   if (hasAdv) return RollType.Advantage;
   if (hasDisadv) return RollType.Disadvantage;
-  return RollType.Normal;
+  return undefined;
 }
 
 console.log("2 advantages, 1 disadvantage:");
@@ -163,7 +163,7 @@ console.log();
 console.log("=== Statistical Comparison (100 rolls) ===");
 function getStats(rollType, samples = 100) {
   const rolls = Array.from({ length: samples }, () =>
-    roll(DieType.D20, rollType)
+    roll(DieType.D20, rollType),
   );
 
   const avg = rolls.reduce((a, b) => a + b, 0) / samples;
@@ -173,24 +173,24 @@ function getStats(rollType, samples = 100) {
   return { avg, min, max };
 }
 
-const normalStats = getStats(RollType.Normal);
+const normalStats = getStats(undefined);
 const advStats = getStats(RollType.Advantage);
 const disadvStats = getStats(RollType.Disadvantage);
 
 console.log(
   `Normal:       avg ${normalStats.avg.toFixed(2)}, range ${normalStats.min}-${
     normalStats.max
-  }`
+  }`,
 );
 console.log(
   `Advantage:    avg ${advStats.avg.toFixed(2)}, range ${advStats.min}-${
     advStats.max
-  } (+${(advStats.avg - normalStats.avg).toFixed(2)})`
+  } (+${(advStats.avg - normalStats.avg).toFixed(2)})`,
 );
 console.log(
   `Disadvantage: avg ${disadvStats.avg.toFixed(2)}, range ${disadvStats.min}-${
     disadvStats.max
-  } (${(disadvStats.avg - normalStats.avg).toFixed(2)})`
+  } (${(disadvStats.avg - normalStats.avg).toFixed(2)})`,
 );
 console.log("\n(Advantage ≈ +5 bonus, Disadvantage ≈ -5 penalty)\n");
 
@@ -216,7 +216,7 @@ class Character {
   getRollType() {
     return getEffectiveRollType(
       this.conditions.advantages.length,
-      this.conditions.disadvantages.length
+      this.conditions.disadvantages.length,
     );
   }
 

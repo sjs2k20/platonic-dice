@@ -263,4 +263,24 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
       expect(tc.testType).toBe(TestType.Exact);
     });
   });
+
+  describe("integration: delegate to utils validators (TDD)", () => {
+    it("calls utils/testValidators.areValidTestConditions during construction", () => {
+      jest.resetModules();
+      const mockValidators = {
+        areValidTestConditions: jest.fn().mockReturnValue(true),
+      };
+      jest.mock("../../src/utils/testValidators.js", () => mockValidators);
+
+      const { TestConditions } = require("../../src/entities/TestConditions");
+      const { TestType, DieType } = require("../../src/entities");
+
+      const tc = new TestConditions(
+        TestType.AtLeast,
+        { target: 2 },
+        DieType.D6
+      );
+      expect(mockValidators.areValidTestConditions).toHaveBeenCalled();
+    });
+  });
 });

@@ -7,6 +7,7 @@ on:
   push:
     tags:
       - "core-v*.*.*" # Core package releases
+      - "types-core-v*.*.*" # Types package releases
       - "dice-v*.*.*" # Dice package releases
       # Note: Only publishable packages have tag patterns.
 
@@ -26,7 +27,6 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: "8.15.9"
-
       - name: Enable Corepack and prepare pnpm
         run: |
           corepack enable
@@ -40,6 +40,9 @@ jobs:
 
       - name: Build dice package (emit declarations)
         run: pnpm --filter @platonic-dice/dice run build
+
+      - name: Run core external type-surface tests
+        run: pnpm --filter @types/platonic-dice__core run test:types
 
       # (debug steps removed)
 
@@ -76,7 +79,6 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: "8.15.9"
-
       - name: Enable Corepack and prepare pnpm
         run: |
           corepack enable
@@ -91,28 +93,40 @@ jobs:
       - name: Determine tag version
         id: tag
         run: |
-          # Strip 'v' prefix and optional package prefix (core-v, dice-v)
+          # Strip 'v' prefix and optional package prefix (core-v, types-core-v, dice-v)
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           TAG_VERSION="${TAG_VERSION#core-v}"
+          TAG_VERSION="${TAG_VERSION#types-core-v}"
           TAG_VERSION="${TAG_VERSION#dice-v}"
           echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $TAG_VERSION from tag: $GITHUB_REF_NAME"
 
-      - name: Verify workspace package versions and publish matching packages
+          if [[ "${GITHUB_REF_NAME}" == core-v* ]]; then
+            echo "target_packages=packages/core packages/types-core" >> $GITHUB_OUTPUT
+            echo "Tag targets: packages/core + packages/types-core"
+          elif [[ "${GITHUB_REF_NAME}" == types-core-v* ]]; then
+            echo "target_packages=packages/types-core" >> $GITHUB_OUTPUT
+            echo "Tag targets: packages/types-core"
+          elif [[ "${GITHUB_REF_NAME}" == dice-v* ]]; then
+            echo "target_packages=packages/dice" >> $GITHUB_OUTPUT
+            echo "Tag targets: packages/dice"
+          else
+            echo "Unsupported tag format: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+      - name: Verify tag targets and publish
         run: |
           set -euo pipefail
           TAG_VERSION=${{ steps.tag.outputs.tag_version }}
+          TARGET_PACKAGES="${{ steps.tag.outputs.target_packages }}"
           echo "Tag version: $TAG_VERSION"
+          echo "Target packages: $TARGET_PACKAGES"
 
           # Create a temporary npmrc so npm uses the token for npmjs.
           printf "//registry.npmjs.org/:_authToken=%s\n" "$NPM_TOKEN" > ~/.npmrc
 
-          # Only these packages are published to npm
-          # Packages are listed in dependency order
-          PUBLISHABLE_PACKAGES=("packages/core" "packages/dice")
-          PACKAGES=("${PUBLISHABLE_PACKAGES[@]}")
-
-          for pkg in "${PACKAGES[@]}"; do
+          for pkg in $TARGET_PACKAGES; do
             if [ -f "$pkg/package.json" ]; then
               PKG_NAME=$(node -p "require('./$pkg/package.json').name")
               PKG_VERSION=$(node -p "require('./$pkg/package.json').version")

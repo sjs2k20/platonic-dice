@@ -129,3 +129,7 @@ describe("@platonic-dice/core/rollTest", () => {
     });
   });
 });
+
+// NOTE: TDD integration test for registry evaluator removed to avoid test-only
+// dependency injection (require.cache). We'll reintroduce a non-invasive test
+// later that uses the real `testRegistry` implementation.

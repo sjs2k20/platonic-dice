@@ -2,7 +2,7 @@
  * @module @platonic-dice/core/src/utils/outcomeMapper
  * @description
  * Creates outcome maps for die rolls, handling natural crits and modifiers.
- * This provides a centralized way to determine all possible outcomes for a
+ * This provides a centralised way to determine all possible outcomes for a
  * given die configuration.
  *
  * Includes memoization cache for performance optimization.
@@ -41,7 +41,7 @@ function applyNaturalCritOverride(
   currentOutcome,
   isNaturalMax,
   isNaturalMin,
-  testType
+  testType,
 ) {
   const { TestType, Outcome } = getEntities();
 
@@ -77,8 +77,8 @@ function applyNaturalCritOverride(
  * @param {import("../entities/DieType").DieTypeValue} dieType
  * @param {import("../entities/TestType").TestTypeValue} testType
  * @param {import("../entities/TestConditions").TestConditionsInstance} testConditions
- * @param {import("../entities/RollModifier").RollModifierInstance|null} modifier
- * @param {boolean} useNaturalCrits
+ * @param {import("../entities/RollModifier").RollModifierInstance|undefined} modifier
+ * @param {boolean|undefined} useNaturalCrits
  * @returns {string}
  */
 function createCacheKey(
@@ -86,9 +86,9 @@ function createCacheKey(
   testType,
   testConditions,
   modifier,
-  useNaturalCrits
+  useNaturalCrits,
 ) {
-  // Serialize the conditions object for hashing
+  // serialise the conditions object for hashing
   const conditionsKey = JSON.stringify({
     testType: testConditions.testType,
     conditions: testConditions.conditions,
@@ -107,22 +107,45 @@ function createCacheKey(
  * @param {import("../entities/DieType").DieTypeValue} dieType - The type of die
  * @param {import("../entities/TestType").TestTypeValue} testType - The type of test being performed
  * @param {import("../entities/TestConditions").TestConditionsInstance} testConditions - The test conditions
- * @param {import("../entities/RollModifier").RollModifierInstance|null} modifier - Optional modifier to apply
- * @param {boolean|null} useNaturalCrits - Whether to use natural crits (null = auto-determine)
+ * @param {import("../entities/RollModifier").RollModifierInstance|undefined} modifier - Optional modifier to apply
+ * @param {boolean|undefined} useNaturalCrits - Whether to use natural crits (undefined = auto-determine)
  * @returns {Object.<number, import("../entities/Outcome").OutcomeValue>} Map of baseRoll -> outcome
  */
 function createOutcomeMap(
   dieType,
   testType,
   testConditions,
-  modifier = null,
-  useNaturalCrits = null
+  modifier = undefined,
+  useNaturalCrits = undefined,
 ) {
   const { TestType } = getEntities();
 
-  // Auto-determine useNaturalCrits if not specified
-  // Default: true for Skill tests, false for all others
-  const shouldUseNaturalCrits = useNaturalCrits ?? testType === TestType.Skill;
+  // Resolve `useNaturalCrits` with the following precedence:
+  // 1. Caller-provided `useNaturalCrits` (boolean)
+  // 2. Registry-provided `defaultUseNaturalCrits` (optional boolean)
+  // 3. Fallback default: true for Skill tests, false otherwise
+  let shouldUseNaturalCrits = useNaturalCrits;
+  // Try to get registry metadata (if registry is available) to consult any
+  // declared `defaultUseNaturalCrits` for this testType. We swallow errors
+  // to remain resilient if the registry cannot be loaded.
+  let reg;
+  try {
+    const tr = require("./testRegistry");
+    reg = tr.getRegistration(testType);
+    if (
+      shouldUseNaturalCrits == null &&
+      reg &&
+      typeof reg.defaultUseNaturalCrits === "boolean"
+    ) {
+      shouldUseNaturalCrits = reg.defaultUseNaturalCrits;
+    }
+  } catch (e) {
+    // ignore registry errors and fall back to heuristic below
+  }
+
+  if (shouldUseNaturalCrits == null) {
+    shouldUseNaturalCrits = testType === TestType.Skill;
+  }
 
   // Check cache first
   const cacheKey = createCacheKey(
@@ -130,11 +153,35 @@ function createOutcomeMap(
     testType,
     testConditions,
     modifier,
-    shouldUseNaturalCrits
+    shouldUseNaturalCrits,
   );
   const cached = outcomeMapCache.get(cacheKey);
   if (cached) {
     return cached;
+  }
+
+  // Prefer registry builder when available to keep behavior consistent
+  // with registered evaluators. Fall back to per-base determineOutcome loop.
+  try {
+    if (reg && typeof reg.buildEvaluator === "function") {
+      const evaluator = reg.buildEvaluator(
+        dieType,
+        testConditions,
+        modifier,
+        shouldUseNaturalCrits,
+      );
+      const sides = numSides(dieType);
+      /** @type {Object.<number, import("../entities/Outcome").OutcomeValue>} */
+      const outcomeMap = {};
+      for (let baseRoll = 1; baseRoll <= sides; baseRoll++) {
+        outcomeMap[baseRoll] = evaluator(baseRoll);
+      }
+      outcomeMapCache.set(cacheKey, outcomeMap);
+      return outcomeMap;
+    }
+  } catch (e) {
+    // If registry cannot be loaded for any reason, gracefully fall back
+    // to the existing per-base logic below.
   }
 
   const sides = numSides(dieType);
@@ -157,7 +204,7 @@ function createOutcomeMap(
         outcome,
         isNaturalMax,
         isNaturalMin,
-        testType
+        testType,
       );
     }
 

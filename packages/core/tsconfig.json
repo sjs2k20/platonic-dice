@@ -1,19 +1,13 @@
 {
   "extends": ["../../tsconfig.base.json"],
   "compilerOptions": {
-    "module": "CommonJS", // Ensure compatibility with Node.js
-    "declaration": true, // Generate .d.ts files
-    "declarationMap": true, // Generate .d.ts.map files
-    "emitDeclarationOnly": true, // Only emit types, not JS
-    "outDir": "dist", // Output directory for .d.ts files
-    "rootDir": "src", // Root of source files
-    "allowJs": true, // Process JS files
-    "checkJs": true, // Perform JS type checking during declaration emit (JSDoc validated)
-    "noEmitOnError": true, // Prevent declaration emit if there are type-check errors
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
     "moduleResolution": "Node",
-    "baseUrl": ".", // Required for relative path aliases
+    "baseUrl": ".",
     "paths": {
-      "@platonic-dice/core/*": ["src/*"] // Supports internal module imports
+      "@platonic-dice/core/*": ["src/*"]
     }
   },
   "include": ["src/**/*"],

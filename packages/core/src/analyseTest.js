@@ -22,6 +22,7 @@ const { DieType, TestType } = require("./entities");
 const tc = require("./entities/TestConditions.js");
 const { createOutcomeMap } = require("./utils/outcomeMapper");
 const { numSides } = require("./utils");
+const { getEvaluator } = require("./utils/getEvaluator");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -51,7 +52,8 @@ const { numSides } = require("./utils");
  *
  * @function analyseTest
  * @param {DieTypeValue} dieType - The type of die (e.g., `DieType.D20`).
- * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
+ * @typedef {import("./entities/TestConditions").TestConditionsLike} TestConditionsLike
+ * @param {TestConditionsLike} testConditions
  *   Can be:
  *   - A `TestConditions` instance.
  *   - A plain object `{ testType, ...conditions }`.
@@ -83,21 +85,51 @@ function analyseTest(dieType, testConditions, options = {}) {
   if (!dieType) throw new TypeError("dieType is required.");
 
   // Normalise testConditions (skip if already a TestConditions instance)
-  const conditionSet =
-    testConditions instanceof tc.TestConditions
-      ? testConditions
-      : tc.normaliseTestConditions(testConditions, dieType);
+  let conditionSet;
+  if (testConditions instanceof tc.TestConditions) {
+    conditionSet = testConditions;
+  } else {
+    // Plain object: validate early for clearer errors, then normalise.
+    // We still call `normaliseTestConditions` so tests and any instrumentation
+    // that spy on it will observe the delegation (and the constructor remains
+    // the final authority for detailed RangeErrors).
+    const { testType, ...rest } = testConditions;
+    const fullConditions = { ...rest, dieType };
+    const validators = require("./utils/testValidators");
+    const { isValidTestType } = require("./entities/TestType");
 
-  // Create outcome map for all possible rolls
-  const outcomeMap = createOutcomeMap(
+    if (!isValidTestType(testType)) {
+      try {
+        tc.normaliseTestConditions(testConditions, dieType);
+      } catch (err) {
+        // ignore deeper error
+      }
+      throw new TypeError(`Invalid test type: ${testType}`);
+    }
+
+    if (!validators.areValidTestConditions(fullConditions, testType)) {
+      try {
+        tc.normaliseTestConditions(testConditions, dieType);
+      } catch (err) {
+        // ignore deeper error
+      }
+      throw new TypeError("Invalid test conditions shape.");
+    }
+
+    conditionSet = tc.normaliseTestConditions(testConditions, dieType);
+  }
+
+  // Obtain evaluator (registry or fallback) and build outcome map
+  const evaluator = getEvaluator(
     dieType,
-    conditionSet.testType,
     conditionSet,
-    null, // no modifier
-    options.useNaturalCrits
+    undefined,
+    options.useNaturalCrits,
   );
-
   const sides = numSides(dieType);
+  /** @type {Object.<number, OutcomeValue>} */
+  const outcomeMap = {};
+  for (let roll = 1; roll <= sides; roll++) outcomeMap[roll] = evaluator(roll);
   const totalPossibilities = sides;
 
   // Count outcomes

@@ -53,6 +53,8 @@ jobs:
           if [ "$found" -eq 0 ]; then
             echo "No package tsconfig.json files found; skipping typecheck step."
           fi
+      - name: Run core external type-surface tests
+        run: pnpm --filter @types/platonic-dice__core run test:types
 
   tests:
     name: tests

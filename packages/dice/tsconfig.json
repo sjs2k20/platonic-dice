@@ -6,12 +6,10 @@
     "rootDir": ".",
     "outDir": "dist",
     "isolatedModules": true,
-    "types": ["node", "vitest"],
+    "types": ["node", "vitest", "platonic-dice__core"],
     "baseUrl": ".",
     "paths": {
-      "@dice/*": ["src/*"],
-      "@platonic-dice/core": ["../core/dist-types.d.ts"],
-      "@platonic-dice/core/*": ["../core/dist/*"]
+      "@dice/*": ["src/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],

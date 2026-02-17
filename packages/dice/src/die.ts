@@ -130,7 +130,7 @@ export class Die {
       throw new Error(`Invalid roll type: ${rollType}`);
     }
 
-    // Delegate record creation to the RollRecordFactory to centralize shape
+    // Delegate record creation to the RollRecordFactory to centralise shape
     const record = this.recordFactory.createNormalRoll(
       this.typeValue,
       rollType
@@ -196,7 +196,7 @@ export class Die {
   /**
    * Perform a roll against test conditions (success/failure evaluation).
    *
-   * @param {TestConditionsInstance | { testType: TestTypeValue; [k: string]: any }} testConditions - Test conditions (plain object or normalized `TestConditions` instance).
+   * @param {TestConditionsInstance | { testType: TestTypeValue; [k: string]: any }} testConditions - Test conditions (plain object or normalised `TestConditions` instance).
    * @param {RollTypeValue} [rollType] - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`).
    * @returns {number} The base numeric roll used to evaluate the test.
    * @throws {Error} If `testConditions` or `rollType` are invalid (delegated to core).
@@ -227,7 +227,7 @@ export class Die {
    * Combines rollMod and rollTest functionality.
    *
    * @param {RollModifierFunction | RollModifierInstance} modifier - Numeric or functional modifier applied to the base roll.
-   * @param {TestConditionsInstance | { testType: TestTypeValue; [k: string]: any }} testConditions - Test conditions (plain object or normalized `TestConditions` instance).
+   * @param {TestConditionsInstance | { testType: TestTypeValue; [k: string]: any }} testConditions - Test conditions (plain object or normalised `TestConditions` instance).
    * @param {RollTypeValue} [rollType] - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`).
    * @param {{useNaturalCrits?: boolean}} [options] - Optional configuration for natural crits behavior.
    * @returns {number} The modified numeric result.

@@ -493,7 +493,7 @@ Interactive exploration of core entities:
 
 - [ ] Code splitting by route
 - [ ] Lazy load heavy components
-- [ ] Optimize bundle size
+- [ ] optimise bundle size
 - [ ] Lighthouse score > 90
 - [ ] Fast initial load (<3s on 3G)
 - [ ] Smooth animations (60fps)

@@ -5,6 +5,7 @@ import { Die } from "@dice/die";
 import {
   DieType,
   RollType,
+  TestType,
   roll as coreRoll,
   rollMod as coreRollMod,
   rollTest as coreRollTest,
@@ -106,7 +107,7 @@ describe("Die class", () => {
     const die = new Die(DieType.D6);
     (coreRollTest as Mock).mockReturnValue({ base: 4, outcome: "success" });
 
-    const result = die.rollTest({ testType: "at_least", target: 3 });
+    const result = die.rollTest({ testType: TestType.AtLeast, target: 3 });
     expect(result).toBe(4);
     expect(die.result).toBe(4);
 

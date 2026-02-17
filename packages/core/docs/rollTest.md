@@ -191,7 +191,7 @@ console.log(testRoll);
 const advTest = rollTest(
   DieType.D20,
   { testType: TestType.AtLeast, target: 15 },
-  RollType.Advantage
+  RollType.Advantage,
 );
 // { base: 18, outcome: "success" } (picked higher of two rolls)
 ```
@@ -227,7 +227,7 @@ const customSkill = new TestConditions(
     critical_success: 18, // Crit on 18+ instead of just 20
     critical_failure: 3, // Crit fail on ≤3 instead of just 1
   },
-  DieType.D20
+  DieType.D20,
 );
 const customTest = rollTest(DieType.D20, customSkill);
 // Crit success if ≥18, crit failure if ≤3, otherwise normal success/failure at 12
@@ -364,7 +364,7 @@ const skill = rollD20Skill(15);
 - Aliases accept optional `RollType` parameter for advantage/disadvantage
 - The test evaluation happens AFTER advantage/disadvantage selection
 - For tests with modifiers, use [`rollModTest`](./rollModTest.md)
-- For testing multiple dice, use [`rollDiceMod`](./rollDiceMod.md) with manual evaluation or wait for future `rollDiceTest` functionality
+- For testing multiple dice with aggregate rules, use [`rollDiceTest`](./rollDiceTest.md)
 
 ## When to Use rollTest vs Aliases
 

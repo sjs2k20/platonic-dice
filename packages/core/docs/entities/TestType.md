@@ -70,7 +70,7 @@ const save = rollTest(DieType.D20, {
 });
 
 // Success if roll >= 15
-console.log(`${save.roll} vs DC 15: ${save.outcome}`);
+console.log(`${save.base} vs DC 15: ${save.outcome}`);
 ```
 
 ### Skill (With Natural Crits)
@@ -141,11 +141,9 @@ rollTest(DieType.D20, { testType: TestType.Exact, target: 10 });
 Disable natural crits:
 
 ```javascript
-rollTest(
-  DieType.D20,
-  { testType: TestType.Skill, target: 15 },
-  { useNaturalCrits: false }
-);
+rollTest(DieType.D20, { testType: TestType.Skill, target: 15 }, undefined, {
+  useNaturalCrits: false,
+});
 // Will only return Success or Failure, even on nat 1/20
 ```
 
@@ -217,7 +215,7 @@ if (hitLocation.outcome === "success") {
 - `AtLeast` is most common (DC checks, saves)
 - `Skill` is `AtLeast` with optional natural crits (use for skill checks and attack rolls)
 - `Within` requires both `min` and `max` properties
-- `InList` requires `validValues` array property
+- `InList` requires `values` array property
 - Natural crits only apply to base roll, not modified values
 - Can disable crits with `{ useNaturalCrits: false }`
 
