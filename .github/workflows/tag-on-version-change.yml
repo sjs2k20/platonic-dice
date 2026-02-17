@@ -19,11 +19,22 @@ jobs:
           persist-credentials: true
       - name: Create tags for bumped packages
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          dispatch_publish() {
+            local tag="$1"
+            curl --fail-with-body -sS \
+              -X POST \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/publish.yml/dispatches" \
+              -d "{\"ref\":\"main\",\"inputs\":{\"tag_name\":\"$tag\"}}"
+            echo "DISPATCHED publish.yml for $tag"
+          }
 
           PUBLISHABLE_PACKAGES=(packages/core packages/types-core packages/dice)
           git fetch --tags origin
@@ -39,13 +50,13 @@ jobs:
             if [ "$NEW" != "$PREV" ]; then
               TAG="$(basename $pkg)-v${NEW}"
               if git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1; then
-                echo "remote tag $TAG already exists — skipping"
+                echo "remote tag $TAG already exists — dispatching publish workflow"
+                dispatch_publish "$TAG"
               else
                 git tag -a "$TAG" -m "release: $(basename $pkg) $NEW"
                 git push origin "$TAG"
                 echo "PUSHED: $TAG"
-                gh workflow run publish.yml -f tag_name="$TAG"
-                echo "DISPATCHED publish.yml for $TAG"
+                dispatch_publish "$TAG"
                 CREATED=1
               fi
             fi
