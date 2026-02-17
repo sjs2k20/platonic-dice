@@ -42,7 +42,7 @@ describe("RollRecordManager", () => {
     manager = new RollRecordManager();
   });
 
-  it("should initialize empty with default maxRecords", () => {
+  it("should initialise empty with default maxRecords", () => {
     expect(manager.length).toBe(0);
     expect(manager.maxRecordsCount).toBe(DEFAULT_MAX_RECORDS);
     expect(manager.full).toEqual([]);

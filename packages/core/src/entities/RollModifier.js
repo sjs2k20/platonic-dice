@@ -11,6 +11,11 @@
  * const result = bonus.apply(10); // 12
  */
 
+/*
+ * Typedef ownership:
+ * - `RollModifierLike`, `RollModifierFunction`, `DiceModifier`, `RollModifierInstance`
+ */
+
 /**
  * @typedef {(n: number) => number} RollModifierFunction
  * @description
@@ -54,6 +59,15 @@
 /**
  * Represents a numeric modifier applied to dice rolls.
  */
+
+/**
+ * Public 'like' type for modifiers accepted across APIs.
+ * - a `RollModifier` instance
+ * - a plain function `(n:number)=>number`
+ * - a composite `DiceModifier` object with optional `each`/`net`
+ *
+ * @typedef {RollModifier | RollModifierFunction | DiceModifier} RollModifierLike
+ */
 class RollModifier {
   /**
    * @param {RollModifierFunction} fn - Modifier function.
@@ -81,7 +95,7 @@ class RollModifier {
 
   /**
    * Validates that this modifier still conforms to spec.
-   * (Useful if modifiers are loaded dynamically or serialized.)
+   * (Useful if modifiers are loaded dynamically or serialised.)
    * @throws {TypeError} If the modifier is invalid.
    */
   validate() {

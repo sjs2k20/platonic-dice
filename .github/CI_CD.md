@@ -24,6 +24,10 @@ This document explains the workflows, labels, and safe release process used by t
 - `auto-patch-bump` — only runs when a dependency PR (Dependabot or labelled `dependencies`) is merged; it creates a follow-up patch bump PR if a package’s source changed but `package.json` was not bumped in the merged PR.
 - `tag-on-version-change` — runs on push to `main`; if `package.json` versions changed it creates package tags (e.g. `core-v1.2.3`) which trigger publish.
 - `publish` — publishes packages when package‑specific tags are pushed (existing behavior).
+  - Tag-targeted behavior:
+    - `core-v*.*.*` targets `packages/core` and `packages/types-core`
+    - `types-core-v*.*.*` targets `packages/types-core`
+    - `dice-v*.*.*` targets `packages/dice`
 - `pnpm-updater` — scheduled job to open PRs updating `packageManager` fields to the latest pnpm.
 - `dependabot.yml` — Dependabot configuration (weekly checks, labels). It remains enabled for security and patch updates.
 
@@ -41,7 +45,7 @@ Usage example (developer PR):
 1. After review, add `semver/patch` to the PR.
 2. `label-version-bump` will push a version bump commit into the PR branch.
 3. CI reruns; if green you merge the PR.
-4. `tag-on-version-change` will create tags for packages whose versions changed and `publish` will run.
+4. `tag-on-version-change` will create tags for packages whose versions changed and `publish` will run with tag-targeted package selection.
 
 If you add no semver label, nothing is bumped automatically.
 

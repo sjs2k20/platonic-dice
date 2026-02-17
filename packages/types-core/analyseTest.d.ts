@@ -62,6 +62,6 @@ export function analyseTest(
   dieType: DieTypeValue,
   testConditions:
     | TestConditionsInstance
-    | { testType: TestTypeValue; [key: string]: any },
-  options?: analyseTestOptions
+    | import("./entities/TestConditions").TestConditionsLike,
+  options?: analyseTestOptions,
 ): TestAnalysis;

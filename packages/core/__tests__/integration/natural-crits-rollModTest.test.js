@@ -309,7 +309,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
   });
 
   describe("advantage with natural crits", () => {
-    it("should prioritize natural 20 even if other roll has better modified value", () => {
+    it("should prioritise natural 20 even if other roll has better modified value", () => {
       const originalRandom = Math.random;
       const rolls = [0.999, 0.45]; // Will roll 20 and 10 on d20
       let callCount = 0;

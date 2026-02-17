@@ -9,7 +9,7 @@ This package contains the pure logic used by higher-level packages (for example 
 Install from npm:
 
 ```bash
-npm install @platonic-dice/core
+npm install @platonic-dice/core @types/platonic-dice__core
 ```
 
 ## Quick usage
@@ -34,7 +34,7 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
   target: 15,
 });
 console.log(
-  `Roll: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`
+  `Roll: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`,
 );
 ```
 
@@ -67,6 +67,15 @@ Or run package-local scripts:
 cd packages/core
 # run unit tests
 npm test
+```
+
+### Type Testing
+
+Type definitions are provided by the separate `@types/platonic-dice__core` package. To test the type surface:
+
+```bash
+cd packages/types-core
+pnpm run test:types
 ```
 
 ## Examples

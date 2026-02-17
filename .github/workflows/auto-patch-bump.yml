@@ -32,8 +32,15 @@ jobs:
         id: bump
         run: |
           set -euo pipefail
-          PUBLISHABLE_PACKAGES=(packages/core packages/dice)
+          PUBLISHABLE_PACKAGES=(packages/core packages/types-core packages/dice)
           CHANGED=$(cat changed.txt || true)
+
+          # Keep @types package in sync with core for dependency-driven changes.
+          if echo "$CHANGED" | grep -q "^packages/core/" && ! echo "$CHANGED" | grep -q "^packages/types-core/"; then
+            CHANGED="$CHANGED
+packages/types-core/.sync"
+          fi
+
           UPDATED=false
           for pkg in "${PUBLISHABLE_PACKAGES[@]}"; do
             if echo "$CHANGED" | grep -q "^${pkg}/"; then

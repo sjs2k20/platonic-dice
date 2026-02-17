@@ -23,8 +23,8 @@ const save = rollTest(DieType.D20, {
   target: 15,
 });
 
-console.log(`Roll: ${save.roll}, DC: 15`);
-console.log(`Outcome: ${save.outcome} (${save.roll >= 15 ? "✓" : "✗"})\n`);
+console.log(`Roll: ${save.base}, DC: 15`);
+console.log(`Outcome: ${save.outcome} (${save.base >= 15 ? "✓" : "✗"})\n`);
 
 // Example 3: Skill test with natural crits
 console.log("=== Skill Test (Natural Crits Enabled) ===");
@@ -40,7 +40,7 @@ for (let i = 0; i < 5; i++) {
   else if (skill.outcome === Outcome.Failure) symbol = "✗";
   else if (skill.outcome === Outcome.CriticalFailure) symbol = "💀";
 
-  console.log(`  ${symbol} Roll ${skill.roll}: ${skill.outcome}`);
+  console.log(`  ${symbol} Roll ${skill.base}: ${skill.outcome}`);
 }
 console.log();
 
@@ -51,12 +51,12 @@ const attack = rollTest(DieType.D20, {
   target: 16,
 });
 
-console.log(`Roll: ${attack.roll}, AC: 16`);
+console.log(`Roll: ${attack.base}, AC: 16`);
 console.log(`Outcome: ${attack.outcome}`);
 
-if (attack.roll === 20) {
+if (attack.base === 20) {
   console.log("💥 Natural 20! CRITICAL HIT!\n");
-} else if (attack.roll === 1) {
+} else if (attack.base === 1) {
   console.log("💀 Natural 1! Fumble!\n");
 } else {
   console.log();
@@ -71,7 +71,7 @@ for (let target = 1; target <= 6; target++) {
   });
 
   const symbol = exact.outcome === Outcome.Success ? "✓" : "✗";
-  console.log(`  ${symbol} Target ${target}, rolled ${exact.roll}`);
+  console.log(`  ${symbol} Target ${target}, rolled ${exact.base}`);
 }
 console.log();
 
@@ -83,9 +83,9 @@ const range = rollTest(DieType.D20, {
   max: 12,
 });
 
-console.log(`Roll: ${range.roll}`);
+console.log(`Roll: ${range.base}`);
 console.log(
-  `In range [8-12]? ${range.outcome === Outcome.Success ? "Yes ✓" : "No ✗"}\n`
+  `In range [8-12]? ${range.outcome === Outcome.Success ? "Yes ✓" : "No ✗"}\n`,
 );
 
 // Example 7: AtMost test (reverse)
@@ -95,7 +95,7 @@ const atMost = rollTest(DieType.D20, {
   target: 5,
 });
 
-console.log(`Roll: ${atMost.roll}, Target: <= 5`);
+console.log(`Roll: ${atMost.base}, Target: <= 5`);
 console.log(`Outcome: ${atMost.outcome}\n`);
 
 // Example 8: Comparing test types
@@ -113,7 +113,7 @@ testTypes.forEach(({ type, desc }) => {
     target: 12,
   });
 
-  console.log(`${desc}: rolled ${result.roll} → ${result.outcome}`);
+  console.log(`${desc}: rolled ${result.base} → ${result.outcome}`);
 });
 console.log();
 
@@ -124,15 +124,19 @@ const withCrits = rollTest(DieType.D20, {
   testType: TestType.Skill,
   target: 15,
 });
-console.log(`  Roll ${withCrits.roll}: ${withCrits.outcome}`);
+console.log(`  Roll ${withCrits.base}: ${withCrits.outcome}`);
 
 console.log("\nWithout natural crits:");
-const withoutCrits = rollTest(DieType.D20, {
-  testType: TestType.Skill,
-  target: 15,
-  useNaturalCrits: false,
-});
-console.log(`  Roll ${withoutCrits.roll}: ${withoutCrits.outcome}`);
+const withoutCrits = rollTest(
+  DieType.D20,
+  {
+    testType: TestType.Skill,
+    target: 15,
+  },
+  undefined,
+  { useNaturalCrits: false },
+);
+console.log(`  Roll ${withoutCrits.base}: ${withoutCrits.outcome}`);
 console.log("  (No critical outcomes, even on nat 1/20)\n");
 
 // Example 10: Use case - saving throws
@@ -147,7 +151,7 @@ saves.forEach((saveName, i) => {
   });
 
   console.log(
-    `${saveName} (DC ${dcs[i]}): ${saveRoll.roll} → ${saveRoll.outcome}`
+    `${saveName} (DC ${dcs[i]}): ${saveRoll.base} → ${saveRoll.outcome}`,
   );
 });
 console.log();
@@ -167,8 +171,8 @@ const hitRoll = rollTest(DieType.D20, {
   max: 20,
 });
 
-console.log(`Roll: ${hitRoll.roll}`);
-console.log(`Hit location: ${determineHitLocation(hitRoll.roll)}\n`);
+console.log(`Roll: ${hitRoll.base}`);
+console.log(`Hit location: ${determineHitLocation(hitRoll.base)}\n`);
 
 // Example 12: Use case - random events
 console.log("=== Use Case: Random Events (1-in-6 Trap) ===");
@@ -179,9 +183,9 @@ for (let i = 0; i < 3; i++) {
   });
 
   if (check.outcome === Outcome.Success) {
-    console.log(`  Room ${i + 1}: 🚨 TRAP! (rolled ${check.roll})`);
+    console.log(`  Room ${i + 1}: 🚨 TRAP! (rolled ${check.base})`);
   } else {
-    console.log(`  Room ${i + 1}: Safe (rolled ${check.roll})`);
+    console.log(`  Room ${i + 1}: Safe (rolled ${check.base})`);
   }
 }
 console.log();

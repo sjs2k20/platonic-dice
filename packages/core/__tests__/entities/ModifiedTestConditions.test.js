@@ -256,7 +256,7 @@ describe("ModifiedTestConditions", () => {
       expect(conditions.conditions.target).toBe(12);
     });
 
-    it("should store normalized RollModifier", () => {
+    it("should store normalised RollModifier", () => {
       const conditions = new ModifiedTestConditions(
         TestType.AtLeast,
         { target: 12 },

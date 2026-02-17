@@ -23,8 +23,7 @@ const r = require("./roll.js");
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
- * @typedef {import("./entities/RollModifier").RollModifierFunction} RollModifierFunction
- * @typedef {import("./entities/RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./entities/RollModifier").RollModifierLike} RollModifierLike
  */
 
 /**
@@ -36,7 +35,7 @@ const r = require("./roll.js");
  *
  * @function rollMod
  * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param {RollModifierFunction|RollModifierInstance} modifier - The modifier to apply.
+ * @param {RollModifierLike} modifier - The modifier to apply.
  *   Can be either:
  *   - A RollModifierFunction `(n: number) => number`
  *   - A {@link RollModifier} instance
@@ -57,7 +56,7 @@ const r = require("./roll.js");
  * const result = rollMod(DieType.D10, (n) => Math.floor(n / 2), RollType.Advantage);
  */
 function rollMod(dieType, modifier, rollType = undefined) {
-  const mod = normaliseRollModifier(modifier);
+  const mod = normaliseRollModifier(/** @type {any} */ (modifier));
 
   const base = r.roll(dieType, rollType);
   const modified = mod.apply(base);

@@ -74,6 +74,6 @@ export function analyseModTest(
   modifier: RollModifierFunction | RollModifierInstance,
   testConditions:
     | TestConditionsInstance
-    | { testType: TestTypeValue; [key: string]: any },
-  options?: analyseModTestOptions
+    | import("./entities/TestConditions").TestConditionsLike,
+  options?: analyseModTestOptions,
 ): ModifiedTestAnalysis;

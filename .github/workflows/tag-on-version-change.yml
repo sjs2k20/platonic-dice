@@ -16,7 +16,7 @@ jobs:
       - name: Create tags for bumped packages
         run: |
           set -euo pipefail
-          PUBLISHABLE_PACKAGES=(packages/core packages/dice)
+          PUBLISHABLE_PACKAGES=(packages/core packages/types-core packages/dice)
           git fetch --tags origin
           CREATED=0
 

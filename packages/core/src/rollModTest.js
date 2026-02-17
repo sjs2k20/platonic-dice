@@ -32,13 +32,13 @@ const { ModifiedTestConditions } = require("./entities/ModifiedTestConditions");
 const r = require("./roll.js");
 const utils = require("./utils");
 const { createOutcomeMap } = require("./utils/outcomeMapper");
+const { numSides } = require("./utils");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/Outcome").OutcomeValue} OutcomeValue
  * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
- * @typedef {import("./entities/RollModifier").RollModifierFunction} RollModifierFunction
- * @typedef {import("./entities/RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./entities/RollModifier").RollModifierLike} RollModifierLike
  * @typedef {import("./entities/TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./entities/TestConditions").TestConditionsInstance} TestConditionsInstance
  */
@@ -70,11 +70,12 @@ function rankOutcome(outcome) {
  *
  * @function rollModTest
  * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param {RollModifierFunction|RollModifierInstance} modifier - The modifier to apply to the roll.
+ * @param {RollModifierLike} modifier - The modifier to apply to the roll.
  *   Can be either:
  *   - A function `(n: number) => number`
  *   - A {@link RollModifier} instance
- * @param {TestConditionsInstance|{ testType: TestTypeValue, [key: string]: any }} testConditions
+ * @typedef {import("./entities/TestConditions").TestConditionsLike} TestConditionsLike
+ * @param {TestConditionsLike} testConditions
  *   Can be:
  *   - A `TestConditions` instance
  *   - A plain object `{ testType, ...conditions }`
@@ -135,7 +136,7 @@ function rollModTest(
   const mod =
     modifier instanceof RollModifier
       ? modifier
-      : normaliseRollModifier(modifier);
+      : normaliseRollModifier(/** @type {any} */ (modifier));
 
   // Create ModifiedTestConditions if input is a plain object
   let conditionSet;
@@ -149,14 +150,40 @@ function rollModTest(
   }
 
   // Create outcome map for all possible rolls (with modifier applied)
-  const outcomeMap = createOutcomeMap(
-    dieType,
-    conditionSet.testType,
-    // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
-    conditionSet,
-    mod, // include modifier
-    options.useNaturalCrits
-  );
+  // Prefer registry evaluator if available; otherwise build outcome map.
+  /** @type {Record<number, OutcomeValue>|undefined} */
+  let outcomeMap;
+  try {
+    const { getRegistration } = require("./utils/testRegistry");
+    const reg = getRegistration(conditionSet.testType);
+    if (reg && typeof reg.buildEvaluator === "function") {
+      /** @type {import("./utils/testRegistry").Evaluator} */
+      const evaluator = reg.buildEvaluator(
+        dieType,
+        // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
+        conditionSet,
+        mod,
+        options.useNaturalCrits
+      );
+      outcomeMap = {};
+      const sides = numSides(dieType);
+      for (let roll = 1; roll <= sides; roll++)
+        outcomeMap[roll] = evaluator(roll);
+    }
+  } catch (err) {
+    // fall through to legacy logic
+  }
+
+  if (!outcomeMap) {
+    outcomeMap = createOutcomeMap(
+      dieType,
+      conditionSet.testType,
+      // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
+      conditionSet,
+      mod, // include modifier
+      options.useNaturalCrits
+    );
+  }
 
   // Handle advantage/disadvantage by comparing outcomes
   if (rollType) {

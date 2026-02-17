@@ -24,7 +24,6 @@ const disadvantageRoll = roll(DieType.D20, RollType.Disadvantage);
 
 ```typescript
 enum RollType {
-  Normal = "normal",
   Advantage = "advantage",
   Disadvantage = "disadvantage",
 }
@@ -33,14 +32,13 @@ enum RollType {
 ### Type Definition
 
 ```typescript
-type RollTypeValue = "normal" | "advantage" | "disadvantage";
+type RollTypeValue = "advantage" | "disadvantage";
 ```
 
 ## Roll Types
 
 | Type                    | String Value     | Behavior                |
 | ----------------------- | ---------------- | ----------------------- |
-| `RollType.Normal`       | `"normal"`       | Roll once (default)     |
 | `RollType.Advantage`    | `"advantage"`    | Roll twice, take higher |
 | `RollType.Disadvantage` | `"disadvantage"` | Roll twice, take lower  |
 
@@ -79,7 +77,7 @@ const {
 const attackAdv = rollTest(
   DieType.D20,
   { testType: TestType.Skill, target: 16 },
-  { rollType: RollType.Advantage }
+  RollType.Advantage,
 );
 
 console.log(`Attack (Advantage): ${attackAdv.base}`);
@@ -91,12 +89,12 @@ console.log(`Attack (Advantage): ${attackAdv.base}`);
 function determineRollType(hasAdvantage, hasDisadvantage) {
   // They cancel out
   if (hasAdvantage && hasDisadvantage) {
-    return RollType.Normal;
+    return undefined;
   }
 
   if (hasAdvantage) return RollType.Advantage;
   if (hasDisadvantage) return RollType.Disadvantage;
-  return RollType.Normal;
+  return undefined;
 }
 
 const rollType = determineRollType(true, false);
@@ -105,7 +103,7 @@ const result = roll(DieType.D20, rollType);
 
 ## Notes
 
-- Default roll type is `Normal` if not specified
+- Default behavior is a normal roll when roll type is omitted (`undefined`)
 - Advantage/disadvantage only affect the final roll value
 - Multiple sources of advantage don't stack (same with disadvantage)
 - Advantage and disadvantage cancel each other out
@@ -122,12 +120,12 @@ function getEffectiveRollType(advantages, disadvantages) {
   const hasDisadv = disadvantages > 0;
 
   if (hasAdv && hasDisadv) {
-    return RollType.Normal; // Cancel out
+    return undefined; // Cancel out
   }
 
   if (hasAdv) return RollType.Advantage;
   if (hasDisadv) return RollType.Disadvantage;
-  return RollType.Normal;
+  return undefined;
 }
 ```
 

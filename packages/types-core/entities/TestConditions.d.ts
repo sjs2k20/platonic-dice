@@ -93,3 +93,17 @@ export type Conditions =
 
 /** Alias for instances of {@link TestConditions}. */
 export type TestConditionsInstance = InstanceType<typeof TestConditions>;
+
+/**
+ * Public union accepted by normalisation helpers: either a
+ * {@link TestConditions} instance or a plain object with a `testType`
+ * property and other condition fields.
+ */
+export type TestConditionsLike =
+  | TestConditions
+  | { testType: TestTypeValue; [key: string]: any };
+
+export function normaliseTestConditions(
+  tc: TestConditions | TestConditionsLike,
+  dieType: DieTypeValue
+): TestConditions;

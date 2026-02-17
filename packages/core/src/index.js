@@ -13,6 +13,7 @@ const rollDice = require("./rollDice.js");
 const roll = require("./roll.js");
 const rollMod = require("./rollMod.js");
 const rollDiceMod = require("./rollDiceMod.js");
+const rollDiceTest = require("./rollDiceTest.js");
 const rollTest = require("./rollTest.js");
 const rollModTest = require("./rollModTest.js");
 const analyseTest = require("./analyseTest.js");
@@ -22,30 +23,46 @@ const analyseModTest = require("./analyseModTest.js");
 const entities = require("./entities");
 
 /**
- * Combined exports for Node and TypeScript users.
- * @type {typeof import("./roll") &
- *        typeof import("./rollDice") &
- *        typeof import("./rollMod") &
- *        typeof import("./rollDiceMod") &
- *        typeof import("./rollTest") &
- *        typeof import("./rollModTest") &
- *        typeof import("./analyseTest") &
- *        typeof import("./analyseModTest") &
- *        typeof import("./entities") &
- *        { default: any }}
+ * Attach named exports onto `exports` so consumers can access
+ * all helpers from the package root.
  */
-module.exports = {
-  ...roll,
-  ...rollDice,
-  ...rollMod,
-  ...rollDiceMod,
-  ...entities,
-  ...rollTest,
-  ...rollModTest,
-  ...analyseTest,
-  ...analyseModTest,
-  default: undefined, // placeholder; will be overwritten
-};
+Object.assign(exports, roll);
+Object.assign(exports, rollDice);
+Object.assign(exports, rollMod);
+Object.assign(exports, rollDiceMod);
+Object.assign(exports, rollDiceTest);
+Object.assign(exports, entities);
+Object.assign(exports, rollTest);
+Object.assign(exports, rollModTest);
+Object.assign(exports, analyseTest);
+Object.assign(exports, analyseModTest);
 
-// assign default at runtime
-module.exports.default = module.exports;
+// provide a `default` export for compatibility
+exports.default = exports;
+
+// Re-export all named exports explicitly for compatibility
+exports.DieType = entities.DieType;
+exports.isValidDieType = entities.isValidDieType;
+exports.Outcome = entities.Outcome;
+exports.isValidOutcome = entities.isValidOutcome;
+exports.RollType = entities.RollType;
+exports.isValidRollType = entities.isValidRollType;
+exports.TestType = entities.TestType;
+exports.isValidTestType = entities.isValidTestType;
+exports.RollModifier = entities.RollModifier;
+exports.isValidRollModifier = entities.isValidRollModifier;
+exports.normaliseRollModifier = entities.normaliseRollModifier;
+exports.TestConditions = entities.TestConditions;
+exports.areValidTestConditions = entities.areValidTestConditions;
+exports.normaliseTestConditions = entities.normaliseTestConditions;
+exports.TestConditionsArray = entities.TestConditionsArray;
+exports.DiceTestConditions = entities.DiceTestConditions;
+exports.ModifiedTestConditions = entities.ModifiedTestConditions;
+exports.areValidModifiedTestConditions =
+  entities.areValidModifiedTestConditions;
+exports.computeModifiedRange = entities.computeModifiedRange;
+exports.rollTest = rollTest.rollTest;
+exports.rollModTest = rollModTest.rollModTest;
+exports.rollDiceTest = rollDiceTest.rollDiceTest;
+exports.analyseTest = analyseTest.analyseTest;
+exports.analyseModTest = analyseModTest.analyseModTest;

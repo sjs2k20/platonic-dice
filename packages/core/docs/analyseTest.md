@@ -72,7 +72,7 @@ const analysis = analyseTest(DieType.D20, {
 });
 
 console.log(
-  `Success rate: ${(analysis.outcomeProbabilities.success * 100).toFixed(1)}%`
+  `Success rate: ${(analysis.outcomeProbabilities.success * 100).toFixed(1)}%`,
 );
 // "Success rate: 30.0%"
 
@@ -83,19 +83,19 @@ console.log(`You need to roll: ${analysis.rollsByOutcome.success.join(", ")}`);
 ### Skill Test with Crits
 
 ```javascript
-const skillCheck = analyseTest(DieType.D20, {
+const analysis = analyseTest(DieType.D20, {
   testType: TestType.Skill,
   target: 12,
 });
 
 // Natural crits are enabled by default for Skill tests
 console.log(
-  `Critical Success: ${analysis.outcomeProbabilities.critical_success * 100}%`
+  `Critical Success: ${analysis.outcomeProbabilities.critical_success * 100}%`,
 );
 console.log(`Success: ${analysis.outcomeProbabilities.success * 100}%`);
 console.log(`Failure: ${analysis.outcomeProbabilities.failure * 100}%`);
 console.log(
-  `Critical Failure: ${analysis.outcomeProbabilities.critical_failure * 100}%`
+  `Critical Failure: ${analysis.outcomeProbabilities.critical_failure * 100}%`,
 );
 ```
 
@@ -117,18 +117,18 @@ const hard = analyseTest(DieType.D20, {
 
 console.log(
   `Easy (DC 10): ${(easy.outcomeProbabilities.success * 100).toFixed(
-    0
-  )}% success`
+    0,
+  )}% success`,
 );
 console.log(
   `Medium (DC 15): ${(medium.outcomeProbabilities.success * 100).toFixed(
-    0
-  )}% success`
+    0,
+  )}% success`,
 );
 console.log(
   `Hard (DC 20): ${(hard.outcomeProbabilities.success * 100).toFixed(
-    0
-  )}% success`
+    0,
+  )}% success`,
 );
 ```
 
@@ -143,7 +143,7 @@ const exactCheck = analyseTest(DieType.D6, {
 console.log(
   `Chance of rolling exactly 4: ${(
     exactCheck.outcomeProbabilities.success * 100
-  ).toFixed(1)}%`
+  ).toFixed(1)}%`,
 );
 // "Chance of rolling exactly 4: 16.7%"
 ```
@@ -159,8 +159,8 @@ const rangeCheck = analyseTest(DieType.D20, {
 
 console.log(
   `Rolling 10-15: ${(rangeCheck.outcomeProbabilities.success * 100).toFixed(
-    1
-  )}%`
+    1,
+  )}%`,
 );
 // "Rolling 10-15: 30.0%" (6 values out of 20)
 ```
@@ -203,8 +203,8 @@ function showOdds(dieType, target) {
   console.log(`  Need to roll: ${analysis.rollsByOutcome.success.join(", ")}`);
   console.log(
     `  Success chance: ${(analysis.outcomeProbabilities.success * 100).toFixed(
-      1
-    )}%`
+      1,
+    )}%`,
   );
 }
 

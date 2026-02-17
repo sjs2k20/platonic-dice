@@ -6,14 +6,15 @@ Complete documentation and examples for all exported modules.
 
 Rolling functions that return dice values and/or outcomes.
 
-| Function      | Description                      | Documentation                           | Example                                                               |
-| ------------- | -------------------------------- | --------------------------------------- | --------------------------------------------------------------------- |
-| `roll`        | Roll a single die                | [docs/roll.md](./roll.md)               | [examples/roll-example.js](../examples/roll-example.js)               |
-| `rollDice`    | Roll multiple dice               | [docs/rollDice.md](./rollDice.md)       | [examples/rollDice-example.js](../examples/rollDice-example.js)       |
-| `rollMod`     | Roll single die with modifier    | [docs/rollMod.md](./rollMod.md)         | [examples/rollMod-example.js](../examples/rollMod-example.js)         |
-| `rollDiceMod` | Roll multiple dice with modifier | [docs/rollDiceMod.md](./rollDiceMod.md) | [examples/rollDiceMod-example.js](../examples/rollDiceMod-example.js) |
-| `rollTest`    | Roll with test conditions        | [docs/rollTest.md](./rollTest.md)       | [examples/rollTest-example.js](../examples/rollTest-example.js)       |
-| `rollModTest` | Roll with modifier and test      | [docs/rollModTest.md](./rollModTest.md) | [examples/rollModTest-example.js](../examples/rollModTest-example.js) |
+| Function       | Description                                  | Documentation                             | Example                                                                 |
+| -------------- | -------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
+| `roll`         | Roll a single die                            | [docs/roll.md](./roll.md)                 | [examples/roll-example.js](../examples/roll-example.js)                 |
+| `rollDice`     | Roll multiple dice                           | [docs/rollDice.md](./rollDice.md)         | [examples/rollDice-example.js](../examples/rollDice-example.js)         |
+| `rollMod`      | Roll single die with modifier                | [docs/rollMod.md](./rollMod.md)           | [examples/rollMod-example.js](../examples/rollMod-example.js)           |
+| `rollDiceMod`  | Roll multiple dice with modifier             | [docs/rollDiceMod.md](./rollDiceMod.md)   | [examples/rollDiceMod-example.js](../examples/rollDiceMod-example.js)   |
+| `rollTest`     | Roll with test conditions                    | [docs/rollTest.md](./rollTest.md)         | [examples/rollTest-example.js](../examples/rollTest-example.js)         |
+| `rollModTest`  | Roll with modifier and test                  | [docs/rollModTest.md](./rollModTest.md)   | [examples/rollModTest-example.js](../examples/rollModTest-example.js)   |
+| `rollDiceTest` | Roll multiple dice with aggregate test rules | [docs/rollDiceTest.md](./rollDiceTest.md) | [examples/rollDiceTest-example.js](../examples/rollDiceTest-example.js) |
 
 ## Analysis Functions
 
@@ -28,15 +29,17 @@ Rolling functions that return dice values and/or outcomes.
 
 Core types and classes used throughout the package.
 
-| Entity                   | Description            | Documentation                                                                   | Example                                                                                                       |
-| ------------------------ | ---------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `DieType`                | Die types (D4-D20)     | [docs/entities/DieType.md](./entities/DieType.md)                               | [examples/entities/DieType-example.js](../examples/entities/DieType-example.js)                               |
-| `Outcome`                | Test outcomes          | [docs/entities/Outcome.md](./entities/Outcome.md)                               | [examples/entities/Outcome-example.js](../examples/entities/Outcome-example.js)                               |
-| `RollModifier`           | Modifier functions     | [docs/entities/RollModifier.md](./entities/RollModifier.md)                     | [examples/entities/RollModifier-example.js](../examples/entities/RollModifier-example.js)                     |
-| `RollType`               | Advantage/disadvantage | [docs/entities/RollType.md](./entities/RollType.md)                             | [examples/entities/RollType-example.js](../examples/entities/RollType-example.js)                             |
-| `TestType`               | Types of tests         | [docs/entities/TestType.md](./entities/TestType.md)                             | [examples/entities/TestType-example.js](../examples/entities/TestType-example.js)                             |
-| `TestConditions`         | Test configuration     | [docs/entities/TestConditions.md](./entities/TestConditions.md)                 | [examples/entities/TestConditions-example.js](../examples/entities/TestConditions-example.js)                 |
-| `ModifiedTestConditions` | Extended range tests   | [docs/entities/ModifiedTestConditions.md](./entities/ModifiedTestConditions.md) | [examples/entities/ModifiedTestConditions-example.js](../examples/entities/ModifiedTestConditions-example.js) |
+| Entity                   | Description                    | Documentation                                                                   | Example                                                                                                       |
+| ------------------------ | ------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `DieType`                | Die types (D4-D20)             | [docs/entities/DieType.md](./entities/DieType.md)                               | [examples/entities/DieType-example.js](../examples/entities/DieType-example.js)                               |
+| `Outcome`                | Test outcomes                  | [docs/entities/Outcome.md](./entities/Outcome.md)                               | [examples/entities/Outcome-example.js](../examples/entities/Outcome-example.js)                               |
+| `RollModifier`           | Modifier functions             | [docs/entities/RollModifier.md](./entities/RollModifier.md)                     | [examples/entities/RollModifier-example.js](../examples/entities/RollModifier-example.js)                     |
+| `RollType`               | Advantage/disadvantage         | [docs/entities/RollType.md](./entities/RollType.md)                             | [examples/entities/RollType-example.js](../examples/entities/RollType-example.js)                             |
+| `TestType`               | Types of tests                 | [docs/entities/TestType.md](./entities/TestType.md)                             | [examples/entities/TestType-example.js](../examples/entities/TestType-example.js)                             |
+| `TestConditions`         | Test configuration             | [docs/entities/TestConditions.md](./entities/TestConditions.md)                 | [examples/entities/TestConditions-example.js](../examples/entities/TestConditions-example.js)                 |
+| `TestConditionsArray`    | Ordered set of test conditions | [docs/entities/TestConditionsArray.md](./entities/TestConditionsArray.md)       | [examples/entities/TestConditionsArray-example.js](../examples/entities/TestConditionsArray-example.js)       |
+| `DiceTestConditions`     | Aggregate multi-dice rules     | [docs/entities/DiceTestConditions.md](./entities/DiceTestConditions.md)         | [examples/entities/DiceTestConditions-example.js](../examples/entities/DiceTestConditions-example.js)         |
+| `ModifiedTestConditions` | Extended range tests           | [docs/entities/ModifiedTestConditions.md](./entities/ModifiedTestConditions.md) | [examples/entities/ModifiedTestConditions-example.js](../examples/entities/ModifiedTestConditions-example.js) |
 
 ## Quick Start
 
@@ -104,6 +107,7 @@ node examples/rollMod-example.js
 node examples/rollDiceMod-example.js
 node examples/rollTest-example.js
 node examples/rollModTest-example.js
+node examples/rollDiceTest-example.js
 node examples/rollModTest-advanced-features-example.js
 node examples/analyseTest-example.js
 node examples/analyseModTest-example.js
@@ -115,6 +119,8 @@ node examples/entities/RollModifier-example.js
 node examples/entities/RollType-example.js
 node examples/entities/TestType-example.js
 node examples/entities/TestConditions-example.js
+node examples/entities/TestConditionsArray-example.js
+node examples/entities/DiceTestConditions-example.js
 node examples/entities/ModifiedTestConditions-example.js
 ```
 
@@ -130,7 +136,7 @@ const { rollModTest, DieType, TestType } = require("@platonic-dice/core");
 const attack = rollModTest(
   DieType.D20,
   (n) => n + 7, // +3 STR, +4 Proficiency
-  { testType: TestType.AtLeast, target: 16 }
+  { testType: TestType.AtLeast, target: 16 },
 );
 
 if (attack.outcome === "critical_success") {
@@ -156,7 +162,7 @@ const adv = roll(DieType.D20, RollType.Advantage);
 const disadv = rollTest(
   DieType.D20,
   { testType: TestType.Skill, target: 12 },
-  { rollType: RollType.Disadvantage }
+  RollType.Disadvantage,
 );
 ```
 
@@ -176,7 +182,7 @@ const basic = analyseTest(DieType.D20, {
   target: 15,
 });
 console.log(
-  `Success rate: ${(basic.outcomeProbabilities.success * 100).toFixed(0)}%`
+  `Success rate: ${(basic.outcomeProbabilities.success * 100).toFixed(0)}%`,
 );
 
 // With modifier
@@ -185,7 +191,7 @@ const modified = analyseModTest(DieType.D20, (n) => n + 5, {
   target: 15,
 });
 console.log(
-  `With +5: ${(modified.outcomeProbabilities.success * 100).toFixed(0)}%`
+  `With +5: ${(modified.outcomeProbabilities.success * 100).toFixed(0)}%`,
 );
 ```
 
@@ -210,11 +216,11 @@ All functions are thoroughly tested with Jest:
 npm test
 ```
 
-Current test coverage: 289 passing tests
+Current test coverage evolves over time; run `npm test` for current totals.
 
 ## TypeScript Support
 
-Type definitions are available in `.d.ts` files throughout the package:
+Type definitions are provided via the companion package `@types/platonic-dice__core`:
 
 ```typescript
 import {

@@ -36,7 +36,7 @@ import {
 /**
  * Factory interface for producing RollRecord values.
  *
- * This module centralizes the creation of roll records (normal, modified
+ * This module centralises the creation of roll records (normal, modified
  * and test rolls). The implementation intentionally keeps a small public
  * surface: callers request a record and receive a validated object ready
  * to be persisted in history. The default implementation delegates to the

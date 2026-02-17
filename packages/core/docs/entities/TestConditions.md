@@ -14,8 +14,8 @@ const { TestConditions, TestType, DieType } = require("@platonic-dice/core");
 // Create test conditions
 const conditions = new TestConditions(
   TestType.AtLeast,
-  15, // target
-  DieType.D20
+  { target: 15 },
+  DieType.D20,
 );
 
 // Use with rollTest (or pass plain object)
@@ -29,10 +29,8 @@ const result = rollTest(DieType.D20, conditions);
 ```typescript
 new TestConditions(
   testType: TestTypeValue,
-  target?: number,
-  dieType?: DieTypeValue,
-  min?: number,
-  max?: number
+  conditions: Conditions,
+  dieType: DieTypeValue
 )
 ```
 
@@ -41,10 +39,8 @@ new TestConditions(
 ```typescript
 class TestConditions {
   testType: TestTypeValue;
-  target?: number;
-  min?: number;
-  max?: number;
-  dieType?: DieTypeValue;
+  conditions: Conditions;
+  dieType: DieTypeValue;
 }
 ```
 
@@ -65,8 +61,8 @@ class TestConditions {
 | `AtMost`  | `target`        | Roll 5 or less    |
 | `Exact`   | `target`        | Roll exactly 7    |
 | `Within`  | `min`, `max`    | Roll 8-12         |
+| `InList`  | `values`        | Roll in [1,3,5]   |
 | `Skill`   | `target`        | Skill check DC 12 |
-| `Attack`  | `target`        | Attack vs AC 16   |
 
 ## Examples
 
@@ -76,15 +72,13 @@ class TestConditions {
 const { TestConditions, TestType, DieType } = require("@platonic-dice/core");
 
 // AtLeast test
-const dc15 = new TestConditions(TestType.AtLeast, 15, DieType.D20);
+const dc15 = new TestConditions(TestType.AtLeast, { target: 15 }, DieType.D20);
 
 // Within test
 const range = new TestConditions(
   TestType.Within,
-  undefined, // target not needed
+  { min: 8, max: 12 },
   DieType.D20,
-  8, // min
-  12 // max
 );
 ```
 
@@ -102,7 +96,11 @@ const result = rollTest(DieType.D20, {
 });
 
 // Same as using class
-const conditions = new TestConditions(TestType.AtLeast, 15, DieType.D20);
+const conditions = new TestConditions(
+  TestType.AtLeast,
+  { target: 15 },
+  DieType.D20,
+);
 const result2 = rollTest(DieType.D20, conditions);
 ```
 
@@ -110,12 +108,16 @@ const result2 = rollTest(DieType.D20, conditions);
 
 ```javascript
 // Valid: target within die range
-const valid = new TestConditions(TestType.AtLeast, 15, DieType.D20);
+const valid = new TestConditions(TestType.AtLeast, { target: 15 }, DieType.D20);
 // ✓ target 15 is within 1-20
 
 // Invalid: target exceeds die range
 try {
-  const invalid = new TestConditions(TestType.AtLeast, 25, DieType.D20);
+  const invalid = new TestConditions(
+    TestType.AtLeast,
+    { target: 25 },
+    DieType.D20,
+  );
 } catch (error) {
   console.log("Error: Target 25 exceeds D20 maximum (20)");
 }
@@ -127,10 +129,8 @@ try {
 // Valid range
 const validRange = new TestConditions(
   TestType.Within,
-  undefined,
+  { min: 8, max: 12 },
   DieType.D20,
-  8,
-  12
 );
 // ✓ min (8) <= max (12)
 
@@ -138,10 +138,8 @@ const validRange = new TestConditions(
 try {
   const invalidRange = new TestConditions(
     TestType.Within,
-    undefined,
+    { min: 15, max: 10 }, // min > max!
     DieType.D20,
-    15,
-    10 // min > max!
   );
 } catch (error) {
   console.log("Error: min must be <= max");
@@ -154,9 +152,9 @@ try {
 
 ```javascript
 const difficulties = {
-  easy: new TestConditions(TestType.AtLeast, 10, DieType.D20),
-  medium: new TestConditions(TestType.AtLeast, 15, DieType.D20),
-  hard: new TestConditions(TestType.AtLeast, 20, DieType.D20),
+  easy: new TestConditions(TestType.AtLeast, { target: 10 }, DieType.D20),
+  medium: new TestConditions(TestType.AtLeast, { target: 15 }, DieType.D20),
+  hard: new TestConditions(TestType.AtLeast, { target: 20 }, DieType.D20),
 };
 
 const check = rollTest(DieType.D20, difficulties.medium);
@@ -168,7 +166,11 @@ const check = rollTest(DieType.D20, difficulties.medium);
 function createDifficultyCheck(playerLevel, baseDC) {
   const adjustedDC = Math.max(5, baseDC - Math.floor(playerLevel / 2));
 
-  return new TestConditions(TestType.AtLeast, adjustedDC, DieType.D20);
+  return new TestConditions(
+    TestType.AtLeast,
+    { target: adjustedDC },
+    DieType.D20,
+  );
 }
 
 const level5Check = createDifficultyCheck(5, 18);
@@ -182,7 +184,11 @@ class Enemy {
   constructor(name, ac) {
     this.name = name;
     // Use TestType.Skill for attack rolls with natural crits
-    this.attackConditions = new TestConditions(TestType.Skill, ac, DieType.D20);
+    this.attackConditions = new TestConditions(
+      TestType.Skill,
+      { target: ac },
+      DieType.D20,
+    );
   }
 
   getAttackTest() {
@@ -201,7 +207,7 @@ const attackRoll = rollTest(DieType.D20, goblin.getAttackTest());
 - Validation happens at construction time
 - Can't use targets outside the base die range
 - For modified ranges, use [`ModifiedTestConditions`](./ModifiedTestConditions.md)
-- Die type is optional but recommended for validation
+- Die type is required for class-based validation
 
 ## Common Patterns
 

@@ -131,13 +131,13 @@ console.log(`Outcome: ${boostedD6.outcome}`);
 console.log();
 
 console.log("--- D20 (1-20) - 5 = range -4 to 15 ---");
-const penalizedD20 = rollModTest(DieType.D20, (n) => n - 5, {
+const penalisedD20 = rollModTest(DieType.D20, (n) => n - 5, {
   testType: TestType.AtMost,
   target: 0, // Valid! 0 is within -4 to 15
 });
-console.log(`Base: ${penalizedD20.base}, Modified: ${penalizedD20.modified}`);
+console.log(`Base: ${penalisedD20.base}, Modified: ${penalisedD20.modified}`);
 console.log(`Target 0 (negative targets possible with penalty)`);
-console.log(`Outcome: ${penalizedD20.outcome}`);
+console.log(`Outcome: ${penalisedD20.outcome}`);
 console.log();
 
 console.log("--- D6 (1-6) × 2 = range 2-12 ---");

@@ -1,0 +1,34 @@
+{
+  "name": "@types/platonic-dice__core",
+  "version": "3.0.0",
+  "description": "Type definitions for @platonic-dice/core",
+  "license": "MIT",
+  "types": "index.d.ts",
+  "files": [
+    "index.d.ts",
+    "core.d.ts",
+    "analyseTest.d.ts",
+    "analyseModTest.d.ts",
+    "roll.d.ts",
+    "rollDice.d.ts",
+    "rollDiceMod.d.ts",
+    "rollDiceTest.d.ts",
+    "rollMod.d.ts",
+    "rollModTest.d.ts",
+    "rollTest.d.ts",
+    "entities"
+  ],
+  "peerDependencies": {
+    "@platonic-dice/core": "^3.0.0"
+  },
+  "scripts": {
+    "test:types": "tsd"
+  },
+  "tsd": {
+    "directory": "test-d"
+  },
+  "devDependencies": {
+    "tsd": "^0.31.2",
+    "@platonic-dice/core": "workspace:*"
+  }
+}

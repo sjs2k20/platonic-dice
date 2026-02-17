@@ -33,9 +33,11 @@ export interface RollTestOptions {
  */
 export declare function rollTest(
   dieType: DieTypeValue,
-  testConditions: TestConditionsInstance | Record<string, any>,
+  testConditions:
+    | TestConditionsInstance
+    | import("./entities/TestConditions").TestConditionsLike,
   rollType?: RollTypeValue,
-  options?: RollTestOptions
+  options?: RollTestOptions,
 ): {
   base: number;
   outcome: OutcomeValue;
@@ -54,7 +56,7 @@ export declare const aliases: Record<
   string,
   (
     target: number,
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ) => {
     base: number;
     outcome: OutcomeValue;

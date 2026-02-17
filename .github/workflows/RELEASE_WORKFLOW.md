@@ -6,7 +6,7 @@ This repository uses GitHub Actions to publish workspace packages when you push 
 
 **The workflow:**
 
-- Triggers on package-specific tags: `core-v*.*.*` or `dice-v*.*.*`
+- Triggers on package-specific tags: `core-v*.*.*`, `types-core-v*.*.*`, or `dice-v*.*.*`
 - Runs TypeScript checks across all packages
 - Builds and publishes only the package(s) matching the tag version
 - Creates a GitHub Release for each tag
@@ -62,7 +62,7 @@ git commit -m "chore(release): bump core to 2.1.2, dice to 2.1.1"
 git push origin main
 ```
 
-**For synchronized versioning (rare):**
+**For synchronised versioning (rare):**
 
 ```bash
 # Update both packages to the same version
@@ -153,8 +153,10 @@ git push origin dice-v2.1.1   # Publishes dice only
 **What happens:**
 
 - TypeScript checks run on all packages
-- Core builds and publishes to npm
-- Dice builds and publishes to npm
+- Tag-targeted publishing runs:
+  - `core-vX.Y.Z` → publishes `@platonic-dice/core` and `@types/platonic-dice__core` (if versions match `X.Y.Z`)
+  - `types-core-vX.Y.Z` → publishes `@types/platonic-dice__core` only
+  - `dice-vX.Y.Z` → publishes `@platonic-dice/dice` only
 - GitHub Releases are created for each tag
 
 ### Step 7: Verify Publication

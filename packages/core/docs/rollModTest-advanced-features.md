@@ -40,7 +40,7 @@ const result = rollModTest(
   (n) => n + 5,
   { testType: TestType.AtLeast, target: 15 },
   undefined,
-  { useNaturalCrits: true }
+  { useNaturalCrits: true },
 );
 ```
 
@@ -103,7 +103,7 @@ const result = rollModTest(
     critical_failure: 6,
   },
   undefined,
-  { useNaturalCrits: false } // Override default
+  { useNaturalCrits: false }, // Override default
 );
 
 // Now outcomes are determined purely by thresholds
@@ -157,7 +157,7 @@ const result = rollModTest(
     critical_success: 24,
     critical_failure: 6,
   },
-  RollType.Advantage
+  RollType.Advantage,
 );
 
 // Evaluation:
@@ -178,7 +178,7 @@ const result = rollModTest(
   DieType.D20,
   (n) => n - 3,
   { testType: TestType.AtLeast, target: 12 },
-  RollType.Disadvantage
+  RollType.Disadvantage,
 );
 
 // Evaluation:
@@ -203,7 +203,7 @@ const result = rollModTest(
     critical_success: 35, // Only achievable on natural 20
     critical_failure: 16,
   },
-  RollType.Advantage
+  RollType.Advantage,
 );
 
 // Roll 1: base=20, modified=35 → CriticalSuccess (rank 3)
@@ -228,7 +228,7 @@ const result = rollModTest(
     critical_success: 22,
     critical_failure: 3,
   },
-  RollType.Advantage
+  RollType.Advantage,
 );
 
 // Evaluation:
@@ -252,7 +252,7 @@ const result = rollModTest(
     critical_success: 120,
     critical_failure: 101,
   },
-  RollType.Disadvantage
+  RollType.Disadvantage,
 );
 
 // Evaluation:
@@ -321,7 +321,7 @@ const attackRoll = (bonus, ac) =>
       critical_success: 20 + bonus,
       critical_failure: 1 + bonus,
     },
-    RollType.Advantage
+    RollType.Advantage,
   );
 
 const result = attackRoll(7, 18);
@@ -334,4 +334,4 @@ const result = attackRoll(7, 18);
 - [rollModTest Main Documentation](./rollModTest.md)
 - [Basic Examples](../examples/rollModTest-example.js)
 - [Advanced Features Examples](../examples/rollModTest-advanced-features-example.js)
-- [Test Suite](__tests__/rollModTest-advanced.test.js)
+- [Test Suite](../__tests__/rollModTest-advanced.test.js)

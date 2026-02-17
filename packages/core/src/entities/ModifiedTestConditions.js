@@ -21,12 +21,18 @@ const { isValidDieType } = require("./DieType");
 const { isValidTestType } = require("./TestType");
 const { normaliseRollModifier } = require("./RollModifier");
 const { numSides } = require("../utils");
+const validators = require("../utils/testValidators");
 
 /**
  * @typedef {import("./TestType").TestTypeValue} TestTypeValue
  * @typedef {import("./DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./RollModifier").RollModifierFunction} RollModifierFunction
  * @typedef {import("./RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./RollModifier").RollModifierLike} RollModifierLike
+ */
+/**
+ * @typedef {import("../utils/testValidators").Conditions} Conditions
+ * @typedef {import("../utils/testValidators").PlainObject} PlainObject
  */
 
 /**
@@ -64,7 +70,7 @@ class ModifiedTestConditions {
    * @param {TestTypeValue} testType - The test type.
    * @param {Conditions} conditions - The test conditions object.
    * @param {DieTypeValue} dieType - The base die type.
-   * @param {RollModifierFunction | RollModifierInstance} modifier - The modifier to apply.
+   * @param {RollModifierLike} modifier - The modifier to apply.
    * @throws {TypeError|RangeError} If the test type or conditions are invalid.
    */
   constructor(testType, conditions, dieType, modifier) {
@@ -84,8 +90,8 @@ class ModifiedTestConditions {
       throw new TypeError("modifier is required.");
     }
 
-    // Normalize the modifier
-    const mod = normaliseRollModifier(modifier);
+    // normalise the modifier
+    const mod = normaliseRollModifier(/** @type {any} */ (modifier));
 
     // Compute the achievable range with this modifier
     const range = computeModifiedRange(dieType, mod);
@@ -153,7 +159,7 @@ class ModifiedTestConditions {
  * Validates test conditions against a modified range.
  *
  * @private
- * @param {Conditions & Record<string, any>} c - Conditions with modifiedRange
+ * @param {ModifiedConditions & PlainObject} c - Conditions with modifiedRange
  * @param {TestTypeValue} testType
  * @returns {boolean}
  */
@@ -185,13 +191,12 @@ function areValidModifiedTestConditions(c, testType) {
       );
 
     case "in_list":
+      // Use shared validator helper for range checks (accepts arrays)
       return (
         Array.isArray(c.values) &&
-        c.values.length > 0 &&
-        c.values.every(
-          (v) =>
-            typeof v === "number" && Number.isInteger(v) && v >= min && v <= max
-        )
+        validators.areValidValuesInRange({ values: c.values }, min, max, [
+          "values",
+        ])
       );
 
     case "skill":
@@ -205,33 +210,17 @@ function areValidModifiedTestConditions(c, testType) {
         return false;
       }
 
-      // critical_success is optional but must be valid if present
-      if (c.critical_success !== undefined) {
-        if (
-          typeof c.critical_success !== "number" ||
-          !Number.isInteger(c.critical_success) ||
-          c.critical_success < min ||
-          c.critical_success > max ||
-          c.critical_success < c.target
-        ) {
-          return false;
-        }
-      }
+      // Validate critical thresholds are within range if present using helper
+      if (
+        !validators.areValidValuesInRange(c, min, max, [
+          "critical_success",
+          "critical_failure",
+        ])
+      )
+        return false;
 
-      // critical_failure is optional but must be valid if present
-      if (c.critical_failure !== undefined) {
-        if (
-          typeof c.critical_failure !== "number" ||
-          !Number.isInteger(c.critical_failure) ||
-          c.critical_failure < min ||
-          c.critical_failure > max ||
-          c.critical_failure > c.target
-        ) {
-          return false;
-        }
-      }
-
-      return true;
+      // Check logical ordering using shared helper
+      return validators.isValidThresholdOrder(c);
 
     default:
       return false;
@@ -239,19 +228,19 @@ function areValidModifiedTestConditions(c, testType) {
 }
 
 /**
- * @typedef {Object} BaseTestCondition
+ * @typedef {Object} ModifiedBaseTestCondition
  * @property {{ min: number, max: number }} modifiedRange
  */
 
 /**
- * @typedef {BaseTestCondition & { target: number }} TargetConditions
- * @typedef {BaseTestCondition & { min: number, max: number }} WithinConditions
- * @typedef {BaseTestCondition & { values: number[] }} SpecificListConditions
- * @typedef {BaseTestCondition & { target: number, critical_success?: number, critical_failure?: number }} SkillConditions
+ * @typedef {ModifiedBaseTestCondition & { target: number }} ModifiedTargetConditions
+ * @typedef {ModifiedBaseTestCondition & { min: number, max: number }} ModifiedWithinConditions
+ * @typedef {ModifiedBaseTestCondition & { values: number[] }} ModifiedSpecificListConditions
+ * @typedef {ModifiedBaseTestCondition & { target: number, critical_success?: number, critical_failure?: number }} ModifiedSkillConditions
  */
 
 /**
- * @typedef {TargetConditions | SkillConditions | WithinConditions | SpecificListConditions} Conditions
+ * @typedef {ModifiedTargetConditions | ModifiedSkillConditions | ModifiedWithinConditions | ModifiedSpecificListConditions} ModifiedConditions
  */
 
 /**
