@@ -1,9 +1,14 @@
 {
-  "name": "@types/platonic-dice__core",
-  "version": "3.0.0",
+  "name": "@platonic-dice/types-core",
+  "version": "3.0.1",
   "description": "Type definitions for @platonic-dice/core",
   "license": "MIT",
   "types": "index.d.ts",
+  "exports": {
+    ".": "./index.d.ts",
+    "./core": "./core.d.ts",
+    "./entities": "./entities/index.d.ts"
+  },
   "files": [
     "index.d.ts",
     "core.d.ts",
@@ -19,7 +24,7 @@
     "entities"
   ],
   "peerDependencies": {
-    "@platonic-dice/core": "^3.0.0"
+    "@platonic-dice/core": "^3.0.1"
   },
   "scripts": {
     "test:types": "tsd"

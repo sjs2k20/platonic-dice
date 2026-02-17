@@ -45,7 +45,7 @@ jobs:
         run: pnpm --filter @platonic-dice/dice run build
 
       - name: Run core external type-surface tests
-        run: pnpm --filter @types/platonic-dice__core run test:types
+        run: pnpm --filter @platonic-dice/types-core run test:types
 
       # (debug steps removed)
 

@@ -1,4 +1,4 @@
-# @types/platonic-dice\_\_core
+# @platonic-dice/types-core
 
 Type definitions for @platonic-dice/core.
 
@@ -7,7 +7,7 @@ This package provides the TypeScript surface for the pure JS core package.
 Install alongside the runtime package:
 
 ```bash
-pnpm add @platonic-dice/core @types/platonic-dice__core
+pnpm add @platonic-dice/core @platonic-dice/types-core
 ```
 
 ## Type Testing
