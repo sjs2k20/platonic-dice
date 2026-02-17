@@ -1,6 +1,6 @@
 {
   "name": "@types/platonic-dice__core",
-  "version": "2.2.2",
+  "version": "3.0.0",
   "description": "Type definitions for @platonic-dice/core",
   "license": "MIT",
   "types": "index.d.ts",
@@ -19,7 +19,7 @@
     "entities"
   ],
   "peerDependencies": {
-    "@platonic-dice/core": "^2.2.2"
+    "@platonic-dice/core": "^3.0.0"
   },
   "scripts": {
     "test:types": "tsd"

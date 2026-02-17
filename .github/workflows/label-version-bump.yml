@@ -92,17 +92,24 @@ jobs:
       - name: Skip packages where package.json already changed in PR
         id: filter_pkgjson
         run: |
+          if [ ! -f affected.txt ]; then
+            echo "No affected package list found; skipping version bump."
+            : > remaining.txt
+            exit 0
+          fi
+
           REMAINING=()
           while read -r pkg; do
             if grep -q "^${pkg}/package.json$" pr-files.txt; then
               echo "${pkg} already has package.json changed in PR — skipping bump for this package."
-              gh pr comment ${{ github.event.pull_request.number }} --body "${pkg}: package.json already changed in this PR — automatic ${ { github.event.label.name } } bump skipped for that package." || true
+              gh pr comment ${{ github.event.pull_request.number }} --body "${pkg}: package.json already changed in this PR — automatic ${{ github.event.label.name }} bump skipped for that package." || true
             else
               REMAINING+=("$pkg")
             fi
           done < affected.txt
           if [ ${#REMAINING[@]} -eq 0 ]; then
             echo "All affected packages already contain package.json changes — nothing to do.";
+            : > remaining.txt
             exit 0
           fi
           printf '%s\n' "${REMAINING[@]}" > remaining.txt
@@ -114,6 +121,11 @@ jobs:
       - name: Bump versions (in-PR)
         id: do_bump
         run: |
+          if [ ! -s remaining.txt ]; then
+            echo "No packages to bump."
+            exit 0
+          fi
+
           LABEL=${{ github.event.label.name }}
           # normalize to patch/minor/major
           case "$LABEL" in
@@ -149,6 +161,11 @@ jobs:
           echo "Pushed version bump(s) to PR branch"
       - name: Comment on PR with bumped versions
         run: |
+          if [ ! -s remaining.txt ]; then
+            echo "No bumped packages to report."
+            exit 0
+          fi
+
           echo "Bumped packages in PR per label '${{ github.event.label.name }}'" > comment.md
           while read -r pkg; do
             VER=$(node -p "require('./${pkg}/package.json').version")

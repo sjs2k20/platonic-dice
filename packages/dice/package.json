@@ -43,10 +43,10 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@platonic-dice/core": "^2.2.2"
+    "@platonic-dice/core": "^3.0.0",
+    "@types/platonic-dice__core": "^3.0.0"
   },
   "devDependencies": {
-    "@types/platonic-dice__core": "workspace:*",
     "tsc-alias": "^1.8.16",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.9",

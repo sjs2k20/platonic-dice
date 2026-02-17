@@ -36,7 +36,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@platonic-dice/core": "^2.2.2",
+    "@platonic-dice/core": "^3.0.0",
     "@platonic-dice/dice": "^2.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
