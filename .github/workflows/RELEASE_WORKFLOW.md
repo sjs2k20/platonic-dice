@@ -154,7 +154,7 @@ git push origin dice-v2.1.1   # Publishes dice only
 
 - TypeScript checks run on all packages
 - Tag-targeted publishing runs:
-  - `core-vX.Y.Z` → publishes `@platonic-dice/core` and `@platonic-dice/types-core` (if versions match `X.Y.Z`)
+  - `core-vX.Y.Z` → publishes `@platonic-dice/core` only
   - `types-core-vX.Y.Z` → publishes `@platonic-dice/types-core` only
   - `dice-vX.Y.Z` → publishes `@platonic-dice/dice` only
 - GitHub Releases are created for each tag

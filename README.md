@@ -123,7 +123,7 @@ The workflow at `.github/workflows/publish.yml` publishes packages matching the 
 
 **Tag-targeted publishing behavior:**
 
-- `core-vX.Y.Z` targets `@platonic-dice/core` and `@platonic-dice/types-core`
+- `core-vX.Y.Z` targets `@platonic-dice/core` only
 - `types-core-vX.Y.Z` targets `@platonic-dice/types-core` only
 - `dice-vX.Y.Z` targets `@platonic-dice/dice` only
 
