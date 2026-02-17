@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   create-tags:
@@ -17,6 +18,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
       - name: Create tags for bumped packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -41,6 +44,8 @@ jobs:
                 git tag -a "$TAG" -m "release: $(basename $pkg) $NEW"
                 git push origin "$TAG"
                 echo "PUSHED: $TAG"
+                gh workflow run publish.yml -f tag_name="$TAG"
+                echo "DISPATCHED publish.yml for $TAG"
                 CREATED=1
               fi
             fi
