@@ -21,15 +21,15 @@ const basic = analyseModTest(DieType.D20, (n) => n + 5, {
 });
 
 console.log(
-  `Modified range: ${basic.modifiedRange.min}-${basic.modifiedRange.max}`
+  `Modified range: ${basic.modifiedRange.min}-${basic.modifiedRange.max}`,
 );
 console.log(
-  `Need to roll (base): ${basic.rollsByOutcome[Outcome.Success].join(", ")}`
+  `Need to roll (base): ${basic.rollsByOutcome[Outcome.Success].join(", ")}`,
 );
 console.log(
   `Success rate: ${(basic.outcomeProbabilities[Outcome.Success] * 100).toFixed(
-    1
-  )}%\n`
+    1,
+  )}%\n`,
 );
 
 // Example 2: Viewing modified values
@@ -57,16 +57,16 @@ const extended = analyseModTest(DieType.D6, (n) => n + 10, {
 
 console.log(`Base die range: 1-6`);
 console.log(
-  `Modified range: ${extended.modifiedRange.min}-${extended.modifiedRange.max}`
+  `Modified range: ${extended.modifiedRange.min}-${extended.modifiedRange.max}`,
 );
 console.log(`Target DC: 15 (within modified range!)`);
 console.log(
-  `Need to roll (base): ${extended.rollsByOutcome[Outcome.Success].join(", ")}`
+  `Need to roll (base): ${extended.rollsByOutcome[Outcome.Success].join(", ")}`,
 );
 console.log(
   `Success rate: ${(
     extended.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(1)}%\n`
+  ).toFixed(1)}%\n`,
 );
 
 // Example 4: Penalty modifier
@@ -77,15 +77,15 @@ const penalty = analyseModTest(DieType.D20, (n) => n - 3, {
 });
 
 console.log(
-  `Modified range: ${penalty.modifiedRange.min}-${penalty.modifiedRange.max}`
+  `Modified range: ${penalty.modifiedRange.min}-${penalty.modifiedRange.max}`,
 );
 console.log(
-  `Need base rolls: ${penalty.rollsByOutcome[Outcome.Success].join(", ")}`
+  `Need base rolls: ${penalty.rollsByOutcome[Outcome.Success].join(", ")}`,
 );
 console.log(
   `Success rate: ${(
     penalty.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(1)}%\n`
+  ).toFixed(1)}%\n`,
 );
 
 // Example 5: Comparing bonus effects
@@ -97,7 +97,7 @@ console.log("=== Comparing Bonus Effects (DC 15) ===");
   });
 
   const rate = (analysis.outcomeProbabilities[Outcome.Success] * 100).toFixed(
-    0
+    0,
   );
   console.log(`+${bonus} bonus: ${rate}% success`);
 });
@@ -109,13 +109,13 @@ function analyseProficiencyImpact(dc) {
   const withoutProf = analyseModTest(
     DieType.D20,
     (n) => n + 2, // Just ability modifier
-    { testType: TestType.AtLeast, target: dc }
+    { testType: TestType.AtLeast, target: dc },
   );
 
   const withProf = analyseModTest(
     DieType.D20,
     (n) => n + 5, // Ability + proficiency (+3)
-    { testType: TestType.AtLeast, target: dc }
+    { testType: TestType.AtLeast, target: dc },
   );
 
   const improvement =
@@ -127,12 +127,12 @@ function analyseProficiencyImpact(dc) {
   console.log(
     `  Without proficiency: ${(
       withoutProf.outcomeProbabilities[Outcome.Success] * 100
-    ).toFixed(0)}%`
+    ).toFixed(0)}%`,
   );
   console.log(
     `  With proficiency: ${(
       withProf.outcomeProbabilities[Outcome.Success] * 100
-    ).toFixed(0)}%`
+    ).toFixed(0)}%`,
   );
   console.log(`  Improvement: +${improvement.toFixed(0)} percentage points`);
 }
@@ -184,19 +184,19 @@ function shouldUseResource(currentMod, resourceMod, dc) {
   const withResource = analyseModTest(
     DieType.D20,
     (n) => n + currentMod + resourceMod,
-    { testType: TestType.AtLeast, target: dc }
+    { testType: TestType.AtLeast, target: dc },
   );
 
   console.log(`Against DC ${dc}:`);
   console.log(
     `  Current chance (+${currentMod}): ${(
       without.outcomeProbabilities[Outcome.Success] * 100
-    ).toFixed(0)}%`
+    ).toFixed(0)}%`,
   );
   console.log(
     `  With resource (+${currentMod + resourceMod}): ${(
       withResource.outcomeProbabilities[Outcome.Success] * 100
-    ).toFixed(0)}%`
+    ).toFixed(0)}%`,
   );
 
   const improvement =
@@ -212,15 +212,12 @@ const worthIt = shouldUseResource(3, 4, 18); // +3 current, +4 from Bless, DC 18
 console.log(
   `\nUse Bless? ${
     worthIt ? "Yes - significant improvement" : "Maybe not - marginal gain"
-  }\n`
+  }\n`,
 );
 
 // Example 9: RollModifier class usage
 console.log("=== Using RollModifier Class ===");
-const attackMod = new RollModifier(
-  (n) => n + 7,
-  "Attack Roll (+3 DEX, +4 Proficiency)"
-);
+const attackMod = new RollModifier((n) => n + 7);
 
 const attackAnalysis = analyseModTest(DieType.D20, attackMod, {
   testType: TestType.AtLeast,
@@ -228,12 +225,12 @@ const attackAnalysis = analyseModTest(DieType.D20, attackMod, {
 });
 
 console.log(
-  `Modified range: ${attackAnalysis.modifiedRange.min}-${attackAnalysis.modifiedRange.max}`
+  `Modified range: ${attackAnalysis.modifiedRange.min}-${attackAnalysis.modifiedRange.max}`,
 );
 console.log(
   `Success rate: ${(
     attackAnalysis.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(0)}%\n`
+  ).toFixed(0)}%\n`,
 );
 
 // Example 10: Capped modifier
@@ -249,8 +246,8 @@ capped.rolls.forEach((roll) => {
 });
 console.log(
   `Success rate: ${(capped.outcomeProbabilities[Outcome.Success] * 100).toFixed(
-    0
-  )}%\n`
+    0,
+  )}%\n`,
 );
 
 // Example 11: Advantage approximation
@@ -264,10 +261,10 @@ const flatBonus = analyseModTest(DieType.D20, (n) => n + 5, {
 console.log(
   `Flat +5 bonus against DC 15: ${(
     flatBonus.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(0)}%`
+  ).toFixed(0)}%`,
 );
 console.log(
-  `(Actual advantage would be slightly different due to reroll mechanics)\n`
+  `(Actual advantage would be slightly different due to reroll mechanics)\n`,
 );
 
 // Example 12: Multiple difficulty tiers with same modifier
@@ -285,7 +282,7 @@ const modifier = 5;
   });
 
   const rate = (analysis.outcomeProbabilities[Outcome.Success] * 100).toFixed(
-    0
+    0,
   );
   console.log(`${difficulty} (DC ${dc}): ${rate}%`);
 });
@@ -300,12 +297,12 @@ const exact = analyseModTest(DieType.D8, (n) => n + 5, {
 
 console.log(`Rolling for exactly 10 on D8+5:`);
 console.log(
-  `  Need base roll: ${exact.rollsByOutcome[Outcome.Success].join(", ")}`
+  `  Need base roll: ${exact.rollsByOutcome[Outcome.Success].join(", ")}`,
 );
 console.log(
   `  Probability: ${(exact.outcomeProbabilities[Outcome.Success] * 100).toFixed(
-    2
-  )}%\n`
+    2,
+  )}%\n`,
 );
 
 // Example 14: Range test with modifier
@@ -318,12 +315,12 @@ const range = analyseModTest(DieType.D20, (n) => n + 3, {
 
 console.log(`Rolling 15-18 on D20+3:`);
 console.log(
-  `  Need base rolls: ${range.rollsByOutcome[Outcome.Success].join(", ")}`
+  `  Need base rolls: ${range.rollsByOutcome[Outcome.Success].join(", ")}`,
 );
 console.log(
   `  Success rate: ${(
     range.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(1)}%\n`
+  ).toFixed(1)}%\n`,
 );
 
 // Example 15: Negative outcomes (impossible targets)
@@ -336,12 +333,12 @@ try {
 
   console.log(`D20+2 vs DC 25:`);
   console.log(
-    `  Modified range: ${impossible.modifiedRange.min}-${impossible.modifiedRange.max}`
+    `  Modified range: ${impossible.modifiedRange.min}-${impossible.modifiedRange.max}`,
   );
   console.log(
     `  Success rate: ${(
       impossible.outcomeProbabilities[Outcome.Success] * 100
-    ).toFixed(1)}%`
+    ).toFixed(1)}%`,
   );
 } catch (error) {
   console.log(`D20+2 vs DC 25:`);
@@ -362,25 +359,25 @@ console.log("D20+4 Skill Check (DC 18):");
 console.log(
   `  Critical Success (nat 20): ${(
     skillTest.outcomeProbabilities[Outcome.CriticalSuccess] * 100
-  ).toFixed(1)}%`
+  ).toFixed(1)}%`,
 );
 console.log(
   `  Success (18+): ${(
     skillTest.outcomeProbabilities[Outcome.Success] * 100
-  ).toFixed(1)}%`
+  ).toFixed(1)}%`,
 );
 console.log(
   `  Failure: ${(skillTest.outcomeProbabilities[Outcome.Failure] * 100).toFixed(
-    1
-  )}%`
+    1,
+  )}%`,
 );
 console.log(
   `  Critical Failure (nat 1): ${(
     skillTest.outcomeProbabilities[Outcome.CriticalFailure] * 100
-  ).toFixed(1)}%`
+  ).toFixed(1)}%`,
 );
 console.log(
   `\nBase rolls for success: ${skillTest.rollsByOutcome[Outcome.Success].join(
-    ", "
-  )}`
+    ", ",
+  )}`,
 );

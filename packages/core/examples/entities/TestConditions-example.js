@@ -20,11 +20,11 @@ console.log("=== Using TestConditions with rollTest ===");
 const conditions = new TestConditions(
   TestType.AtLeast,
   { target: 12 },
-  DieType.D20
+  DieType.D20,
 );
 const result = rollTest(DieType.D20, conditions);
 
-console.log(`Roll: ${result.roll}, Target: ${conditions.conditions.target}`);
+console.log(`Roll: ${result.base}, Target: ${conditions.conditions.target}`);
 console.log(`Outcome: ${result.outcome}\n`);
 
 // Example 3: Plain object vs class
@@ -34,16 +34,16 @@ const plainResult = rollTest(DieType.D20, {
   testType: TestType.AtLeast,
   target: 15,
 });
-console.log(`Plain object: ${plainResult.roll} → ${plainResult.outcome}`);
+console.log(`Plain object: ${plainResult.base} → ${plainResult.outcome}`);
 
 // Class instance
 const classConditions = new TestConditions(
   TestType.AtLeast,
   { target: 15 },
-  DieType.D20
+  DieType.D20,
 );
 const classResult = rollTest(DieType.D20, classConditions);
-console.log(`Class instance: ${classResult.roll} → ${classResult.outcome}`);
+console.log(`Class instance: ${classResult.base} → ${classResult.outcome}`);
 console.log("(Both work identically)\n");
 
 // Example 4: Different test types
@@ -51,7 +51,7 @@ console.log("=== Different Test Types ===");
 const atLeast = new TestConditions(
   TestType.AtLeast,
   { target: 15 },
-  DieType.D20
+  DieType.D20,
 );
 console.log(`AtLeast: target >= ${atLeast.conditions.target}`);
 
@@ -64,10 +64,10 @@ console.log(`Exact: target === ${exact.conditions.target}`);
 const within = new TestConditions(
   TestType.Within,
   { min: 8, max: 12 },
-  DieType.D20
+  DieType.D20,
 );
 console.log(
-  `Within: ${within.conditions.min} <= target <= ${within.conditions.max}\n`
+  `Within: ${within.conditions.min} <= target <= ${within.conditions.max}\n`,
 );
 
 // Example 5: Range test conditions
@@ -75,14 +75,14 @@ console.log("=== Range Test Conditions ===");
 const range = new TestConditions(
   TestType.Within,
   { min: 10, max: 15 },
-  DieType.D20
+  DieType.D20,
 );
 
 console.log(`Test type: ${range.testType}`);
-console.log(`Range: ${range.min}-${range.max}`);
+console.log(`Range: ${range.conditions.min}-${range.conditions.max}`);
 
 const rangeTest = rollTest(DieType.D20, range);
-console.log(`Roll: ${rangeTest.roll} → ${rangeTest.outcome}\n`);
+console.log(`Roll: ${rangeTest.base} → ${rangeTest.outcome}\n`);
 
 // Example 6: Reusable difficulty classes
 console.log("=== Reusable Difficulty Classes ===");
@@ -106,7 +106,7 @@ function createDifficultyCheck(playerLevel, baseDC) {
   return new TestConditions(
     TestType.AtLeast,
     { target: adjustedDC },
-    DieType.D20
+    DieType.D20,
   );
 }
 
@@ -117,7 +117,7 @@ const level10Check = createDifficultyCheck(10, 18);
 console.log(`Level 1: DC ${level1Check.conditions.target} (from base DC 18)`);
 console.log(`Level 5: DC ${level5Check.conditions.target} (from base DC 18)`);
 console.log(
-  `Level 10: DC ${level10Check.conditions.target} (from base DC 18)\n`
+  `Level 10: DC ${level10Check.conditions.target} (from base DC 18)\n`,
 );
 
 // Example 8: Combat system
@@ -128,7 +128,7 @@ class Enemy {
     this.attackConditions = new TestConditions(
       TestType.AtLeast,
       { target: ac },
-      DieType.D20
+      DieType.D20,
     );
   }
 
@@ -146,7 +146,7 @@ const enemies = [
 enemies.forEach((enemy) => {
   const attack = rollTest(DieType.D20, enemy.getAttackTest());
   console.log(
-    `${enemy.name} (AC ${enemy.attackConditions.target}): ${attack.roll} → ${attack.outcome}`
+    `${enemy.name} (AC ${enemy.attackConditions.conditions.target}): ${attack.base} → ${attack.outcome}`,
   );
 });
 console.log();
@@ -192,13 +192,13 @@ class ConditionBuilder {
 }
 
 const save = rollTest(DieType.D20, ConditionBuilder.dc(15));
-console.log(`DC 15 save: ${save.roll} → ${save.outcome}`);
+console.log(`DC 15 save: ${save.base} → ${save.outcome}`);
 
 const skill = rollTest(DieType.D20, ConditionBuilder.skillCheck(12));
-console.log(`Skill check (DC 12): ${skill.roll} → ${skill.outcome}`);
+console.log(`Skill check (DC 12): ${skill.base} → ${skill.outcome}`);
 
 const attack = rollTest(DieType.D20, ConditionBuilder.attackVs(16));
-console.log(`Attack (AC 16): ${attack.roll} → ${attack.outcome}\n`);
+console.log(`Attack (AC 16): ${attack.base} → ${attack.outcome}\n`);
 
 // Example 10: Skill check library
 console.log("=== Skill Check Library ===");
@@ -212,7 +212,7 @@ const skills = {
 Object.entries(skills).forEach(([skillName, conditions]) => {
   const check = rollTest(DieType.D20, conditions);
   console.log(
-    `${skillName} (DC ${conditions.conditions.target}): ${check.roll} → ${check.outcome}`
+    `${skillName} (DC ${conditions.conditions.target}): ${check.base} → ${check.outcome}`,
   );
 });
 console.log();
@@ -224,7 +224,7 @@ const d6Check = new TestConditions(TestType.AtLeast, { target: 4 }, DieType.D6);
 const d20Check = new TestConditions(
   TestType.AtLeast,
   { target: 15 },
-  DieType.D20
+  DieType.D20,
 );
 
 console.log(`D4 (target 3): ${rollTest(DieType.D4, d4Check).outcome}`);
@@ -242,7 +242,7 @@ const savingThrows = {
 Object.entries(savingThrows).forEach(([save, conditions]) => {
   const result = rollTest(DieType.D20, conditions);
   console.log(
-    `${save} (DC ${conditions.target}): ${result.roll} → ${result.outcome}`
+    `${save} (DC ${conditions.target}): ${result.base} → ${result.outcome}`,
   );
 });
 console.log();
@@ -261,12 +261,12 @@ console.log("=== Complete TestConditions Object ===");
 const complete = new TestConditions(
   TestType.Skill,
   { target: 14 },
-  DieType.D20
+  DieType.D20,
 );
 
 console.log("Properties:");
 console.log(`  testType: ${complete.testType}`);
 console.log(`  target: ${complete.conditions.target}`);
 console.log(`  dieType: ${complete.dieType}`);
-console.log(`  min: ${complete.min || "(not set)"}`);
-console.log(`  max: ${complete.max || "(not set)"}`);
+console.log(`  min: ${complete.conditions.min || "(not set)"}`);
+console.log(`  max: ${complete.conditions.max || "(not set)"}`);

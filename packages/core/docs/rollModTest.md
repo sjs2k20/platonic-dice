@@ -55,7 +55,7 @@ rollModTest(
 - **dieType**: The type of die to roll (`DieType.D4` through `DieType.D20`)
 - **modifier**: Function `(n) => number` or `RollModifier` instance to apply to the roll
 - **testConditions**: Either:
-  - A `TestConditions` or `ModifiedTestConditions` instance
+  - A `ModifiedTestConditions` instance
   - A plain object with `testType` and condition properties
 - **rollType** _(optional)_: `RollType.Advantage` or `RollType.Disadvantage`
 - **options** _(optional)_: Configuration object
@@ -198,7 +198,7 @@ const advantage = rollModTest(
   DieType.D20,
   (n) => n + 2,
   { testType: TestType.AtLeast, target: 15 },
-  RollType.Advantage
+  RollType.Advantage,
 );
 
 // Disadvantage: rolls twice, picks worse outcome
@@ -206,7 +206,7 @@ const disadvantage = rollModTest(
   DieType.D10,
   (n) => n - 3,
   { testType: TestType.AtMost, target: 5 },
-  RollType.Disadvantage
+  RollType.Disadvantage,
 );
 ```
 
@@ -227,7 +227,7 @@ const dexSave = rollModTest(
   DieType.D20,
   (n) => n + 3,
   { testType: TestType.AtLeast, target: 12 },
-  RollType.Advantage
+  RollType.Advantage,
 );
 ```
 
