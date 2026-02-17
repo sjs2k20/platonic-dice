@@ -19,7 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
       - uses: actions/setup-node@v4
         with: { node-version: "24" }
       - name: Detect changed packages (PR files)
@@ -37,8 +40,7 @@ jobs:
 
           # Keep @types package in sync with core for dependency-driven changes.
           if echo "$CHANGED" | grep -q "^packages/core/" && ! echo "$CHANGED" | grep -q "^packages/types-core/"; then
-            CHANGED="$CHANGED
-packages/types-core/.sync"
+            CHANGED="${CHANGED}"$'\n'"packages/types-core/.sync"
           fi
 
           UPDATED=false
