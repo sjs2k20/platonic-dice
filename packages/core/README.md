@@ -9,7 +9,7 @@ This package contains the pure logic used by higher-level packages (for example 
 Install from npm:
 
 ```bash
-npm install @platonic-dice/core @types/platonic-dice__core
+npm install @platonic-dice/core @platonic-dice/types-core
 ```
 
 ## Quick usage
@@ -71,7 +71,7 @@ npm test
 
 ### Type Testing
 
-Type definitions are provided by the separate `@types/platonic-dice__core` package. To test the type surface:
+Type definitions are provided by the separate `@platonic-dice/types-core` package. To test the type surface:
 
 ```bash
 cd packages/types-core

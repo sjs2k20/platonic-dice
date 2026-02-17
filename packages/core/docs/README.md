@@ -220,7 +220,7 @@ Current test coverage evolves over time; run `npm test` for current totals.
 
 ## TypeScript Support
 
-Type definitions are provided via the companion package `@types/platonic-dice__core`:
+Type definitions are provided via the companion package `@platonic-dice/types-core`:
 
 ```typescript
 import {

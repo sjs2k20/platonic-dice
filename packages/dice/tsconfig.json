@@ -6,7 +6,7 @@
     "rootDir": ".",
     "outDir": "dist",
     "isolatedModules": true,
-    "types": ["node", "vitest", "platonic-dice__core"],
+    "types": ["node", "vitest", "@platonic-dice/types-core"],
     "baseUrl": ".",
     "paths": {
       "@dice/*": ["src/*"]

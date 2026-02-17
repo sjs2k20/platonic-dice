@@ -3,7 +3,7 @@
 A monorepo containing dice-rolling packages and an interactive showcase:
 
 - `@platonic-dice/core` — pure JavaScript dice-roll logic, entities and utilities.
-- `@types/platonic-dice__core` — TypeScript declarations for `@platonic-dice/core`.
+- `@platonic-dice/types-core` — TypeScript declarations for `@platonic-dice/core`.
 - `@platonic-dice/dice` — higher-level persistent dice objects (history, validators, TypeScript types) built on `@platonic-dice/core`.
 - `@platonic-dice/ui` — React showcase application ([live demo](https://sjs2k20.github.io/platonic-dice/)) deployed to GitHub Pages.
 
@@ -18,7 +18,7 @@ Install a package from npm (after publishing):
 npm install @platonic-dice/core
 
 # core + types
-npm install @platonic-dice/core @types/platonic-dice__core
+npm install @platonic-dice/core @platonic-dice/types-core
 
 # dice
 npm install @platonic-dice/dice
@@ -123,8 +123,8 @@ The workflow at `.github/workflows/publish.yml` publishes packages matching the 
 
 **Tag-targeted publishing behavior:**
 
-- `core-vX.Y.Z` targets `@platonic-dice/core` and `@types/platonic-dice__core`
-- `types-core-vX.Y.Z` targets `@types/platonic-dice__core` only
+- `core-vX.Y.Z` targets `@platonic-dice/core` and `@platonic-dice/types-core`
+- `types-core-vX.Y.Z` targets `@platonic-dice/types-core` only
 - `dice-vX.Y.Z` targets `@platonic-dice/dice` only
 
 **Requirements:**
