@@ -23,8 +23,8 @@ const analyseModTest = require("./analyseModTest.js");
 const entities = require("./entities");
 
 /**
- * Attach named exports onto `exports` so TypeScript declaration emit
- * produces named exports rather than an `export =` wrapper.
+ * Attach named exports onto `exports` so consumers can access
+ * all helpers from the package root.
  */
 Object.assign(exports, roll);
 Object.assign(exports, rollDice);
@@ -39,3 +39,30 @@ Object.assign(exports, analyseModTest);
 
 // provide a `default` export for compatibility
 exports.default = exports;
+
+// Re-export all named exports explicitly for compatibility
+exports.DieType = entities.DieType;
+exports.isValidDieType = entities.isValidDieType;
+exports.Outcome = entities.Outcome;
+exports.isValidOutcome = entities.isValidOutcome;
+exports.RollType = entities.RollType;
+exports.isValidRollType = entities.isValidRollType;
+exports.TestType = entities.TestType;
+exports.isValidTestType = entities.isValidTestType;
+exports.RollModifier = entities.RollModifier;
+exports.isValidRollModifier = entities.isValidRollModifier;
+exports.normaliseRollModifier = entities.normaliseRollModifier;
+exports.TestConditions = entities.TestConditions;
+exports.areValidTestConditions = entities.areValidTestConditions;
+exports.normaliseTestConditions = entities.normaliseTestConditions;
+exports.TestConditionsArray = entities.TestConditionsArray;
+exports.DiceTestConditions = entities.DiceTestConditions;
+exports.ModifiedTestConditions = entities.ModifiedTestConditions;
+exports.areValidModifiedTestConditions =
+  entities.areValidModifiedTestConditions;
+exports.computeModifiedRange = entities.computeModifiedRange;
+exports.rollTest = rollTest.rollTest;
+exports.rollModTest = rollModTest.rollModTest;
+exports.rollDiceTest = rollDiceTest.rollDiceTest;
+exports.analyseTest = analyseTest.analyseTest;
+exports.analyseModTest = analyseModTest.analyseModTest;

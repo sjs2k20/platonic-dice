@@ -11,19 +11,16 @@ const { rollDice } = require("./rollDice.js");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
- * @typedef {import("./entities").ConditionsInput} ConditionsInput
- * @typedef {import("./entities").RollDiceTestOptions} RollDiceTestOptions
- * @typedef {import("./entities").DiceTestResult} DiceTestResult
  */
 
 /**
  * Roll multiple dice and evaluate them against provided conditions.
  *
  * @param {DieTypeValue} dieType
- * @param {ConditionsInput} conditions
- * @param {RollDiceTestOptions} [options={}]
+ * @param {import("./entities").DiceTestConditions|import("./entities/TestConditionsArray").TestConditionsArray|Array<import("./entities/TestConditions").TestConditionsLike>} conditions
+ * @param {{ count?: number, rules?: Array<{ type: "value_count"|"condition_count", value?: number, conditionIndex?: number, exact?: number, atLeast?: number, atMost?: number }>, useNaturalCrits?: boolean }} [options={}]
  *
- * @returns {{ base: { array: number[], sum: number }, result: DiceTestResult }}
+ * @returns {{ base: { array: number[], sum: number }, result: Object }}
  */
 function rollDiceTest(
   dieType,

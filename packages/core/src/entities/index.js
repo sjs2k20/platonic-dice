@@ -261,3 +261,5 @@ Object.defineProperty(exports, "isValidTestType", {
     return _isValidTestType;
   },
 });
+
+// Type exports are provided by @types/platonic-dice__core.
