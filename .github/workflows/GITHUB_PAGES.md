@@ -42,7 +42,7 @@ The `base` setting ensures all assets (JS, CSS, images) use correct paths when d
 
 ### Version Badge
 
-The UI displays a version badge (v0.0.1 - PREVIEW) to indicate it's not a finished version.
+The UI displays a version badge (v0.2.2 - PREVIEW) to indicate it's not a finished version.
 
 ## Manual Deployment
 

@@ -51,14 +51,14 @@ Update the version in each package's `package.json` **without creating git tags*
 
 ```bash
 # Update individual packages to different versions
-npm version 2.1.2 --prefix packages/core --no-git-tag-version
-npm version 2.1.1 --prefix packages/dice --no-git-tag-version
+npm version X.Y.Z --prefix packages/core --no-git-tag-version
+npm version A.B.C --prefix packages/dice --no-git-tag-version
 
 # Update dice's dependency on core if needed
-# Edit packages/dice/package.json: "@platonic-dice/core": "^2.1.2"
+# Edit packages/dice/package.json: "@platonic-dice/core": "^X.Y.Z"
 
 git add packages/*/package.json
-git commit -m "chore(release): bump core to 2.1.2, dice to 2.1.1"
+git commit -m "chore(release): bump core to X.Y.Z, dice to A.B.C"
 git push origin main
 ```
 
@@ -66,11 +66,11 @@ git push origin main
 
 ```bash
 # Update both packages to the same version
-npm version 2.2.0 --prefix packages/core --no-git-tag-version
-npm version 2.2.0 --prefix packages/dice --no-git-tag-version
+npm version X.Y.Z --prefix packages/core --no-git-tag-version
+npm version X.Y.Z --prefix packages/dice --no-git-tag-version
 
 git add packages/*/package.json
-git commit -m "chore(release): bump all packages to 2.2.0"
+git commit -m "chore(release): bump all packages to X.Y.Z"
 git push origin main
 ```
 
@@ -89,7 +89,7 @@ pnpm --filter @platonic-dice/dice run build
 # Verify core package contents
 cd packages/core
 npm pack --dry-run
-# Look for: dist/, dist-types.d.ts
+# Look for: dist/
 cd ../..
 
 # Verify dice package contents
@@ -100,8 +100,6 @@ cd ../..
 ```
 
 ### Step 4: Run Local Checks
-
-Run the same checks the CI will run:
 
 ```bash
 # TypeScript checks
@@ -123,26 +121,26 @@ Create package-specific annotated tags and push them:
 
 ```bash
 # Tag for core package
-git tag -a core-v2.1.2 -m "release: core v2.1.2 - fix rollModTest types"
+git tag -a core-vX.Y.Z -m "release: core vX.Y.Z"
 
 # Tag for dice package
-git tag -a dice-v2.1.1 -m "release: dice v2.1.1 - fix rollModTest usage"
+git tag -a dice-vA.B.C -m "release: dice vA.B.C"
 
 # Push both tags (triggers two separate workflow runs)
-git push origin core-v2.1.2 dice-v2.1.1
+git push origin core-vX.Y.Z dice-vA.B.C
 ```
 
 **Or push individually:**
 
 ```bash
-git push origin core-v2.1.2   # Publishes core only
-git push origin dice-v2.1.1   # Publishes dice only
+git push origin core-vX.Y.Z   # Publishes core only
+git push origin dice-vA.B.C   # Publishes dice only
 ```
 
 **Tag format rules:**
 
-- ✅ Use: `core-v2.1.2`, `dice-v2.1.1` (package-specific)
-- ❌ Don't use: `v2.1.2` (no package prefix — unsafe for monorepos)
+- ✅ Use: `core-vX.Y.Z`, `types-core-vX.Y.Z`, `dice-vX.Y.Z` (package-specific)
+- ❌ Don't use: `vX.Y.Z` (no package prefix — unsafe for monorepos)
 
 ### Step 6: Monitor the Workflow
 
@@ -169,11 +167,11 @@ mkdir /tmp/test-platonic && cd /tmp/test-platonic
 npm init -y
 
 # Test core
-npm i @platonic-dice/core@2.1.2
+npm i @platonic-dice/core@latest
 node -e "console.log(require('@platonic-dice/core'))"
 
 # Test dice
-npm i @platonic-dice/dice@2.1.1
+npm i @platonic-dice/dice@latest
 node -e "const { Die, DieType } = require('@platonic-dice/dice'); console.log(new Die(DieType.D20))"
 ```
 
@@ -243,10 +241,10 @@ See `.github/CI_CD.md` for full operational details and examples.
 
 ```bash
 # 1. Update versions
-npm version 2.1.2 --prefix packages/core --no-git-tag-version
-npm version 2.1.1 --prefix packages/dice --no-git-tag-version
+npm version X.Y.Z --prefix packages/core --no-git-tag-version
+npm version A.B.C --prefix packages/dice --no-git-tag-version
 git add packages/*/package.json
-git commit -m "chore(release): core 2.1.2, dice 2.1.1"
+git commit -m "chore(release): core X.Y.Z, dice A.B.C"
 git push origin main
 
 # 2. Build and verify
@@ -261,9 +259,9 @@ for dir in packages/*; do [ -f "$dir/tsconfig.json" ] && npx tsc -p "$dir/tsconf
 pnpm -r test --if-present
 
 # 4. Create and push tags
-git tag -a core-v2.1.2 -m "release: core v2.1.2"
-git tag -a dice-v2.1.1 -m "release: dice v2.1.1"
-git push origin core-v2.1.2 dice-v2.1.1
+git tag -a core-vX.Y.Z -m "release: core vX.Y.Z"
+git tag -a dice-vA.B.C -m "release: dice vA.B.C"
+git push origin core-vX.Y.Z dice-vA.B.C
 
 # 5. Monitor workflow and verify publication
 ```

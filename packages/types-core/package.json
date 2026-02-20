@@ -26,6 +26,7 @@
     "roll.d.ts",
     "rollDice.d.ts",
     "rollDiceMod.d.ts",
+    "rollDiceModTest.d.ts",
     "rollDiceTest.d.ts",
     "rollMod.d.ts",
     "rollModTest.d.ts",

@@ -41,22 +41,29 @@ pnpm -r test
 
 ### @platonic-dice/core
 
-- Exposes functions for rolling dice (`roll`, `rollDice`, `rollMod`, `rollTest`, `rollModTest`), enums (`DieType`, `RollType`, `TestType`, `Outcome`), and utilities.
-- **Version 2.1.0** adds `rollModTest()` for combining modifiers with test evaluation, and `analyseModTest()` for probability analysis.
+- Exposes functions for rolling dice (`roll`, `rollDice`, `rollMod`, `rollDiceMod`, `rollTest`, `rollModTest`, `rollDiceTest`, `rollDiceModTest`), enums (`DieType`, `RollType`, `TestType`, `Outcome`), and analysis helpers.
+- Current version: `3.0.2`.
 - Sources: `packages/core/src`
 - Entry: `packages/core/src/index.js`
+
+### @platonic-dice/types-core
+
+- TypeScript declarations for `@platonic-dice/core`.
+- Current version: `3.0.2`.
+- Sources: `packages/types-core`
+- Entry: `packages/types-core/index.d.ts`
 
 ### @platonic-dice/dice
 
 - Provides the `Die` class and history tooling which consumes `@platonic-dice/core`.
-- **Version 2.1.0** adds `Die.rollModTest()` method with separate history tracking for modified test rolls.
+- Current version: `2.3.2`.
 - Written in TypeScript; built output is `packages/dice/dist`.
 - Entry: `packages/dice/dist/index.js` (after build)
 
 ### @platonic-dice/ui
 
 - React showcase application demonstrating the dice packages.
-- **Version 0.0.1 (PREVIEW)** — not a finished product, for demo purposes.
+- **Version 0.2.2 (PREVIEW)** — not a finished product, for demo purposes.
 - Live demo: https://sjs2k20.github.io/platonic-dice/
 - Automatically deploys to GitHub Pages on pushes to `main`
 - See `.github/workflows/GITHUB_PAGES.md` for deployment details
@@ -66,12 +73,11 @@ pnpm -r test
 CommonJS (Node):
 
 ```js
-const { roll, rollModTest } = require("@platonic-dice/core");
+const { roll, rollModTest, rollDiceModTest } = require("@platonic-dice/core");
 const { Die } = require("@platonic-dice/dice");
 
 console.log(roll("d20"));
 
-// New in 2.1.0: combine modifier with test evaluation
 const result = rollModTest("d20", (n) => n + 5, {
   testType: "skill",
   target: 15,
@@ -89,12 +95,30 @@ const testResult = d.rollModTest((n) => n + 3, {
   target: 10,
 });
 console.log(`Result: ${testResult}`);
+
+const poolResult = rollDiceModTest(
+  "d6",
+  { each: (n) => n + 1, net: (sum) => sum + 2 },
+  [{ testType: "at_least", target: 5 }],
+  {
+    count: 4,
+    rules: [{ type: "condition_count", conditionIndex: 0, atLeast: 2 }],
+  },
+);
+console.log(
+  `Pool passed: ${poolResult.result.passed}, total: ${poolResult.modified.net.value}`,
+);
 ```
 
 TypeScript / ESM:
 
 ```ts
-import { roll, rollModTest, DieType } from "@platonic-dice/core";
+import {
+  roll,
+  rollModTest,
+  rollDiceModTest,
+  DieType,
+} from "@platonic-dice/core";
 import { Die } from "@platonic-dice/dice";
 
 console.log(roll(DieType.D20));
@@ -104,20 +128,30 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
   testType: "skill",
   target: 15,
 });
+
+const pool = rollDiceModTest(
+  DieType.D6,
+  { each: (n) => n + 1, net: (sum) => sum + 2 },
+  [{ testType: "at_least", target: 5 }],
+  {
+    count: 4,
+    rules: [{ type: "condition_count", conditionIndex: 0, atLeast: 2 }],
+  },
+);
 ```
 
 ## Publishing
 
-### npm Packages (core & dice)
+### npm Packages (core, types-core & dice)
 
 We publish packages by creating package-specific tags and letting GitHub Actions run the release workflow.
 
 **Quick process:**
 
-1. Bump package versions (e.g., `packages/core/package.json` to `2.1.2`)
-2. Commit: `git commit -m "chore(release): core 2.1.2"`
-3. Tag: `git tag -a core-v2.1.2 -m "release: core v2.1.2"`
-4. Push: `git push origin core-v2.1.2`
+1. Bump package versions (for example `packages/core/package.json` to `3.0.3`)
+2. Commit: `git commit -m "chore(release): core 3.0.3"`
+3. Tag: `git tag -a core-v3.0.3 -m "release: core v3.0.3"`
+4. Push: `git push origin core-v3.0.3`
 
 The workflow at `.github/workflows/publish.yml` publishes packages matching the tag version to npm. See `.github/workflows/RELEASE_WORKFLOW.md` for detailed instructions.
 

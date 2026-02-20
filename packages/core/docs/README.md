@@ -6,15 +6,16 @@ Complete documentation and examples for all exported modules.
 
 Rolling functions that return dice values and/or outcomes.
 
-| Function       | Description                                  | Documentation                             | Example                                                                 |
-| -------------- | -------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
-| `roll`         | Roll a single die                            | [docs/roll.md](./roll.md)                 | [examples/roll-example.js](../examples/roll-example.js)                 |
-| `rollDice`     | Roll multiple dice                           | [docs/rollDice.md](./rollDice.md)         | [examples/rollDice-example.js](../examples/rollDice-example.js)         |
-| `rollMod`      | Roll single die with modifier                | [docs/rollMod.md](./rollMod.md)           | [examples/rollMod-example.js](../examples/rollMod-example.js)           |
-| `rollDiceMod`  | Roll multiple dice with modifier             | [docs/rollDiceMod.md](./rollDiceMod.md)   | [examples/rollDiceMod-example.js](../examples/rollDiceMod-example.js)   |
-| `rollTest`     | Roll with test conditions                    | [docs/rollTest.md](./rollTest.md)         | [examples/rollTest-example.js](../examples/rollTest-example.js)         |
-| `rollModTest`  | Roll with modifier and test                  | [docs/rollModTest.md](./rollModTest.md)   | [examples/rollModTest-example.js](../examples/rollModTest-example.js)   |
-| `rollDiceTest` | Roll multiple dice with aggregate test rules | [docs/rollDiceTest.md](./rollDiceTest.md) | [examples/rollDiceTest-example.js](../examples/rollDiceTest-example.js) |
+| Function          | Description                                           | Documentation                                   | Example                                                                       |
+| ----------------- | ----------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| `roll`            | Roll a single die                                     | [docs/roll.md](./roll.md)                       | [examples/roll-example.js](../examples/roll-example.js)                       |
+| `rollDice`        | Roll multiple dice                                    | [docs/rollDice.md](./rollDice.md)               | [examples/rollDice-example.js](../examples/rollDice-example.js)               |
+| `rollMod`         | Roll single die with modifier                         | [docs/rollMod.md](./rollMod.md)                 | [examples/rollMod-example.js](../examples/rollMod-example.js)                 |
+| `rollDiceMod`     | Roll multiple dice with modifier                      | [docs/rollDiceMod.md](./rollDiceMod.md)         | [examples/rollDiceMod-example.js](../examples/rollDiceMod-example.js)         |
+| `rollTest`        | Roll with test conditions                             | [docs/rollTest.md](./rollTest.md)               | [examples/rollTest-example.js](../examples/rollTest-example.js)               |
+| `rollModTest`     | Roll with modifier and test                           | [docs/rollModTest.md](./rollModTest.md)         | [examples/rollModTest-example.js](../examples/rollModTest-example.js)         |
+| `rollDiceModTest` | Roll multiple dice with modifiers and aggregate tests | [docs/rollDiceModTest.md](./rollDiceModTest.md) | [examples/rollDiceModTest-example.js](../examples/rollDiceModTest-example.js) |
+| `rollDiceTest`    | Roll multiple dice with aggregate test rules          | [docs/rollDiceTest.md](./rollDiceTest.md)       | [examples/rollDiceTest-example.js](../examples/rollDiceTest-example.js)       |
 
 ## Analysis Functions
 
@@ -105,6 +106,7 @@ node examples/roll-example.js
 node examples/rollDice-example.js
 node examples/rollMod-example.js
 node examples/rollDiceMod-example.js
+node examples/rollDiceModTest-example.js
 node examples/rollTest-example.js
 node examples/rollModTest-example.js
 node examples/rollDiceTest-example.js
