@@ -1,76 +1,49 @@
-import {
-  DieTypeValue,
-  RollModifierInstance,
-  RollModifierFunction,
-  DiceModifier,
-} from "./entities";
-import { RollDiceResult } from "./rollDice";
-
+export type DieTypeValue = import("./entities/DieType").DieTypeValue;
+export type RollModifierFunction = import("./entities/RollModifier").RollModifierFunction;
+export type RollModifierInstance = import("./entities/RollModifier").RollModifierInstance;
+export type DiceModifier = import("./entities/RollModifier").DiceModifier;
+export type RollModifierLike = import("./entities/RollModifier").RollModifierLike;
 /**
- * A modifier for `rollDiceMod`.
- * Can be:
- * - a single RollModifierFunction `(n: number) => number`
- * - a RollModifier instance
- * - an object with optional `each` and `net` modifiers
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("./entities/RollModifier").RollModifierFunction} RollModifierFunction
+ * @typedef {import("./entities/RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./entities/RollModifier").DiceModifier} DiceModifier
+ * @typedef {import("./entities/RollModifier").RollModifierLike} RollModifierLike
  */
-export type RollDiceModModifier =
-  | RollModifierInstance
-  | RollModifierFunction
-  | DiceModifier;
-
 /**
- * Result structure for `rollDiceMod`.
- */
-export interface RollDiceModResult {
-  /** Raw roll results */
-  base: RollDiceResult;
-  /** Modified results after applying `each` and `net` modifiers */
-  modified: {
-    each: RollDiceResult;
-    net: { value: number };
-  };
-}
-
-/**
- * Rolls multiple dice with optional per-die (`each`) and total (`net`) modifiers.
+ * Rolls multiple dice with optional per-die (`each`) and net (`net`) modifiers.
  *
- * @param dieType - Type of die to roll.
- * @param modifier - Optional modifier(s) to apply.
- * @param options - Optional options object.
- * @param options.count - Number of dice to roll. Defaults to 1.
- * @returns Structured object containing raw and modified roll results.
- * @throws TypeError if count or modifiers are invalid.
+ * @function rollDiceMod
+ * @param {DieTypeValue} dieType - The die type (e.g., `DieType.D6`).
+ * @param {RollModifierLike} [modifier={}] - The modifier(s) to apply.
+ * @param {{ count?: number }} [options={}] - Optional roll count (default: 1).
+ * @returns {{
+ *   base: { array: number[], sum: number },
+ *   modified: { each: { array: number[], sum: number }, net: { value: number } }
+ * }}
+ * @throws {TypeError} If `count` is invalid.
+ * @throws {TypeError} If any modifier is invalid.
  */
-export declare function rollDiceMod(
-  dieType: DieTypeValue,
-  modifier?: RollDiceModModifier,
-  options?: { count?: number }
-): RollDiceModResult;
-
-/**
- * Convenience alias returning only the per-die modified array (`modified.each.array`).
- *
- * @param dieType - Type of die to roll.
- * @param modifier - Optional modifier(s) to apply.
- * @param options - Optional options object.
- * @returns Array of per-die modified results.
- */
-export declare function rollDiceModArr(
-  dieType: DieTypeValue,
-  modifier?: RollDiceModModifier,
-  options?: { count?: number }
-): number[];
-
-/**
- * Convenience alias returning only the total net value (`modified.net.value`).
- *
- * @param dieType - Type of die to roll.
- * @param modifier - Optional modifier(s) to apply.
- * @param options - Optional options object.
- * @returns The total net modified value.
- */
-export declare function rollDiceModNet(
-  dieType: DieTypeValue,
-  modifier?: RollDiceModModifier,
-  options?: { count?: number }
-): number[];
+export function rollDiceMod(dieType: DieTypeValue, modifier?: RollModifierLike, { count }?: {
+    count?: number;
+}): {
+    base: {
+        array: number[];
+        sum: number;
+    };
+    modified: {
+        each: {
+            array: number[];
+            sum: number;
+        };
+        net: {
+            value: number;
+        };
+    };
+};
+export const rollDiceModArr: (dieType: DieTypeValue, modifier?: RollModifierLike, options?: {
+    count?: number;
+}) => number[];
+export const rollDiceModNet: (dieType: DieTypeValue, modifier?: RollModifierLike, options?: {
+    count?: number;
+}) => number;

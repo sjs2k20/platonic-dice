@@ -1,38 +1,72 @@
+export type DieTypeValue = import("./entities/DieType").DieTypeValue;
+export type OutcomeValue = import("./entities/Outcome").OutcomeValue;
+export type RollTypeValue = import("./entities/RollType").RollTypeValue;
+export type RollModifierLike = import("./entities/RollModifier").RollModifierLike;
+export type TestTypeValue = import("./entities/TestType").TestTypeValue;
+export type TestConditionsInstance = import("./entities/TestConditions").TestConditionsInstance;
 /**
- * @module @platonic-dice/core/src/rollModTest
+ * Rolls a die with a modifier and evaluates the modified result against test conditions.
  */
-
-import type { DieTypeValue } from "./entities/DieType";
-import type { OutcomeValue } from "./entities/Outcome";
-import type { RollTypeValue } from "./entities/RollType";
-import type { TestTypeValue } from "./entities/TestType";
-import type {
-  RollModifierFunction,
-  RollModifierInstance,
-} from "./entities/RollModifier";
-import type { TestConditionsInstance } from "./entities/TestConditions";
-
+export type TestConditionsLike = import("./entities/TestConditions").TestConditionsLike;
 /**
  * Rolls a die with a modifier and evaluates the modified result against test conditions.
  *
- * @param dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param modifier - The modifier to apply to the roll.
- * @param testConditions - Test conditions (instance or plain object).
- * @param rollType - Optional roll mode (Advantage/Disadvantage).
- * @param options - Optional configuration for natural crit behavior.
- * @returns Object containing base roll, modified value, and outcome.
- * @throws {TypeError} If inputs are invalid.
+ * @function rollModTest
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
+ * @param {RollModifierLike} modifier - The modifier to apply to the roll.
+ *   Can be either:
+ *   - A function `(n: number) => number`
+ *   - A {@link RollModifier} instance
+ * @typedef {import("./entities/TestConditions").TestConditionsLike} TestConditionsLike
+ * @param {TestConditionsLike} testConditions
+ *   Can be:
+ *   - A `TestConditions` instance
+ *   - A plain object `{ testType, ...conditions }`
+ * @param {RollTypeValue} [rollType=undefined] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @param {Object} [options={}] - Optional configuration.
+ * @param {boolean} [options.useNaturalCrits] - If true, natural max/min rolls on the die trigger
+ *   critical success/failure (for Skill tests) or success/failure (for other test types).
+ *   If undefined, defaults to true for Skill test type and false for all others.
+ * @returns {{ base: number, modified: number, outcome: OutcomeValue }}
+ *   - `base`: The raw die roll
+ *   - `modified`: The roll after applying the modifier
+ *   - `outcome`: The success/failure result based on test conditions
+ * @throws {TypeError} If `dieType`, `modifier`, or `testConditions` are invalid.
+ *
+ * @example
+ * const result = rollModTest(
+ *   DieType.D20,
+ *   (n) => n + 2,
+ *   { testType: TestType.AtLeast, target: 15 }
+ * );
+ * console.log(result); // { base: 14, modified: 16, outcome: "success" }
+ *
+ * @example
+ * // With natural crits enabled (TTRPG style)
+ * const result = rollModTest(
+ *   DieType.D20,
+ *   (n) => n + 5,
+ *   { testType: TestType.Skill, target: 15, critical_success: 25, critical_failure: 2 },
+ *   undefined,
+ *   { useNaturalCrits: true }
+ * );
+ * // If base roll is 20, outcome is always "critical_success"
+ * // If base roll is 1, outcome is always "critical_failure"
+ *
+ * @example
+ * // With advantage - compares outcomes, not just base rolls
+ * const result = rollModTest(
+ *   DieType.D20,
+ *   (n) => n + 3,
+ *   { testType: TestType.Skill, target: 12, critical_success: 20, critical_failure: 1 },
+ *   RollType.Advantage
+ * );
+ * // Rolls twice, returns the result with the better outcome
  */
-export function rollModTest(
-  dieType: DieTypeValue,
-  modifier: RollModifierFunction | RollModifierInstance,
-  testConditions:
-    | TestConditionsInstance
-    | import("./entities/TestConditions").TestConditionsLike,
-  rollType?: RollTypeValue,
-  options?: { useNaturalCrits?: boolean },
-): {
-  base: number;
-  modified: number;
-  outcome: OutcomeValue;
+export function rollModTest(dieType: DieTypeValue, modifier: RollModifierLike, testConditions: TestConditionsLike, rollType?: RollTypeValue, options?: {
+    useNaturalCrits?: boolean | undefined;
+}): {
+    base: number;
+    modified: number;
+    outcome: OutcomeValue;
 };

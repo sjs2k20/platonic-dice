@@ -1,109 +1,96 @@
+export type TestTypeValue = import("./TestType").TestTypeValue;
+export type DieTypeValue = import("./DieType").DieTypeValue;
+export type RollModifierFunction = import("./RollModifier").RollModifierFunction;
+export type RollModifierInstance = import("./RollModifier").RollModifierInstance;
+export type RollModifierLike = import("./RollModifier").RollModifierLike;
+export type Conditions = import("../utils/testValidators").Conditions;
+export type PlainObject = import("../utils/testValidators").PlainObject;
+export type ModifiedBaseTestCondition = {
+    modifiedRange: {
+        min: number;
+        max: number;
+    };
+};
+export type ModifiedTargetConditions = ModifiedBaseTestCondition & {
+    target: number;
+};
+export type ModifiedWithinConditions = ModifiedBaseTestCondition & {
+    min: number;
+    max: number;
+};
+export type ModifiedSpecificListConditions = ModifiedBaseTestCondition & {
+    values: number[];
+};
+export type ModifiedSkillConditions = ModifiedBaseTestCondition & {
+    target: number;
+    critical_success?: number;
+    critical_failure?: number;
+};
+export type ModifiedConditions = ModifiedTargetConditions | ModifiedSkillConditions | ModifiedWithinConditions | ModifiedSpecificListConditions;
+export type ModifiedTestConditionsInstance = InstanceType<typeof ModifiedTestConditions>;
 /**
- * @module @platonic-dice/core/src/entities/ModifiedTestConditions
- */
-
-import type { DieTypeValue } from "./DieType";
-import type { TestTypeValue } from "./TestType";
-import type {
-  RollModifierFunction,
-  RollModifierInstance,
-} from "./RollModifier";
-
-/**
- * Represents test conditions for modified rolls, where the achievable range
- * is determined by both the base die type and the applied modifier.
+ * Represents a set of validated test conditions for modified rolls.
  *
- * Unlike {@link TestConditions}, this class validates targets against the
- * **modified range** rather than just the base die faces.
+ * This class is similar to {@link TestConditions} but validates numeric
+ * targets against the achievable range after applying a modifier.
  */
 export class ModifiedTestConditions {
-  testType: TestTypeValue;
-  conditions: Conditions;
-  dieType: DieTypeValue;
-  modifier: RollModifierInstance;
-  modifiedRange: { min: number; max: number };
-
-  /**
-   * @param testType - The test type.
-   * @param conditions - The test conditions object.
-   * @param dieType - The base die type.
-   * @param modifier - The modifier to apply.
-   * @throws {TypeError|RangeError} If the test type or conditions are invalid.
-   */
-  constructor(
-    testType: TestTypeValue,
-    conditions: Conditions,
-    dieType: DieTypeValue,
-    modifier: RollModifierFunction | RollModifierInstance
-  );
-
-  /**
-   * Validates that the test conditions still conform to spec.
-   * @throws {TypeError} If the test conditions are invalid.
-   */
-  validate(): void;
+    /**
+     * @param {TestTypeValue} testType - The test type.
+     * @param {Conditions} conditions - The test conditions object.
+     * @param {DieTypeValue} dieType - The base die type.
+     * @param {RollModifierLike} modifier - The modifier to apply.
+     * @throws {TypeError|RangeError} If the test type or conditions are invalid.
+     */
+    constructor(testType: TestTypeValue, conditions: Conditions, dieType: DieTypeValue, modifier: RollModifierLike);
+    /** @type {TestTypeValue} */
+    testType: TestTypeValue;
+    /** @type {Conditions} */
+    conditions: Conditions;
+    /** @type {DieTypeValue} */
+    dieType: DieTypeValue;
+    /** @type {RollModifierInstance} */
+    modifier: RollModifierInstance;
+    /** @type {{ min: number, max: number }} */
+    modifiedRange: {
+        min: number;
+        max: number;
+    };
+    /**
+     * Validates that the test conditions still conform to spec.
+     * @throws {TypeError} If the test conditions are invalid.
+     */
+    validate(): void;
 }
-
 /**
  * Validates test conditions against a modified range.
  *
- * @param c - Conditions with modifiedRange
- * @param testType - The test type
- * @returns `true` if valid, otherwise `false`
+ * @private
+ * @param {ModifiedConditions & PlainObject} c - Conditions with modifiedRange
+ * @param {TestTypeValue} testType
+ * @returns {boolean}
  */
-export function areValidModifiedTestConditions(
-  c: Record<string, any>,
-  testType: TestTypeValue
-): boolean;
-
+export function areValidModifiedTestConditions(c: ModifiedConditions & PlainObject, testType: TestTypeValue): boolean;
+/**
+ * @typedef {import("./TestType").TestTypeValue} TestTypeValue
+ * @typedef {import("./DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("./RollModifier").RollModifierFunction} RollModifierFunction
+ * @typedef {import("./RollModifier").RollModifierInstance} RollModifierInstance
+ * @typedef {import("./RollModifier").RollModifierLike} RollModifierLike
+ */
+/**
+ * @typedef {import("../utils/testValidators").Conditions} Conditions
+ * @typedef {import("../utils/testValidators").PlainObject} PlainObject
+ */
 /**
  * Computes the achievable range for a die + modifier combination.
  *
- * @param dieType - The base die type
- * @param modifier - The modifier instance
- * @returns The min and max achievable values
+ * @private
+ * @param {DieTypeValue} dieType
+ * @param {RollModifierInstance} modifier
+ * @returns {{ min: number, max: number }}
  */
-export function computeModifiedRange(
-  dieType: DieTypeValue,
-  modifier: RollModifierInstance
-): { min: number; max: number };
-
-/** Base test condition structure */
-export interface BaseTestCondition {
-  modifiedRange: { min: number; max: number };
-}
-
-/** Target-based conditions (AtLeast, AtMost, Exact) */
-export interface TargetConditions extends BaseTestCondition {
-  target: number;
-}
-
-/** Range-based conditions (Within) */
-export interface WithinConditions extends BaseTestCondition {
-  min: number;
-  max: number;
-}
-
-/** List-based conditions (InList) */
-export interface SpecificListConditions extends BaseTestCondition {
-  values: number[];
-}
-
-/** Skill test conditions with optional critical thresholds */
-export interface SkillConditions extends BaseTestCondition {
-  target: number;
-  critical_success?: number;
-  critical_failure?: number;
-}
-
-/** Union of all possible condition types */
-export type Conditions =
-  | TargetConditions
-  | SkillConditions
-  | WithinConditions
-  | SpecificListConditions;
-
-/** Instance type of ModifiedTestConditions */
-export type ModifiedTestConditionsInstance = InstanceType<
-  typeof ModifiedTestConditions
->;
+export function computeModifiedRange(dieType: DieTypeValue, modifier: RollModifierInstance): {
+    min: number;
+    max: number;
+};

@@ -1,109 +1,86 @@
-import { DieTypeValue, TestTypeValue } from "./index";
-
+export type TestTypeValue = import("./TestType").TestTypeValue;
+export type DieTypeValue = import("./DieType").DieTypeValue;
+export type Conditions = import("../utils/testValidators").Conditions;
+export type ConditionsLike = import("../utils/testValidators").ConditionsLike;
 /**
- * Represents a set of validated conditions for a dice roll test.
+ * A public 'like' type for test conditions accepted by many APIs.
+ * - Either a fully constructed `TestConditions` instance, or a plain
+ *   object containing at minimum a `testType` property and other condition
+ *   fields. We reuse `PlainObject` from `testValidators` for the plain case.
+ */
+export type TestConditionsLike = InstanceType<typeof TestConditions> | ({
+    testType: TestTypeValue;
+} & import("../utils/testValidators").PlainObject);
+export type TestConditionsInstance = InstanceType<typeof TestConditions>;
+/**
+ * @typedef {import("./TestType").TestTypeValue} TestTypeValue
+ * @typedef {import("./DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("../utils/testValidators").Conditions} Conditions
+ * @typedef {import("../utils/testValidators").ConditionsLike} ConditionsLike
+ */
+/**
+ * A public 'like' type for test conditions accepted by many APIs.
+ * - Either a fully constructed `TestConditions` instance, or a plain
+ *   object containing at minimum a `testType` property and other condition
+ *   fields. We reuse `PlainObject` from `testValidators` for the plain case.
  *
- * The constructor guarantees that:
- * - `testType` is valid
- * - `conditions` is one of the allowed condition shapes
- * - numeric ranges match the provided die type
+ * @typedef {InstanceType<typeof TestConditions>|({ testType: TestTypeValue } & import("../utils/testValidators").PlainObject)} TestConditionsLike
+ */
+/**
+ * Represents a set of conditions for a dice roll test.
  */
 export class TestConditions {
-  constructor(
-    testType: TestTypeValue,
-    conditions: Conditions,
-    dieType: DieTypeValue
-  );
-
-  /** The type of test (e.g., `"at_least"`, `"within"`, `"skill"`). */
-  testType: TestTypeValue;
-
-  /** The validated condition object. */
-  conditions: Conditions;
-
-  /** The die type associated with the test (e.g., `"d20"`). */
-  dieType: DieTypeValue;
-
-  /**
-   * Re-validates the stored conditions.
-   * Useful after loading from JSON or dynamic sources.
-   */
-  validate(): void;
+    /**
+     * @param {TestTypeValue} testType - The test type.
+     * @param {Conditions} conditions - The test conditions object.
+     * @param {DieTypeValue} dieType - The die type to validate numeric ranges.
+     * @throws {TypeError|RangeError} If the test type or conditions are invalid.
+     */
+    constructor(testType: TestTypeValue, conditions: Conditions, dieType: DieTypeValue);
+    /** @type {TestTypeValue} */
+    testType: TestTypeValue;
+    /** @type {Conditions} */
+    conditions: Conditions;
+    /** @type {DieTypeValue} */
+    dieType: DieTypeValue;
+    /**
+     * Validates that the test conditions still conforms to spec.
+     * (Useful if they are loaded dynamically or serialised.)
+     * @throws {TypeError} If the test conditions are invalid.
+     */
+    validate(): void;
 }
-
 /**
- * Validates a raw condition object against a given test type.
+ * Master validation function for all test conditions.
+ *
+ * @function areValidTestConditions
+ * @param {Conditions} c
+ * @param {TestTypeValue} testType
+ * @returns {boolean}
  */
-export function areValidTestConditions(
-  c: Record<string, any>,
-  testType: TestTypeValue
-): boolean;
-
+export function areValidTestConditions(c: Conditions, testType: TestTypeValue): boolean;
 /**
  * Normalises any input into a {@link TestConditions} instance.
+ * Supports both pre-existing instances and plain objects.
+ * Automatically validates all conditions for the specified die type.
  *
- * Supports:
- * - An existing TestConditions instance → returned unchanged
- * - A plain object → converted to a TestConditions instance
+ * @function normaliseTestConditions
+ * @param {TestConditions | TestConditionsLike} tc
+ *   A {@link TestConditions} instance or plain object with `testType` and other fields.
+ * @param {DieTypeValue} dieType
+ *   The die type (e.g., `'d6'`, `'d20'`) used for validation.
+ * @returns {TestConditions}
+ *   A validated {@link TestConditions} instance.
+ * @throws {TypeError}
+ *   If the input is neither a TestConditions instance nor a plain object.
+ *
+ * @example
+ * // Passing a plain object
+ * const conditions = normaliseTestConditions({ testType: 'atLeast', target: 4 }, 'd6');
+ *
+ * @example
+ * // Passing an existing TestConditions instance
+ * const existing = new TestConditions('exact', { target: 3 }, 'd6');
+ * const conditions2 = normaliseTestConditions(existing, 'd6');
  */
-export function normaliseTestConditions(
-  tc: TestConditions | { testType: TestTypeValue; [key: string]: any },
-  dieType: DieTypeValue
-): TestConditions;
-
-/* ------------------------------------------------------------------------- */
-/* Internal condition shapes (now accurate to JS and undefined-only policy)  */
-/* ------------------------------------------------------------------------- */
-
-interface BaseTestCondition {
-  dieType: DieTypeValue;
-}
-
-/** target: number */
-export interface TargetConditions extends BaseTestCondition {
-  target: number;
-}
-
-/** target: number + optional critical thresholds */
-export interface SkillConditions extends BaseTestCondition {
-  target: number;
-  critical_success?: number; // optional, undefined if omitted
-  critical_failure?: number; // optional, undefined if omitted
-}
-
-/** min/max inclusive */
-export interface WithinConditions extends BaseTestCondition {
-  min: number;
-  max: number;
-}
-
-/** values: non-empty array */
-export interface SpecificListConditions extends BaseTestCondition {
-  values: number[];
-}
-
-/**
- * Public union of all supported test condition shapes.
- */
-export type Conditions =
-  | TargetConditions
-  | SkillConditions
-  | WithinConditions
-  | SpecificListConditions;
-
-/** Alias for instances of {@link TestConditions}. */
-export type TestConditionsInstance = InstanceType<typeof TestConditions>;
-
-/**
- * Public union accepted by normalisation helpers: either a
- * {@link TestConditions} instance or a plain object with a `testType`
- * property and other condition fields.
- */
-export type TestConditionsLike =
-  | TestConditions
-  | { testType: TestTypeValue; [key: string]: any };
-
-export function normaliseTestConditions(
-  tc: TestConditions | TestConditionsLike,
-  dieType: DieTypeValue
-): TestConditions;
+export function normaliseTestConditions(tc: TestConditions | TestConditionsLike, dieType: DieTypeValue): TestConditions;

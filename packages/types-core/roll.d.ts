@@ -1,82 +1,65 @@
-import { DieTypeValue, RollTypeValue } from "./entities";
-
+export type DieTypeValue = import("./entities/DieType").DieTypeValue;
+export type RollTypeValue = import("./entities/RollType").RollTypeValue;
 /**
- * Rolls a single die of the specified type, optionally with advantage or disadvantage.
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
+ * @typedef {import("./entities/RollType").RollTypeValue} RollTypeValue
+ */
+/**
+ * Rolls a single die of the specified type, optionally applying advantage or disadvantage.
  *
- * @param dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param rollType - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
- * @returns The rolled value (an integer between 1 and the die's maximum face).
- * @throws {TypeError} If the provided `dieType` or `rollType` is invalid.
+ * @function roll
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D20`).
+ * @param {RollTypeValue | undefined} [rollType=undefined] - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
+ * @returns {number} The rolled value (integer between 1 and the die's maximum face).
+ * @throws {TypeError} If `dieType` or `rollType` are invalid.
  *
  * @example
- * ```ts
- * import { roll, DieType, RollType } from "@platonic-dice/core";
- *
- * const normal = roll(DieType.D20);
- * const adv = roll(DieType.D20, RollType.Advantage);
- * const dis = roll(DieType.D20, RollType.Disadvantage);
- * ```
+ * const result = roll(DieType.D20, RollType.Advantage);
  */
-export function roll(dieType: DieTypeValue, rollType?: RollTypeValue): number;
-
+export function roll(dieType: DieTypeValue, rollType?: RollTypeValue | undefined): number;
 /**
  * Rolls a die with advantage.
- *
- * @param dieType - The die type (e.g., `DieType.D10`).
- * @returns The higher of two rolled values.
+ * @type {(dieType: DieTypeValue) => number}
  *
  * @example
- * ```ts
- * const high = rollAdv(DieType.D10);
- * ```
+ * const result = rollAdv(DieType.D10);
  */
-export function rollAdv(dieType: DieTypeValue): number;
-
+export const rollAdv: (dieType: DieTypeValue) => number;
 /**
  * Rolls a die with disadvantage.
- *
- * @param dieType - The die type (e.g., `DieType.D10`).
- * @returns The lower of two rolled values.
+ * @type {(dieType: DieTypeValue) => number}
  *
  * @example
- * ```ts
- * const low = rollDis(DieType.D10);
- * ```
+ * const result = rollDis(DieType.D10);
  */
-export function rollDis(dieType: DieTypeValue): number;
-
+export const rollDis: (dieType: DieTypeValue) => number;
 /**
  * Rolls a D4 die.
- * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-export function rollD4(rollType?: RollTypeValue): number;
-
+export const rollD4: (rollType?: RollTypeValue | undefined) => number;
 /**
  * Rolls a D6 die.
- * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-export function rollD6(rollType?: RollTypeValue): number;
-
+export const rollD6: (rollType?: RollTypeValue | undefined) => number;
 /**
  * Rolls a D8 die.
- * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-export function rollD8(rollType?: RollTypeValue): number;
-
+export const rollD8: (rollType?: RollTypeValue | undefined) => number;
 /**
  * Rolls a D10 die.
- * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-export function rollD10(rollType?: RollTypeValue): number;
-
+export const rollD10: (rollType?: RollTypeValue | undefined) => number;
 /**
  * Rolls a D12 die.
- * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-export function rollD12(rollType?: RollTypeValue): number;
-
+export const rollD12: (rollType?: RollTypeValue | undefined) => number;
 /**
  * Rolls a D20 die.
- * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
+ * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-export function rollD20(rollType?: RollTypeValue): number;
+export const rollD20: (rollType?: RollTypeValue | undefined) => number;

@@ -1,49 +1,47 @@
-import { DieTypeValue } from "./entities";
-
-/**
- * Result of rolling one or more dice.
- */
-export interface RollDiceResult {
-  /** Array of individual dice results */
-  array: number[];
-  /** Total sum of all rolled dice */
-  sum: number;
+declare namespace _exports {
+    export { DieTypeValue, RollDiceAlias };
 }
-
-/**
- * Rolls one or more dice of a given type.
- *
- * @param dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
- * @param options - Optional configuration.
- * @param options.count - Number of dice to roll. Defaults to 1. Must be a positive integer.
- * @returns Object containing `array` of individual rolls and `sum` of all rolls.
- * @throws TypeError if `dieType` is invalid or `count` is not a positive integer.
- */
-export declare function rollDice(
-  dieType: DieTypeValue,
-  options?: { count?: number }
-): RollDiceResult;
-
-/**
- * Convenience type for die-count-specific aliases.
- * Each function returns the same result as `rollDice`, with preconfigured `count`.
- */
-export type RollDiceAlias = (dieType: DieTypeValue) => RollDiceResult;
-
-/**
- * Dynamically generated convenience aliases for rolling N dice at once.
- *
- * Examples:
- * - roll2x(D6) → rolls 2 dice
- * - roll3x(D20) → rolls 3 dice
- * - roll100x(D6) → rolls 100 dice
- */
-export declare const rollDiceAliases: Record<string, RollDiceAlias>;
-
-/**
- * Full module exports including `rollDice` and all generated aliases.
- */
-export interface RollDiceExports {
-  rollDice: typeof rollDice;
-  [alias: string]: RollDiceAlias | typeof rollDice;
+declare namespace _exports {
+    export { rollDice };
 }
+export = _exports;
+type DieTypeValue = import("./entities/DieType").DieTypeValue;
+type RollDiceAlias = (dieType: import("./entities/DieType").DieTypeValue) => {
+    array: number[];
+    sum: number;
+};
+/**
+ * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
+ */
+/**
+ * Rolls one or more dice of the specified type.
+ *
+ * @function rollDice
+ * @param {DieTypeValue} dieType - The type of die to roll (e.g., `DieType.D6`, `DieType.D20`).
+ * @param {Object} [options] - Optional configuration.
+ * @param {number} [options.count=1] - Number of dice to roll. Must be a positive integer.
+ * @returns {{ array: number[], sum: number }} An object containing:
+ *   - `array`: an array of individual die rolls.
+ *   - `sum`: the total sum of all rolls.
+ * @throws {TypeError} If `dieType` is invalid.
+ * @throws {TypeError} If `count` is not a positive integer.
+ *
+ * @example
+ * const result = rollDice(DieType.D6, { count: 5 });
+ * console.log(result.sum);   // e.g., 18
+ * console.log(result.array); // e.g., [2, 5, 3, 1, 7]
+ *
+ * @example
+ * // Roll a single d20
+ * const result = rollDice(DieType.D20);
+ *
+ * @example
+ * // Roll 3d6
+ * const result = rollDice(DieType.D6, { count: 3 });
+ */
+declare function rollDice(dieType: DieTypeValue, { count }?: {
+    count?: number | undefined;
+}): {
+    array: number[];
+    sum: number;
+};
