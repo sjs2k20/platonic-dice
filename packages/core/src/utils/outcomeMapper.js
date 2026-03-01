@@ -99,15 +99,20 @@ function createCacheKey(
   // modifier function's text but truncate to avoid extremely long cache keys.
   let modifierKey = "none";
   if (modifier) {
-    try {
-      const fn =
-        modifier.fn && typeof modifier.fn === "function"
-          ? modifier.fn
-          : modifier;
-      const s = String(fn);
-      modifierKey = s.length > 200 ? s.slice(0, 200) + "..." : s;
-    } catch (e) {
-      modifierKey = "modifier";
+    // Prefer an explicit `id` fingerprint when available (stable hash).
+    if (modifier && typeof modifier.id === "string") {
+      modifierKey = modifier.id;
+    } else {
+      try {
+        const fn =
+          modifier.fn && typeof modifier.fn === "function"
+            ? modifier.fn
+            : modifier;
+        const s = String(fn);
+        modifierKey = s.length > 200 ? s.slice(0, 200) + "..." : s;
+      } catch (e) {
+        modifierKey = "modifier";
+      }
     }
   }
 

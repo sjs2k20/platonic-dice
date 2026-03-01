@@ -76,12 +76,24 @@ class RollModifier {
   constructor(fn) {
     if (!isValidRollModifier(fn)) {
       throw new TypeError(
-        "Invalid roll modifier: must be a function accepting one numeric argument and returning a number."
+        "Invalid roll modifier: must be a function accepting one numeric argument and returning a number.",
       );
     }
 
     /** @type {RollModifierFunction} */
     this.fn = fn;
+    /**
+     * Stable fingerprint for this modifier derived from the function body.
+     * Useful for cross-process cache keys. Deterministic given the same
+     * function source text.
+     * @type {string}
+     */
+    try {
+      const crypto = require("crypto");
+      this.id = crypto.createHash("sha1").update(fn.toString()).digest("hex");
+    } catch (e) {
+      this.id = String(fn).slice(0, 200);
+    }
   }
 
   /**

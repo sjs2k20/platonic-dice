@@ -77,6 +77,20 @@ cd packages/types-core
 pnpm run test:types
 ```
 
+For quick, local type checks of the JSDoc-annotated core sources you can
+run a scoped TypeScript check without emitting:
+
+```bash
+npx tsc -p packages/core/tsconfig.json --noEmit
+```
+
+Or run the curated `.d.ts` `tsd` tests directly for full declaration
+verification:
+
+```bash
+pnpm --filter @platonic-dice/types-core run test:types
+```
+
 ## Examples
 
 The `examples/` directory contains comprehensive examples for all the major functions. Run them to see the library in action:

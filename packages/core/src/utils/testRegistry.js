@@ -20,7 +20,10 @@ const validators = require("./testValidators");
  * Accepts either a canonical `TestConditions` instance, a `ModifiedTestConditions`
  * instance (created by analysis entrypoints), or a plain Conditions-like shape.
  * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: import("../entities/TestConditions").TestConditionsInstance|import("../entities/ModifiedTestConditions").ModifiedTestConditionsInstance|import("./testValidators").Conditions, modifier?: import("../entities/RollModifier").RollModifierInstance, useNaturalCrits?: boolean) => Evaluator} BuildEvaluator
- *
+
+// Note: registry builders SHOULD accept `ModifiedTestConditions` instances
+// produced by analysis entrypoints to avoid redundant re-validation and to
+// allow modifier-aware evaluation without re-normalising plain shapes.
  * RegistryEntry: describes the shape validator, optional evaluator builder, and
  * optional default for `useNaturalCrits` for that test type.
  * @typedef {{ validateShape: (c: import("./testValidators").Conditions) => boolean, buildEvaluator?: BuildEvaluator, defaultUseNaturalCrits?: boolean }} RegistryEntry
