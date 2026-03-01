@@ -91,7 +91,12 @@ class ModifiedTestConditions {
     }
 
     // normalise the modifier
-    const mod = normaliseRollModifier(/** @type {any} */ (modifier));
+    /** @type {import("./RollModifier").RollModifier | import("./RollModifier").RollModifierFunction | null | undefined} */
+    const mod = normaliseRollModifier(
+      /** @type {import("./RollModifier").RollModifier | import("./RollModifier").RollModifierFunction | null | undefined} */ (
+        modifier
+      ),
+    );
 
     // Compute the achievable range with this modifier
     const range = computeModifiedRange(dieType, mod);
@@ -100,7 +105,7 @@ class ModifiedTestConditions {
     if (
       !areValidModifiedTestConditions(
         { ...conditions, modifiedRange: range },
-        testType
+        testType,
       )
     ) {
       switch (testType) {
@@ -108,19 +113,19 @@ class ModifiedTestConditions {
         case "at_most":
         case "exact":
           throw new RangeError(
-            `Invalid ${testType} condition for ${dieType} with modifier: target must be achievable (range: ${range.min}–${range.max}).`
+            `Invalid ${testType} condition for ${dieType} with modifier: target must be achievable (range: ${range.min}–${range.max}).`,
           );
         case "within":
           throw new RangeError(
-            `Invalid 'within' condition for ${dieType} with modifier: range must be achievable (${range.min}–${range.max}).`
+            `Invalid 'within' condition for ${dieType} with modifier: range must be achievable (${range.min}–${range.max}).`,
           );
         case "in_list":
           throw new RangeError(
-            `Invalid 'in_list' condition for ${dieType} with modifier: values must be achievable (${range.min}–${range.max}).`
+            `Invalid 'in_list' condition for ${dieType} with modifier: values must be achievable (${range.min}–${range.max}).`,
           );
         case "skill":
           throw new RangeError(
-            `Invalid 'skill' condition for ${dieType} with modifier: thresholds must be achievable (${range.min}–${range.max}).`
+            `Invalid 'skill' condition for ${dieType} with modifier: thresholds must be achievable (${range.min}–${range.max}).`,
           );
         default:
           throw new TypeError(`Unknown testType '${testType}'.`);
@@ -147,7 +152,7 @@ class ModifiedTestConditions {
     if (
       !areValidModifiedTestConditions(
         { ...this.conditions, modifiedRange: this.modifiedRange },
-        this.testType
+        this.testType,
       )
     ) {
       throw new TypeError("Invalid modified test conditions.");

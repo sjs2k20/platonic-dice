@@ -55,7 +55,7 @@ class DiceTestConditions {
       const defaultDie = dieType || DieType.D6;
       this.tcArray = new TestConditionsArray(
         conditions,
-        /** @type {any} */ (defaultDie),
+        /** @type {import("./DieType").DieTypeValue} */ (defaultDie),
       );
     } else {
       throw new TypeError("conditions must be an array or TestConditionsArray");

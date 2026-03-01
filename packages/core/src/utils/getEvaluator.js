@@ -42,13 +42,25 @@ function getEvaluator(
   }
 
   const { getRegistration } = require("./testRegistry");
+  const {
+    TestConditions,
+    normaliseTestConditions,
+  } = require("../entities/TestConditions");
 
   const testType = testConditions.testType;
   const reg = getRegistration(testType);
   if (reg && typeof reg.buildEvaluator === "function") {
+    // Ensure registry builders receive a plain/validated `Conditions` object.
+    let normalised = testConditions;
+    if (!(testConditions instanceof TestConditions)) {
+      normalised = normaliseTestConditions(testConditions, dieType);
+    }
+
     return reg.buildEvaluator(
       dieType,
-      /** @type {any} */ (testConditions),
+      /** @type {import("./testValidators").Conditions} */ (
+        /** @type {unknown} */ (normalised)
+      ),
       modifier,
       useNaturalCrits,
     );
@@ -57,10 +69,6 @@ function getEvaluator(
   // Fallback: build an outcome map and return a simple indexer
   // Ensure we pass a TestConditions instance into createOutcomeMap to match
   // its runtime/typing contract. Normalise plain objects when necessary.
-  const {
-    TestConditions,
-    normaliseTestConditions,
-  } = require("../entities/TestConditions");
   let tcInstance = testConditions;
   if (!(testConditions instanceof TestConditions)) {
     // Runtime normalization: `normaliseTestConditions` will validate and return a
@@ -72,7 +80,7 @@ function getEvaluator(
     dieType,
     testType,
     // `tcInstance` is a validated TestConditions instance at runtime
-    /** @type {any} */ (tcInstance),
+    /** @type {TestConditionsInstance} */ (tcInstance),
     modifier,
     useNaturalCrits,
   );

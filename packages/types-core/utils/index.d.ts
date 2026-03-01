@@ -7,7 +7,7 @@ export const getOutcomeMapCacheSize: typeof import("./outcomeMapper").getOutcome
 export const getEvaluator: typeof import("./getEvaluator").getEvaluator;
 export const registerTestType: typeof import("./testRegistry").registerTestType;
 export const getRegistration: typeof import("./testRegistry").getRegistration;
-export const registry: Map<any, any>;
+export const registry: Map<string, import("./testRegistry").RegistryEntry>;
 export const isValidFaceValue: typeof import("./testValidators").isValidFaceValue;
 export const areValidFaceValues: typeof import("./testValidators").areValidFaceValues;
 export const isValidThresholdOrder: typeof import("./testValidators").isValidThresholdOrder;

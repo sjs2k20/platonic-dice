@@ -96,8 +96,10 @@ function determineOutcome(value, testConditions) {
     // constructor to obtain a proper TestConditions instance.
     testConditions = new TestConditions(
       testType,
-      /** @type {any} */ (fullConditions),
-      dieType
+      /** @type {import("../utils/testValidators").Conditions} */ (
+        fullConditions
+      ),
+      dieType,
     );
   }
 

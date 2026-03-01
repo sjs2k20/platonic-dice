@@ -43,7 +43,7 @@ function getArrayEvaluator(
 
   return /** @param {number} value */ (value) =>
     perEntryEvaluators.map(
-      /** @param {(n:number)=>any} fn */ (fn) => fn(value),
+      /** @param {(n:number)=>OutcomeValue} fn */ (fn) => fn(value),
     );
 }
 

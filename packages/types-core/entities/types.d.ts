@@ -5,7 +5,7 @@
  */
 
 import type { TestConditionsLike } from "./TestConditions";
-import type { TestConditionsArrayInstance } from "./TestConditionsArray";
+import type { TestConditionsArray } from "./TestConditionsArray";
 import type { OutcomeValue } from "./Outcome";
 
 /**
@@ -53,8 +53,8 @@ export interface DiceTestResult {
  * Can be a DiceTestConditions instance, TestConditionsArray, or plain array.
  */
 export type ConditionsInput =
-  | import("./DiceTestConditions").DiceTestConditionsInstance
-  | TestConditionsArrayInstance
+  | import("./DiceTestConditions").DiceTestConditions
+  | import("./TestConditionsArray").TestConditionsArray
   | TestConditionsLike[];
 
 /**

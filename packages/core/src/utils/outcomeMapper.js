@@ -164,9 +164,21 @@ function createOutcomeMap(
   // with registered evaluators. Fall back to per-base determineOutcome loop.
   try {
     if (reg && typeof reg.buildEvaluator === "function") {
+      // Normalize testConditions into plain `Conditions` before passing to registry
+      const {
+        TestConditions,
+        normaliseTestConditions,
+      } = require("../entities/TestConditions");
+      let normalised = testConditions;
+      if (!(testConditions instanceof TestConditions)) {
+        normalised = normaliseTestConditions(testConditions, dieType);
+      }
+
       const evaluator = reg.buildEvaluator(
         dieType,
-        /** @type {any} */ (testConditions),
+        /** @type {import("./testValidators").Conditions} */ (
+          /** @type {unknown} */ (normalised)
+        ),
         modifier,
         shouldUseNaturalCrits,
       );
@@ -193,7 +205,12 @@ function createOutcomeMap(
     const value = modifier ? modifier.apply(baseRoll) : baseRoll;
 
     // Determine base outcome from test evaluation
-    let outcome = determineOutcome(value, /** @type {any} */ (testConditions));
+    let outcome = determineOutcome(
+      value,
+      /** @type {import("../entities/TestConditions").TestConditionsInstance} */ (
+        testConditions
+      ),
+    );
 
     // Apply natural crit overrides if enabled
     if (shouldUseNaturalCrits) {

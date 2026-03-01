@@ -56,7 +56,12 @@ const r = require("./roll.js");
  * const result = rollMod(DieType.D10, (n) => Math.floor(n / 2), RollType.Advantage);
  */
 function rollMod(dieType, modifier, rollType = undefined) {
-  const mod = normaliseRollModifier(/** @type {any} */ (modifier));
+  /** @type {import("./entities/RollModifier").RollModifierLike} */
+  const mod = normaliseRollModifier(
+    /** @type {import("./entities/RollModifier").RollModifier | import("./entities/RollModifier").RollModifierFunction | null | undefined} */ (
+      modifier
+    ),
+  );
 
   const base = r.roll(dieType, rollType);
   const modified = mod.apply(base);

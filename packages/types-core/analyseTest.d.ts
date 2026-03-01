@@ -1,50 +1,52 @@
 export type DieTypeValue = import("./entities/DieType").DieTypeValue;
 export type OutcomeValue = import("./entities/Outcome").OutcomeValue;
 export type TestTypeValue = import("./entities/TestType").TestTypeValue;
-export type TestConditionsInstance = import("./entities/TestConditions").TestConditionsInstance;
+export type TestConditionsInstance =
+  import("./entities/TestConditions").TestConditionsInstance;
 export type TestAnalysis = {
-    /**
-     * - Total number of possible die rolls
-     */
-    totalPossibilities: number;
-    /**
-     * - Count of each outcome type
-     */
-    outcomeCounts: {
-        [x: string]: number;
-    };
-    /**
-     * - Probability (0-1) of each outcome
-     */
-    outcomeProbabilities: {
-        [x: string]: number;
-    };
-    /**
-     * - Map of roll value to outcome
-     */
-    outcomesByRoll: {
-        [x: number]: import("./entities/Outcome").OutcomeValue;
-    };
-    /**
-     * - Array of all possible roll values
-     */
-    rolls: number[];
-    /**
-     * - Rolls grouped by their outcome
-     */
-    rollsByOutcome: any;
+  /**
+   * - Total number of possible die rolls
+   */
+  totalPossibilities: number;
+  /**
+   * - Count of each outcome type
+   */
+  outcomeCounts: {
+    [x: string]: number;
+  };
+  /**
+   * - Probability (0-1) of each outcome
+   */
+  outcomeProbabilities: {
+    [x: string]: number;
+  };
+  /**
+   * - Map of roll value to outcome
+   */
+  outcomesByRoll: {
+    [x: number]: import("./entities/Outcome").OutcomeValue;
+  };
+  /**
+   * - Array of all possible roll values
+   */
+  rolls: number[];
+  /**
+   * - Rolls grouped by their outcome
+   */
+  rollsByOutcome: Record<import("./entities/Outcome").OutcomeValue, number[]>;
 };
 export type analyseTestOptions = {
-    /**
-     * - If true, natural max/min rolls trigger
-     * critical outcomes. Defaults to true for Skill tests, false otherwise.
-     */
-    useNaturalCrits?: boolean | undefined;
+  /**
+   * - If true, natural max/min rolls trigger
+   * critical outcomes. Defaults to true for Skill tests, false otherwise.
+   */
+  useNaturalCrits?: boolean | undefined;
 };
 /**
  * analyses test conditions without performing an actual roll.
  */
-export type TestConditionsLike = import("./entities/TestConditions").TestConditionsLike;
+export type TestConditionsLike =
+  import("./entities/TestConditions").TestConditionsLike;
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/Outcome").OutcomeValue} OutcomeValue
@@ -99,4 +101,8 @@ export type TestConditionsLike = import("./entities/TestConditions").TestConditi
  *   { useNaturalCrits: false }
  * );
  */
-export function analyseTest(dieType: DieTypeValue, testConditions: TestConditionsLike, options?: analyseTestOptions): TestAnalysis;
+export function analyseTest(
+  dieType: DieTypeValue,
+  testConditions: TestConditionsLike,
+  options?: analyseTestOptions,
+): TestAnalysis;

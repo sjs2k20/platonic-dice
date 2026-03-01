@@ -1,64 +1,67 @@
 export type DieTypeValue = import("./entities/DieType").DieTypeValue;
 export type OutcomeValue = import("./entities/Outcome").OutcomeValue;
-export type RollModifierLike = import("./entities/RollModifier").RollModifierLike;
+export type RollModifierLike =
+  import("./entities/RollModifier").RollModifierLike;
 export type TestTypeValue = import("./entities/TestType").TestTypeValue;
-export type TestConditionsInstance = import("./entities/TestConditions").TestConditionsInstance;
+export type TestConditionsInstance =
+  import("./entities/TestConditions").TestConditionsInstance;
 export type ModifiedTestAnalysis = {
-    /**
-     * - Total number of possible die rolls
-     */
-    totalPossibilities: number;
-    /**
-     * - Count of each outcome type
-     */
-    outcomeCounts: {
-        [x: string]: number;
-    };
-    /**
-     * - Probability (0-1) of each outcome
-     */
-    outcomeProbabilities: {
-        [x: string]: number;
-    };
-    /**
-     * - Map of base roll to outcome
-     */
-    outcomesByRoll: {
-        [x: number]: import("./entities/Outcome").OutcomeValue;
-    };
-    /**
-     * - Map of base roll to modified value
-     */
-    modifiedValuesByRoll: {
-        [x: number]: number;
-    };
-    /**
-     * - Array of all possible base roll values
-     */
-    rolls: number[];
-    /**
-     * - Base rolls grouped by their outcome
-     */
-    rollsByOutcome: any;
-    /**
-     * - Range of modified values achievable
-     */
-    modifiedRange: {
-        min: number;
-        max: number;
-    };
+  /**
+   * - Total number of possible die rolls
+   */
+  totalPossibilities: number;
+  /**
+   * - Count of each outcome type
+   */
+  outcomeCounts: {
+    [x: string]: number;
+  };
+  /**
+   * - Probability (0-1) of each outcome
+   */
+  outcomeProbabilities: {
+    [x: string]: number;
+  };
+  /**
+   * - Map of base roll to outcome
+   */
+  outcomesByRoll: {
+    [x: number]: import("./entities/Outcome").OutcomeValue;
+  };
+  /**
+   * - Map of base roll to modified value
+   */
+  modifiedValuesByRoll: {
+    [x: number]: number;
+  };
+  /**
+   * - Array of all possible base roll values
+   */
+  rolls: number[];
+  /**
+   * - Base rolls grouped by their outcome
+   */
+  rollsByOutcome: Record<import("./entities/Outcome").OutcomeValue, number[]>;
+  /**
+   * - Range of modified values achievable
+   */
+  modifiedRange: {
+    min: number;
+    max: number;
+  };
 };
 export type analyseModTestOptions = {
-    /**
-     * - If true, natural max/min rolls trigger
-     * critical outcomes. Defaults to true for Skill tests, false otherwise.
-     */
-    useNaturalCrits?: boolean | undefined;
+  /**
+   * - If true, natural max/min rolls trigger
+   * critical outcomes. Defaults to true for Skill tests, false otherwise.
+   */
+  useNaturalCrits?: boolean | undefined;
 };
 /**
  * analyses modified test conditions without performing an actual roll.
  */
-export type TestConditionsLike = import("./entities/TestConditions").TestConditionsLike;
+export type TestConditionsLike =
+  import("./entities/TestConditions").TestConditionsLike;
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/Outcome").OutcomeValue} OutcomeValue
@@ -122,4 +125,9 @@ export type TestConditionsLike = import("./entities/TestConditions").TestConditi
  * console.log(`Without modifier: ${(noMod.outcomeProbabilities.success * 100).toFixed(1)}%`);
  * console.log(`With +5 modifier: ${(withMod.outcomeProbabilities.success * 100).toFixed(1)}%`);
  */
-export function analyseModTest(dieType: DieTypeValue, modifier: RollModifierLike, testConditions: TestConditionsLike, options?: analyseModTestOptions): ModifiedTestAnalysis;
+export function analyseModTest(
+  dieType: DieTypeValue,
+  modifier: RollModifierLike,
+  testConditions: TestConditionsLike,
+  options?: analyseModTestOptions,
+): ModifiedTestAnalysis;

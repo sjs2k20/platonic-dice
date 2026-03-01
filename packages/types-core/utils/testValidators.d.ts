@@ -1,25 +1,29 @@
 export type TestTypeValue = import("../entities/TestType").TestTypeValue;
 export type DieTypeValue = import("../entities/DieType").DieTypeValue;
 export type BaseTestCondition = {
-    dieType: DieTypeValue;
+  dieType: DieTypeValue;
 };
 export type TargetConditions = BaseTestCondition & {
-    target: number;
+  target: number;
 };
 export type WithinConditions = BaseTestCondition & {
-    min: number;
-    max: number;
+  min: number;
+  max: number;
 };
 export type SpecificListConditions = BaseTestCondition & {
-    values: number[];
+  values: number[];
 };
 export type SkillConditions = BaseTestCondition & {
-    target: number;
-    critical_success?: number;
-    critical_failure?: number;
+  target: number;
+  critical_success?: number;
+  critical_failure?: number;
 };
-export type Conditions = TargetConditions | SkillConditions | WithinConditions | SpecificListConditions;
-export type PlainObject = Record<string, any>;
+export type Conditions =
+  | TargetConditions
+  | SkillConditions
+  | WithinConditions
+  | SpecificListConditions;
+export type PlainObject = Record<string, unknown>;
 export type ConditionsLike = Conditions | PlainObject;
 /**
  * @typedef {import("../entities/TestType").TestTypeValue} TestTypeValue
@@ -57,7 +61,11 @@ export function isValidFaceValue(n: number, sides: number): boolean;
  * @param {(keyof T)[]} keys
  * @returns {boolean}
  */
-export function areValidFaceValues<T>(obj: T, sides: number, keys: (keyof T)[]): boolean;
+export function areValidFaceValues<T>(
+  obj: T,
+  sides: number,
+  keys: (keyof T)[],
+): boolean;
 /**
  * Validates the ordering of target and critical thresholds.
  */
@@ -65,27 +73,39 @@ export function areValidFaceValues<T>(obj: T, sides: number, keys: (keyof T)[]):
  * @param {SkillConditions|PlainObject} thresholds
  * @returns {boolean}
  */
-export function isValidThresholdOrder({ target, critical_success, critical_failure }: SkillConditions | PlainObject): boolean;
+export function isValidThresholdOrder({
+  target,
+  critical_success,
+  critical_failure,
+}: SkillConditions | PlainObject): boolean;
 /**
  * @param {TargetConditions|PlainObject} c
  * @returns {boolean}
  */
-export function isValidTargetConditions(c: TargetConditions | PlainObject): boolean;
+export function isValidTargetConditions(
+  c: TargetConditions | PlainObject,
+): boolean;
 /**
  * @param {SkillConditions|PlainObject} c
  * @returns {boolean}
  */
-export function isValidSkillTestCondition(c: SkillConditions | PlainObject): boolean;
+export function isValidSkillTestCondition(
+  c: SkillConditions | PlainObject,
+): boolean;
 /**
  * @param {WithinConditions|PlainObject} c
  * @returns {boolean}
  */
-export function isValidWithinConditions(c: WithinConditions | PlainObject): boolean;
+export function isValidWithinConditions(
+  c: WithinConditions | PlainObject,
+): boolean;
 /**
  * @param {SpecificListConditions|PlainObject} c
  * @returns {boolean}
  */
-export function isValidSpecificListConditions(c: SpecificListConditions | PlainObject): boolean;
+export function isValidSpecificListConditions(
+  c: SpecificListConditions | PlainObject,
+): boolean;
 /**
  * Master validation function for all test conditions.
  */
@@ -94,7 +114,10 @@ export function isValidSpecificListConditions(c: SpecificListConditions | PlainO
  * @param {TestTypeValue|string} testType
  * @returns {boolean}
  */
-export function areValidTestConditions(c: Conditions | PlainObject, testType: TestTypeValue | string): boolean;
+export function areValidTestConditions(
+  c: Conditions | PlainObject,
+  testType: TestTypeValue | string,
+): boolean;
 /**
  * Validates that the given keys on an object are integer values within
  * an explicit inclusive range `[min, max]`.
@@ -108,4 +131,9 @@ export function areValidTestConditions(c: Conditions | PlainObject, testType: Te
  * @param {(string)[]} keys
  * @returns {boolean}
  */
-export function areValidValuesInRange(obj: PlainObject, min: number, max: number, keys: (string)[]): boolean;
+export function areValidValuesInRange(
+  obj: PlainObject,
+  min: number,
+  max: number,
+  keys: string[],
+): boolean;

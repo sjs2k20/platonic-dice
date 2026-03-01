@@ -31,11 +31,15 @@ export function rollDiceModTest(
     | import("./entities").DiceTestConditions
     | import("./entities/TestConditionsArray").TestConditionsArray
     | Array<import("./entities/TestConditions").TestConditionsLike>,
-  options?: { count?: number; rules?: any[]; useNaturalCrits?: boolean },
+  options?: {
+    count?: number;
+    rules?: import("./entities/DiceTestConditions").Rule[];
+    useNaturalCrits?: boolean;
+  },
 ): {
   base: { array: number[]; sum: number };
   modified: { each: { array: number[]; sum: number }; net: { value: number } };
-  result: any;
+  result: import("./entities/DiceTestConditions").DiceTestResult;
 };
 
 export function rollDiceTest(
@@ -44,8 +48,15 @@ export function rollDiceTest(
     | import("./entities").DiceTestConditions
     | import("./entities/TestConditionsArray").TestConditionsArray
     | Array<import("./entities/TestConditions").TestConditionsLike>,
-  options?: { count?: number; rules?: any[]; useNaturalCrits?: boolean },
-): { base: { array: number[]; sum: number }; result: any };
+  options?: {
+    count?: number;
+    rules?: import("./entities/DiceTestConditions").Rule[];
+    useNaturalCrits?: boolean;
+  },
+): {
+  base: { array: number[]; sum: number };
+  result: import("./entities/DiceTestConditions").DiceTestResult;
+};
 
 export function analyseTest(
   dieType: import("./entities/DieType").DieTypeValue,

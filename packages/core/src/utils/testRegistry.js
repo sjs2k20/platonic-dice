@@ -17,11 +17,11 @@ const validators = require("./testValidators");
  * @typedef {(base: number) => import("../entities/Outcome").OutcomeValue} Evaluator
  *
  * BuildEvaluator: factory that builds an Evaluator for a specific die/conditions.
- * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: ConditionsLike, modifier?: import("../entities/RollModifier").RollModifierInstance, useNaturalCrits?: boolean) => Evaluator} BuildEvaluator
+ * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: import("./testValidators").Conditions, modifier?: import("../entities/RollModifier").RollModifierInstance, useNaturalCrits?: boolean) => Evaluator} BuildEvaluator
  *
  * RegistryEntry: describes the shape validator, optional evaluator builder, and
  * optional default for `useNaturalCrits` for that test type.
- * @typedef {{ validateShape: (c: ConditionsLike) => boolean, buildEvaluator?: BuildEvaluator, defaultUseNaturalCrits?: boolean }} RegistryEntry
+ * @typedef {{ validateShape: (c: import("./testValidators").Conditions) => boolean, buildEvaluator?: BuildEvaluator, defaultUseNaturalCrits?: boolean }} RegistryEntry
  */
 
 /** Internal registry map: testType -> { validateShape, buildEvaluator? } */
@@ -32,12 +32,12 @@ const builtIns = ["at_least", "at_most", "exact", "within", "in_list", "skill"];
 
 for (const t of builtIns) {
   registry.set(t, {
-    /** @param {ConditionsLike} c */
+    /** @param {import("./testValidators").Conditions} c */
     validateShape: (c) => validators.areValidTestConditions(c, t),
     // buildEvaluator: returns an evaluator function (base:number)=>outcome
     /**
      * @param {import("../entities/DieType").DieTypeValue} dieType
-     * @param {ConditionsLike} testConditions
+     * @param {import("./testValidators").Conditions} testConditions
      * @param {import("../entities/RollModifier").RollModifierInstance} [modifier]
      * @param {boolean} [useNaturalCrits]
      * @returns {(base: number) => import("../entities/Outcome").OutcomeValue}
@@ -51,11 +51,36 @@ for (const t of builtIns) {
     ) => {
       // require lazily to avoid circular requires at module init
       const { createOutcomeMap } = require("./outcomeMapper");
+      const {
+        TestConditions,
+        normaliseTestConditions,
+      } = require("../entities/TestConditions");
+
+      // Ensure we pass a TestConditions instance into createOutcomeMap
+      /** @type {import("../entities/TestConditions").TestConditionsInstance|import("./testValidators").Conditions} */
+      let tcInstance = testConditions;
+      if (!(testConditions instanceof TestConditions)) {
+        // Normalise requires a TestConditions-like shape (includes testType),
+        // so merge the known test type into the provided conditions object.
+        tcInstance = normaliseTestConditions(
+          Object.assign(
+            {
+              testType:
+                /** @type {import("../entities/TestType").TestTypeValue} */ (t),
+            },
+            testConditions,
+          ),
+          dieType,
+        );
+      }
+
       // t is a string matching TestType values; TS/JSDoc will accept via runtime checks
       const outcomeMap = createOutcomeMap(
         dieType,
         /** @type {import("../entities/TestType").TestTypeValue} */ (t),
-        /** @type {any} */ (testConditions),
+        /** @type {import("../entities/TestConditions").TestConditionsInstance} */ (
+          tcInstance
+        ),
         modifier,
         useNaturalCrits,
       );

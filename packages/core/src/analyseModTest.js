@@ -99,7 +99,11 @@ function analyseModTest(dieType, modifier, testConditions, options = {}) {
   const mod =
     modifier instanceof RollModifier
       ? modifier
-      : normaliseRollModifier(/** @type {any} */ (modifier));
+      : normaliseRollModifier(
+          /** @type {import("./entities/RollModifier").RollModifier | import("./entities/RollModifier").RollModifierFunction | null | undefined} */ (
+            modifier
+          ),
+        );
 
   // Create ModifiedTestConditions if input is a plain object
   let conditionSet;
@@ -118,7 +122,7 @@ function analyseModTest(dieType, modifier, testConditions, options = {}) {
     // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
     conditionSet,
     mod,
-    options.useNaturalCrits
+    options.useNaturalCrits,
   );
   const sides = numSides(dieType);
   /** @type {Object.<number, OutcomeValue>} */
