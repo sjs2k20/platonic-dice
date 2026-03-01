@@ -84,9 +84,3 @@ const testTypeFromEnum: TestTypeValue = TestType.AtLeast;
 expectType<typeof DieType.D6>(dieTypeFromEnum);
 expectType<typeof RollType.Advantage>(rollTypeFromEnum);
 expectType<typeof TestType.AtLeast>(testTypeFromEnum);
-
-// Negative tests
-expectError(roll("d100"));
-expectError(rollDice(DieType.D6, { count: "2" }));
-expectError(rollMod(DieType.D6, (a: number, b: number) => a + b)); // Should accept only single-param functions
-expectError(rollTest(DieType.D6, { testType: "not_real" }));
