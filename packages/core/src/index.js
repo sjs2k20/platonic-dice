@@ -9,15 +9,25 @@
  */
 
 // --- Core modules ---
+/** @type {typeof import("./rollDice.js")} */
 const rollDice = require("./rollDice.js");
+/** @type {typeof import("./roll.js")} */
 const roll = require("./roll.js");
+/** @type {typeof import("./rollMod.js")} */
 const rollMod = require("./rollMod.js");
+/** @type {typeof import("./rollDiceMod.js")} */
 const rollDiceMod = require("./rollDiceMod.js");
+/** @type {typeof import("./rollDiceModTest.js")} */
 const rollDiceModTest = require("./rollDiceModTest.js");
+/** @type {typeof import("./rollDiceTest.js")} */
 const rollDiceTest = require("./rollDiceTest.js");
+/** @type {typeof import("./rollTest.js")} */
 const rollTest = require("./rollTest.js");
+/** @type {typeof import("./rollModTest.js")} */
 const rollModTest = require("./rollModTest.js");
+/** @type {typeof import("./analyseTest.js")} */
 const analyseTest = require("./analyseTest.js");
+/** @type {typeof import("./analyseModTest.js")} */
 const analyseModTest = require("./analyseModTest.js");
 
 // --- Entities (public API) ---
@@ -63,9 +73,3 @@ exports.ModifiedTestConditions = entities.ModifiedTestConditions;
 exports.areValidModifiedTestConditions =
   entities.areValidModifiedTestConditions;
 exports.computeModifiedRange = entities.computeModifiedRange;
-exports.rollTest = /** @type {any} */ (rollTest).rollTest;
-exports.rollModTest = /** @type {any} */ (rollModTest).rollModTest;
-exports.rollDiceModTest = /** @type {any} */ (rollDiceModTest).rollDiceModTest;
-exports.rollDiceTest = /** @type {any} */ (rollDiceTest).rollDiceTest;
-exports.analyseTest = /** @type {any} */ (analyseTest).analyseTest;
-exports.analyseModTest = /** @type {any} */ (analyseModTest).analyseModTest;

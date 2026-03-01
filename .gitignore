@@ -100,6 +100,9 @@ dist
 # vuepress build output
 .vuepress/dist
 
+# Temporary declaration output from local generation
+packages/core/tmp/
+
 # vuepress v2.x temp and cache directory
 .temp
 .cache
