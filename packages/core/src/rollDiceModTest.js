@@ -23,6 +23,10 @@ const { rollDiceMod } = require("./rollDiceMod.js");
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
  * @typedef {import("./entities/RollModifier").RollModifierLike} RollModifierLike
  * @typedef {import("./entities/TestConditions").TestConditionsLike} TestConditionsLike
+ * @typedef {{ type: "value_count"|"condition_count", value?: number, conditionIndex?: number, exact?: number, atLeast?: number, atMost?: number }} RollDiceRule
+ * @typedef {import("./entities").DiceTestConditions|import("./entities/TestConditionsArray").TestConditionsArray|Array<TestConditionsLike>} ConditionsInput
+ * @typedef {{ count?: number, rules?: RollDiceRule[], useNaturalCrits?: boolean }} RollDiceModTestOptions
+ * @typedef {{ base: { array: number[], sum: number }, modified: { each: { array: number[], sum: number }, net: { value: number } }, result: Object }} RollDiceModTestResult
  */
 
 /**
@@ -30,10 +34,10 @@ const { rollDiceMod } = require("./rollDiceMod.js");
  *
  * @param {DieTypeValue} dieType
  * @param {RollModifierLike} modifier
- * @param {import("./entities").DiceTestConditions|import("./entities/TestConditionsArray").TestConditionsArray|Array<TestConditionsLike>} conditions
- * @param {{ count?: number, rules?: Array<{ type: "value_count"|"condition_count", value?: number, conditionIndex?: number, exact?: number, atLeast?: number, atMost?: number }>, useNaturalCrits?: boolean }} [options={}]
+ * @param {ConditionsInput} conditions
+ * @param {RollDiceModTestOptions} [options={}]
  *
- * @returns {{ base: { array: number[], sum: number }, modified: { each: { array: number[], sum: number }, net: { value: number } }, result: Object }}
+ * @returns {RollDiceModTestResult}
  */
 function rollDiceModTest(
   dieType,

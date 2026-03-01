@@ -25,6 +25,16 @@ const { DieType } = require("./DieType");
  * @property {number} [atMost]
  */
 
+/**
+ * Result of evaluating multiple dice against test conditions.
+ * @typedef {Object} DiceTestResult
+ * @property {import("./Outcome").OutcomeValue[][]} matrix - Matrix of outcomes per die per condition
+ * @property {Record<number, number>} condCount - Count of successes per condition index
+ * @property {Record<number, number>} valueCounts - Count of each literal value rolled
+ * @property {Array<{ id: number, rule: Rule, count?: number, passed: boolean }>} ruleResults - Results per rule
+ * @property {boolean} passed - Whether all rules passed
+ */
+
 class DiceTestConditions {
   /**
    * @param {{ count?: number, conditions?: TestConditionsLike[]|TestConditionsArray, rules?: Rule[], dieType?: string }} [opts]
@@ -68,7 +78,7 @@ class DiceTestConditions {
    *
    * @param {import("./RollModifier").RollModifierInstance} [modifier]
    * @param {boolean} [useNaturalCrits]
-   * @returns {(rolls: number[]) => Object}
+   * @returns {(rolls: number[]) => DiceTestResult}
    */
   toEvaluator(modifier = undefined, useNaturalCrits = undefined) {
     const tcArray = this.tcArray;
@@ -89,6 +99,7 @@ class DiceTestConditions {
         );
 
       // Build matrix: for each die -> array of outcomes per condition
+      /** @type {import("./Outcome").OutcomeValue[][]} */
       const matrix = rolls.map((v) => arrayEvaluator(v));
 
       // Count successes per condition (treat success or critical_success as match)
@@ -150,6 +161,7 @@ class DiceTestConditions {
    * @param {number[]} rolls
    * @param {import("./RollModifier").RollModifierInstance|undefined} [modifier=undefined]
    * @param {boolean|undefined} [useNaturalCrits=undefined]
+   * @returns {DiceTestResult}
    */
   evaluateRolls(rolls, modifier = undefined, useNaturalCrits = undefined) {
     return this.toEvaluator(modifier, useNaturalCrits)(rolls);

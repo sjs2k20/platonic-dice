@@ -166,7 +166,7 @@ function createOutcomeMap(
     if (reg && typeof reg.buildEvaluator === "function") {
       const evaluator = reg.buildEvaluator(
         dieType,
-        testConditions,
+        /** @type {any} */ (testConditions),
         modifier,
         shouldUseNaturalCrits,
       );
@@ -193,7 +193,7 @@ function createOutcomeMap(
     const value = modifier ? modifier.apply(baseRoll) : baseRoll;
 
     // Determine base outcome from test evaluation
-    let outcome = determineOutcome(value, testConditions);
+    let outcome = determineOutcome(value, /** @type {any} */ (testConditions));
 
     // Apply natural crit overrides if enabled
     if (shouldUseNaturalCrits) {

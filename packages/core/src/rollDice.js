@@ -57,7 +57,7 @@ function rollDice(dieType, { count = 1 } = {}) {
 
   if (typeof count !== "number" || !Number.isInteger(count) || count < 1) {
     throw new TypeError(
-      `Invalid count: ${count}. Count must be a positive integer.`
+      `Invalid count: ${count}. Count must be a positive integer.`,
     );
   }
 

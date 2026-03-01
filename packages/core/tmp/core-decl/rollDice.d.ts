@@ -1,9 +1,14 @@
-export type DieTypeValue = import("./entities/DieType").DieTypeValue;
-export type RollDiceAlias = (
-  dieType: import("./entities/DieType").DieTypeValue,
-) => {
-  array: number[];
-  sum: number;
+declare namespace _exports {
+    export { DieTypeValue, RollDiceAlias };
+}
+declare namespace _exports {
+    export { rollDice };
+}
+export = _exports;
+type DieTypeValue = import("./entities/DieType").DieTypeValue;
+type RollDiceAlias = (dieType: import("./entities/DieType").DieTypeValue) => {
+    array: number[];
+    sum: number;
 };
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -34,20 +39,9 @@ export type RollDiceAlias = (
  * // Roll 3d6
  * const result = rollDice(DieType.D6, { count: 3 });
  */
-export interface RollDiceResult {
-  array: number[];
-  sum: number;
-}
-
-export function rollDice(
-  dieType: DieTypeValue,
-  options?: { count?: number },
-): RollDiceResult;
-
-/** Dynamically generated aliases (e.g., `roll3x`) */
-export const rollDiceAliases: Record<string, RollDiceAlias>;
-
-export interface RollDiceExports {
-  rollDice: typeof rollDice;
-  [alias: string]: RollDiceAlias | typeof rollDice;
-}
+declare function rollDice(dieType: DieTypeValue, { count }?: {
+    count?: number | undefined;
+}): {
+    array: number[];
+    sum: number;
+};

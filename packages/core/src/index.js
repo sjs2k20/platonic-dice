@@ -63,9 +63,9 @@ exports.ModifiedTestConditions = entities.ModifiedTestConditions;
 exports.areValidModifiedTestConditions =
   entities.areValidModifiedTestConditions;
 exports.computeModifiedRange = entities.computeModifiedRange;
-exports.rollTest = rollTest.rollTest;
-exports.rollModTest = rollModTest.rollModTest;
-exports.rollDiceModTest = rollDiceModTest.rollDiceModTest;
-exports.rollDiceTest = rollDiceTest.rollDiceTest;
-exports.analyseTest = analyseTest.analyseTest;
-exports.analyseModTest = analyseModTest.analyseModTest;
+exports.rollTest = /** @type {any} */ (rollTest).rollTest;
+exports.rollModTest = /** @type {any} */ (rollModTest).rollModTest;
+exports.rollDiceModTest = /** @type {any} */ (rollDiceModTest).rollDiceModTest;
+exports.rollDiceTest = /** @type {any} */ (rollDiceTest).rollDiceTest;
+exports.analyseTest = /** @type {any} */ (analyseTest).analyseTest;
+exports.analyseModTest = /** @type {any} */ (analyseModTest).analyseModTest;

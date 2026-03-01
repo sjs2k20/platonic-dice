@@ -48,7 +48,7 @@ function getEvaluator(
   if (reg && typeof reg.buildEvaluator === "function") {
     return reg.buildEvaluator(
       dieType,
-      testConditions,
+      /** @type {any} */ (testConditions),
       modifier,
       useNaturalCrits,
     );
@@ -72,7 +72,7 @@ function getEvaluator(
     dieType,
     testType,
     // `tcInstance` is a validated TestConditions instance at runtime
-    tcInstance,
+    /** @type {any} */ (tcInstance),
     modifier,
     useNaturalCrits,
   );

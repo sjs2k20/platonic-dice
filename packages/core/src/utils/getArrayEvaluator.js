@@ -10,7 +10,8 @@ const { getEvaluator } = require("./getEvaluator");
 /**
  * @typedef {import("../entities/TestConditions").TestConditionsInstance} TestConditionsInstance
  * @typedef {import("../entities/TestConditions").TestConditionsLike} TestConditionsLike
- * @typedef {import("../entities/TestConditionsArray").TestConditionsArrayInstance} TestConditionsArrayInstance
+ * @typedef {import("../entities/TestConditionsArray").TestConditionsArray} TestConditionsArrayInstance
+ * @typedef {import("../entities/Outcome").OutcomeValue} OutcomeValue
  */
 
 /**
@@ -19,7 +20,7 @@ const { getEvaluator } = require("./getEvaluator");
  * @param {TestConditionsArrayInstance} tcArray - The TestConditionsArray instance
  * @param {import("../entities/RollModifier").RollModifierInstance} [modifier]
  * @param {boolean} [useNaturalCrits]
- * @returns {(value: number) => string[]} Function mapping numeric value -> array of Outcome values
+ * @returns {(value: number) => OutcomeValue[]} Function mapping numeric value -> array of Outcome values
  */
 function getArrayEvaluator(
   tcArray,
@@ -35,12 +36,15 @@ function getArrayEvaluator(
   const conditions = tcArray.toArray();
 
   // Build per-entry evaluators using existing getEvaluator (reuses createOutcomeMap cache)
-  const perEntryEvaluators = conditions.map((tc) =>
-    getEvaluator(tc.dieType, tc, modifier, useNaturalCrits),
+  const perEntryEvaluators = conditions.map(
+    /** @param {TestConditionsInstance} tc */ (tc) =>
+      getEvaluator(tc.dieType, tc, modifier, useNaturalCrits),
   );
 
   return /** @param {number} value */ (value) =>
-    perEntryEvaluators.map((fn) => fn(value));
+    perEntryEvaluators.map(
+      /** @param {(n:number)=>any} fn */ (fn) => fn(value),
+    );
 }
 
 module.exports = {
