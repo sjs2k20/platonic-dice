@@ -1,13 +1,13 @@
 export type RollModifierFunction = (n: number) => number;
 export type DiceModifier = {
-    /**
-     * Function or {@link RollModifier} applied to each individual die.
-     */
-    each?: RollModifierFunction | RollModifier | null | undefined;
-    /**
-     * Function or {@link RollModifier} applied to the total (sum) of all dice.
-     */
-    net?: RollModifierFunction | RollModifier | null | undefined;
+  /**
+   * Function or {@link RollModifier} applied to each individual die.
+   */
+  each?: RollModifierFunction | RollModifier | null | undefined;
+  /**
+   * Function or {@link RollModifier} applied to the total (sum) of all dice.
+   */
+  net?: RollModifierFunction | RollModifier | null | undefined;
 };
 /**
  * Public 'like' type for modifiers accepted across APIs.
@@ -15,7 +15,10 @@ export type DiceModifier = {
  * - a plain function `(n:number)=>number`
  * - a composite `DiceModifier` object with optional `each`/`net`
  */
-export type RollModifierLike = RollModifier | RollModifierFunction | DiceModifier;
+export type RollModifierLike =
+  | RollModifier
+  | RollModifierFunction
+  | DiceModifier;
 export type RollModifierInstance = InstanceType<typeof RollModifier>;
 /**
  * @module @platonic-dice/core/src/entities/RollModifier
@@ -79,25 +82,27 @@ export type RollModifierInstance = InstanceType<typeof RollModifier>;
  * @typedef {RollModifier | RollModifierFunction | DiceModifier} RollModifierLike
  */
 export class RollModifier {
-    /**
-     * @param {RollModifierFunction} fn - Modifier function.
-     * @throws {TypeError} If the function is not a valid roll modifier.
-     */
-    constructor(fn: RollModifierFunction);
-    /** @type {RollModifierFunction} */
-    fn: RollModifierFunction;
-    /**
-     * Applies this modifier to a roll result.
-     * @param {number} baseValue - The base roll result.
-     * @returns {number} - The modified roll result.
-     */
-    apply(baseValue: number): number;
-    /**
-     * Validates that this modifier still conforms to spec.
-     * (Useful if modifiers are loaded dynamically or serialised.)
-     * @throws {TypeError} If the modifier is invalid.
-     */
-    validate(): void;
+  /**
+   * @param {RollModifierFunction} fn - Modifier function.
+   * @throws {TypeError} If the function is not a valid roll modifier.
+   */
+  constructor(fn: RollModifierFunction);
+  /** @type {RollModifierFunction} */
+  fn: RollModifierFunction;
+  /** Stable fingerprint id for this modifier instance (sha1 of function source). */
+  id: string;
+  /**
+   * Applies this modifier to a roll result.
+   * @param {number} baseValue - The base roll result.
+   * @returns {number} - The modified roll result.
+   */
+  apply(baseValue: number): number;
+  /**
+   * Validates that this modifier still conforms to spec.
+   * (Useful if modifiers are loaded dynamically or serialised.)
+   * @throws {TypeError} If the modifier is invalid.
+   */
+  validate(): void;
 }
 /**
  * Checks whether a given function is a valid roll modifier.
@@ -126,4 +131,6 @@ export function isValidRollModifier(m: Function | null): boolean;
  * const rm2 = normaliseRollModifier(x => x + 1); // → RollModifier wrapping function
  * const rm3 = normaliseRollModifier(new RollModifier(x => x * 2)); // → same instance
  */
-export function normaliseRollModifier(m: RollModifier | ((n: number) => number) | null | undefined): RollModifier;
+export function normaliseRollModifier(
+  m: RollModifier | ((n: number) => number) | null | undefined,
+): RollModifier;

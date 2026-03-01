@@ -1,6 +1,42 @@
-export default "./index.js";
+// Primary type entry for @platonic-dice/core
 
 // Public function signatures inferred from JSDoc in `packages/core/src`
+
+// Re-export common types for convenience (mirrors runtime `entities` exports)
+export type DieTypeValue = import("./entities/DieType").DieTypeValue;
+export type RollTypeValue = import("./entities/RollType").RollTypeValue;
+export type OutcomeValue = import("./entities/Outcome").OutcomeValue;
+export type TestTypeValue = import("./entities/TestType").TestTypeValue;
+export type TestConditionsInstance =
+  import("./entities/TestConditions").TestConditionsInstance;
+export type TestConditionsLike =
+  import("./entities/TestConditions").TestConditionsLike;
+export type DiceTestResult =
+  import("./entities/DiceTestConditions").DiceTestResult;
+
+// Core convenience functions re-exported at package root
+export function roll(
+  dieType: DieTypeValue,
+  rollType?: RollTypeValue | undefined,
+): number;
+export function rollDice(
+  dieType: DieTypeValue,
+  options?: { count?: number } | undefined,
+): { array: number[]; sum: number };
+export function rollMod(
+  dieType: DieTypeValue,
+  modifier: import("./entities/RollModifier").RollModifierLike,
+  rollType?: RollTypeValue | undefined,
+): { base: number; modified: number };
+export function rollDiceMod(
+  dieType: DieTypeValue,
+  modifier?: import("./entities/RollModifier").RollModifierLike,
+  options?: { count?: number } | undefined,
+): {
+  base: { array: number[]; sum: number };
+  modified: { each: { array: number[]; sum: number }; net: { value: number } };
+};
+
 export function rollTest(
   dieType: import("./entities/DieType").DieTypeValue,
   testConditions:
@@ -28,7 +64,7 @@ export function rollDiceModTest(
   dieType: import("./entities/DieType").DieTypeValue,
   modifier: import("./entities/RollModifier").RollModifierLike,
   conditions:
-    | import("./entities").DiceTestConditions
+    | import("./entities/DiceTestConditions").DiceTestConditions
     | import("./entities/TestConditionsArray").TestConditionsArray
     | Array<import("./entities/TestConditions").TestConditionsLike>,
   options?: {
@@ -45,7 +81,7 @@ export function rollDiceModTest(
 export function rollDiceTest(
   dieType: import("./entities/DieType").DieTypeValue,
   conditions:
-    | import("./entities").DiceTestConditions
+    | import("./entities/DiceTestConditions").DiceTestConditions
     | import("./entities/TestConditionsArray").TestConditionsArray
     | Array<import("./entities/TestConditions").TestConditionsLike>,
   options?: {
@@ -90,25 +126,16 @@ export function analyseModTest(
   rollsByOutcome: Record<string, number[]>;
   modifiedRange: { min: number; max: number };
 };
-declare namespace ___home_me_Code_Git_Repos_platonic_dice_packages_core_src_index_ {}
+// Re-export entity values from the entities index to ensure a single
+// identity for enums/classes used in signatures below.
 export {
   DieType,
-  isValidDieType,
-  Outcome,
-  isValidOutcome,
   RollType,
-  isValidRollType,
   TestType,
-  isValidTestType,
   RollModifier,
-  isValidRollModifier,
-  normaliseRollModifier,
   TestConditions,
-  areValidTestConditions,
-  normaliseTestConditions,
   TestConditionsArray,
   DiceTestConditions,
   ModifiedTestConditions,
-  areValidModifiedTestConditions,
-  computeModifiedRange,
-};
+  Outcome,
+} from "./entities";
