@@ -17,7 +17,9 @@ const validators = require("./testValidators");
  * @typedef {(base: number) => import("../entities/Outcome").OutcomeValue} Evaluator
  *
  * BuildEvaluator: factory that builds an Evaluator for a specific die/conditions.
- * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: import("./testValidators").Conditions, modifier?: import("../entities/RollModifier").RollModifierInstance, useNaturalCrits?: boolean) => Evaluator} BuildEvaluator
+ * Accepts either a canonical `TestConditions` instance, a `ModifiedTestConditions`
+ * instance (created by analysis entrypoints), or a plain Conditions-like shape.
+ * @typedef {(dieType: import("../entities/DieType").DieTypeValue, testConditions: import("../entities/TestConditions").TestConditionsInstance|import("../entities/ModifiedTestConditions").ModifiedTestConditionsInstance|import("./testValidators").Conditions, modifier?: import("../entities/RollModifier").RollModifierInstance, useNaturalCrits?: boolean) => Evaluator} BuildEvaluator
  *
  * RegistryEntry: describes the shape validator, optional evaluator builder, and
  * optional default for `useNaturalCrits` for that test type.
