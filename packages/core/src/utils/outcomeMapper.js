@@ -164,20 +164,36 @@ function createOutcomeMap(
   // with registered evaluators. Fall back to per-base determineOutcome loop.
   try {
     if (reg && typeof reg.buildEvaluator === "function") {
-      // Normalize testConditions into plain `Conditions` before passing to registry
+      // Normalize/construct the exact conditions instance to pass to the registry.
       const {
         TestConditions,
         normaliseTestConditions,
       } = require("../entities/TestConditions");
-      let normalised = testConditions;
+      const {
+        ModifiedTestConditions,
+      } = require("../entities/ModifiedTestConditions");
+
+      let toPass = testConditions;
       if (!(testConditions instanceof TestConditions)) {
-        normalised = normaliseTestConditions(testConditions, dieType);
+        if (testConditions instanceof ModifiedTestConditions) {
+          toPass = testConditions;
+        } else if (modifier == null) {
+          toPass = normaliseTestConditions(testConditions, dieType);
+        } else {
+          // For modifier-aware evaluation build a ModifiedTestConditions here
+          toPass = new ModifiedTestConditions(
+            testType,
+            testConditions,
+            dieType,
+            modifier,
+          );
+        }
       }
 
       const evaluator = reg.buildEvaluator(
         dieType,
         /** @type {import("./testValidators").Conditions} */ (
-          /** @type {unknown} */ (normalised)
+          /** @type {unknown} */ (toPass)
         ),
         modifier,
         shouldUseNaturalCrits,

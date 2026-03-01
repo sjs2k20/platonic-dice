@@ -56,12 +56,27 @@ for (const t of builtIns) {
         normaliseTestConditions,
       } = require("../entities/TestConditions");
 
-      // Ensure we pass a TestConditions instance into createOutcomeMap
+      // Ensure we pass an appropriate TestConditions instance into createOutcomeMap.
+      // If a modifier is present, construct a ModifiedTestConditions instance so
+      // validation is done against the achievable modified range. Otherwise
+      // normalise into a base TestConditions instance.
       /** @type {import("../entities/TestConditions").TestConditionsInstance|import("./testValidators").Conditions} */
       let tcInstance = testConditions;
-      if (!(testConditions instanceof TestConditions)) {
-        // Normalise requires a TestConditions-like shape (includes testType),
-        // so merge the known test type into the provided conditions object.
+      // If `testConditions` is already a TestConditions instance, or a
+      // ModifiedTestConditions instance created by an analysis entrypoint,
+      // accept it as-is. Only normalise when given a plain object.
+      const {
+        ModifiedTestConditions,
+      } = require("../entities/ModifiedTestConditions");
+      if (
+        !(testConditions instanceof TestConditions) &&
+        !(testConditions instanceof ModifiedTestConditions)
+      ) {
+        // Registry accepts plain Condition-like shapes. Normalise into a base
+        // `TestConditions` instance regardless of whether a modifier is
+        // supplied — callers (analysis entrypoints) are responsible for
+        // constructing `ModifiedTestConditions` when modifier-aware
+        // validation/behaviour is required.
         tcInstance = normaliseTestConditions(
           Object.assign(
             {

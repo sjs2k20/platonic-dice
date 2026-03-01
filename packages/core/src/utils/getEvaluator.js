@@ -46,20 +46,38 @@ function getEvaluator(
     TestConditions,
     normaliseTestConditions,
   } = require("../entities/TestConditions");
+  const {
+    ModifiedTestConditions,
+  } = require("../entities/ModifiedTestConditions");
 
   const testType = testConditions.testType;
   const reg = getRegistration(testType);
   if (reg && typeof reg.buildEvaluator === "function") {
-    // Ensure registry builders receive a plain/validated `Conditions` object.
-    let normalised = testConditions;
+    // Construct the exact conditions instance the registry should receive.
+    // Under Option B, registry accepts plain `TestConditions`. For
+    // modifier-aware analysis we construct `ModifiedTestConditions` here and
+    // pass that through; otherwise normalise to `TestConditions`.
+    let toPass = testConditions;
     if (!(testConditions instanceof TestConditions)) {
-      normalised = normaliseTestConditions(testConditions, dieType);
+      if (testConditions instanceof ModifiedTestConditions) {
+        toPass = testConditions;
+      } else if (modifier == null) {
+        toPass = normaliseTestConditions(testConditions, dieType);
+      } else {
+        // Build a ModifiedTestConditions for modifier-aware evaluation
+        toPass = new ModifiedTestConditions(
+          testType,
+          testConditions,
+          dieType,
+          modifier,
+        );
+      }
     }
 
     return reg.buildEvaluator(
       dieType,
       /** @type {import("./testValidators").Conditions} */ (
-        /** @type {unknown} */ (normalised)
+        /** @type {unknown} */ (toPass)
       ),
       modifier,
       useNaturalCrits,
@@ -71,9 +89,20 @@ function getEvaluator(
   // its runtime/typing contract. Normalise plain objects when necessary.
   let tcInstance = testConditions;
   if (!(testConditions instanceof TestConditions)) {
-    // Runtime normalization: `normaliseTestConditions` will validate and return a
-    // `TestConditions` instance when given a plain object.
-    tcInstance = normaliseTestConditions(testConditions, dieType);
+    if (testConditions instanceof ModifiedTestConditions) {
+      tcInstance = testConditions;
+    } else if (modifier == null) {
+      // Normalise into base TestConditions
+      tcInstance = normaliseTestConditions(testConditions, dieType);
+    } else {
+      // Construct ModifiedTestConditions when modifier is present
+      tcInstance = new ModifiedTestConditions(
+        testType,
+        testConditions,
+        dieType,
+        modifier,
+      );
+    }
   }
 
   const outcomeMap = createOutcomeMap(
