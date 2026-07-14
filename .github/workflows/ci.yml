@@ -46,6 +46,9 @@ jobs:
       - name: Lint (run in all packages that expose a lint script)
         run: pnpm -r --if-present lint
 
+      - name: Build workspace packages (produce type declarations)
+        run: pnpm -w --if-present build
+
       - name: Typecheck (runs tsc --noEmit for packages that have a tsconfig.json)
         run: |
           set -euo pipefail
