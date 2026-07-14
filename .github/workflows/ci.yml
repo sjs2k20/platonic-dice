@@ -2,6 +2,7 @@ name: CI
 
 on:
   pull_request:
+    branches: [develop, main]
     types: [opened, synchronize, reopened]
   push:
     branches: [main]
@@ -28,17 +29,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js and pnpm
-        uses: pnpm/action-setup@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
           cache: true
 
       - name: Install dependencies
         run: pnpm -w install --frozen-lockfile
 
       - name: Lint (run in all packages that expose a lint script)
-        run: pnpm -r lint --if-present
+        run: pnpm -r --if-present lint
 
       - name: Typecheck (runs tsc --noEmit for packages that have a tsconfig.json)
         run: |
@@ -57,4 +63,4 @@ jobs:
           fi
 
       - name: Run tests (root test script runs tests across workspace)
-        run: pnpm test
+        run: pnpm -r --if-present test
