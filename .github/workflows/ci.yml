@@ -20,6 +20,12 @@ env:
 jobs:
   build:
     name: lint / typecheck / test
+    # Skip the automated version-bump commit pushed by the release workflow.
+    # For pull_request events head_commit is not set, so the left-hand side
+    # of the OR ensures CI always runs on PRs.
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
