@@ -1,269 +1,72 @@
-# :package: Release Workflow — Step-by-Step Publishing Guide
+# Release workflow
 
-This repository uses GitHub Actions to publish workspace packages when you push package-specific version tags.
+This repository publishes packages only after a merge to `main`, not on tag creation. The release workflow is built around GitFlow-style development and label-driven version bumps.
 
-## Overview
+## Current release flow
 
-**The workflow:**
+1. Develop features and fixes on a branch based off `develop`.
+2. Open a pull request to `develop`.
+3. Let the `CI` workflow run and ensure the PR passes.
+4. If the PR includes package changes that should publish a new version, add one of:
+   - `semver/patch`
+   - `semver/minor`
+   - `semver/major`
+5. The `bump-on-label` workflow will bump the affected package versions in the PR branch.
+6. After the version bump commit is pushed, `CI` reruns on the updated PR.
+7. Merge the PR to `develop` once it is reviewed and green.
+8. When ready for a release, merge `develop` into `main` with a pull request.
+9. `publish-on-main.yml` runs on the merge commit and publishes only changed packages.
 
-- Triggers on package-specific tags: `core-v*.*.*`, `types-core-v*.*.*`, or `dice-v*.*.*`
-- Runs TypeScript checks across all packages
-- Builds and publishes only the package(s) matching the tag version
-- Creates a GitHub Release for each tag
+## What is published?
 
-**Why package-specific tags?**
+The `publish-on-main` workflow determines which publishable packages changed and publishes only those packages.
 
-- Safe for monorepos with private packages (won't accidentally publish the root)
-- Supports independent versioning (core and dice can have different versions)
-- Clear git history showing exactly what was released
+Publishable packages in this repository are currently:
 
----
+- `packages/core`
+- `packages/types-core`
+- `packages/dice`
 
-## Prerequisites (One-Time Setup)
+Only packages with a changed `package.json` version on `main` are published.
 
-**Required:**
+## Manual reruns and failure handling
 
-- Node.js 24+ and npm installed
-- Push access to the repository
-- npm publish permissions for `@platonic-dice` scope
+The publish workflow is not required for merge approval. That means:
 
-**GitHub Secrets:**
+- A merge to `main` can complete even if publishing later fails.
+- Publishing failures are surfaced by a `publish-failure` GitHub issue.
+- After fixing the failure (for example by rotating `NPM_TOKEN`), use the workflow "Run workflow" button on GitHub to rerun `publish-on-main`.
 
-1. **`NPM_TOKEN`** — npm automation token with publish permissions  
-   Create at: https://www.npmjs.com/settings/[your-account]/tokens  
-   Add at: Repository Settings → Secrets → Actions
+## Version bump labels
 
----
+Use labels to control semantic version bumps from the PR UI:
 
-## Release Process
+- `semver/patch` — bump patch versions
+- `semver/minor` — bump minor versions
+- `semver/major` — bump major versions
 
-### Step 1: Prepare Your Changes
+If no label is added, package versions are not bumped automatically.
 
-1. Work in a feature branch (e.g., `feat/add-feature`)
-2. Open a PR to `main` and get reviews
-3. Merge to `main`
+## Local release verification
 
-### Step 2: Update Package Versions
-
-Update the version in each package's `package.json` **without creating git tags**.
-
-**For independent versioning (most common):**
-
-```bash
-# Update individual packages to different versions
-npm version 2.1.2 --prefix packages/core --no-git-tag-version
-npm version 2.1.1 --prefix packages/dice --no-git-tag-version
-
-# Update dice's dependency on core if needed
-# Edit packages/dice/package.json: "@platonic-dice/core": "^2.1.2"
-
-git add packages/*/package.json
-git commit -m "chore(release): bump core to 2.1.2, dice to 2.1.1"
-git push origin main
-```
-
-**For synchronised versioning (rare):**
+Before merging to `main`, verify locally:
 
 ```bash
-# Update both packages to the same version
-npm version 2.2.0 --prefix packages/core --no-git-tag-version
-npm version 2.2.0 --prefix packages/dice --no-git-tag-version
-
-git add packages/*/package.json
-git commit -m "chore(release): bump all packages to 2.2.0"
-git push origin main
-```
-
-**Important:** Always use `--no-git-tag-version` so you control tag creation manually.
-
-### Step 3: Build and Verify Locally
-
-Before creating tags, verify the packages build correctly and contain expected files.
-
-```bash
-# Install and build
 pnpm -w install --frozen-lockfile
-pnpm --filter @platonic-dice/core run build
-pnpm --filter @platonic-dice/dice run build
-
-# Verify core package contents
-cd packages/core
-npm pack --dry-run
-# Look for: dist/, dist-types.d.ts
-cd ../..
-
-# Verify dice package contents
-cd packages/dice
-npm pack --dry-run
-# Look for: dist/
-cd ../..
-```
-
-### Step 4: Run Local Checks
-
-Run the same checks the CI will run:
-
-```bash
-# TypeScript checks
+pnpm -r --if-present lint
+pnpm -w --if-present build
 for dir in packages/*; do
   if [ -f "$dir/tsconfig.json" ]; then
-    npx tsc -p "$dir/tsconfig.json" --noEmit
+    npx -y tsc -p "$dir/tsconfig.json" --noEmit
   fi
 done
-
-# Tests
-pnpm -r test --if-present
+pnpm -r --if-present test
 ```
 
-All checks must pass before proceeding.
+## Best practices
 
-### Step 5: Create and Push Tags
-
-Create package-specific annotated tags and push them:
-
-```bash
-# Tag for core package
-git tag -a core-v2.1.2 -m "release: core v2.1.2 - fix rollModTest types"
-
-# Tag for dice package
-git tag -a dice-v2.1.1 -m "release: dice v2.1.1 - fix rollModTest usage"
-
-# Push both tags (triggers two separate workflow runs)
-git push origin core-v2.1.2 dice-v2.1.1
-```
-
-**Or push individually:**
-
-```bash
-git push origin core-v2.1.2   # Publishes core only
-git push origin dice-v2.1.1   # Publishes dice only
-```
-
-**Tag format rules:**
-
-- ✅ Use: `core-v2.1.2`, `dice-v2.1.1` (package-specific)
-- ❌ Don't use: `v2.1.2` (no package prefix — unsafe for monorepos)
-
-### Step 6: Monitor the Workflow
-
-1. Go to GitHub Actions → "Publish Packages & Release" workflow
-2. Watch the `typecheck` and `publish` jobs
-3. Each tag triggers a separate workflow run
-
-**What happens:**
-
-- TypeScript checks run on all packages
-- Tag-targeted publishing runs:
-  - `core-vX.Y.Z` → publishes `@platonic-dice/core` only
-  - `types-core-vX.Y.Z` → publishes `@platonic-dice/types-core` only
-  - `dice-vX.Y.Z` → publishes `@platonic-dice/dice` only
-- GitHub Releases are created for each tag
-
-### Step 7: Verify Publication
-
-After the workflow completes, test the published packages:
-
-```bash
-# Test in a temporary directory
-mkdir /tmp/test-platonic && cd /tmp/test-platonic
-npm init -y
-
-# Test core
-npm i @platonic-dice/core@2.1.2
-node -e "console.log(require('@platonic-dice/core'))"
-
-# Test dice
-npm i @platonic-dice/dice@2.1.1
-node -e "const { Die, DieType } = require('@platonic-dice/dice'); console.log(new Die(DieType.D20))"
-```
-
----
-
-## Troubleshooting
-
-**Authentication Error (401)**
-
-- Verify `NPM_TOKEN` is set in repository secrets
-- Token must have publish permissions for `@platonic-dice` scope
-- Re-generate token if needed
-
-**Version Already Exists**
-
-- Workflow will skip and log "Version already exists"
-- Bump the version number and create a new tag
-
-**Missing Files in Published Package**
-
-- Run `npm pack --dry-run` locally to see what's included
-- Add missing files to `"files"` array in package.json
-- Ensure build step creates all necessary files
-
-**TypeScript Errors in CI**
-
-- Run `npx tsc -p packages/[package]/tsconfig.json --noEmit` locally
-- Fix errors before pushing tags
-
----
-
-### Label-driven releases (optional)
-
-You can control semantic version bumps from the PR UI by adding one of the labels `semver/patch`, `semver/minor`, or `semver/major`. When such a label is applied by a repo maintainer the repository will:
-
-- Bump the appropriate package `version` _inside the PR branch_ (the workflow commits the bump into the PR),
-- Re-run CI so the bumped PR is validated, and
-- After you merge the PR the existing `tag-on-version-change` workflow will create package tags (e.g. `core-vX.Y.Z`) and `publish.yml` will publish only the packages whose versions changed.
-
-Important safety rules:
-
-- No label → no automatic bump. You remain in full control.
-- Labels are honoured only for PRs that change files in publishable packages and where `package.json` has not already been edited in the PR.
-- Bump commits are pushed to the PR branch (not directly to `main`) — this prevents infinite loops and ensures the change is reviewed.
-
-See `.github/CI_CD.md` for full operational details and examples.
-
-## Adding New Packages
-
-**For publishable packages (like a future API client):**
-
-1. Add package directory to `PUBLISHABLE_PACKAGES` array in `.github/workflows/publish.yml`
-2. Add tag trigger pattern: `"newpkg-v*.*.*"` in workflow
-3. Ensure `"private": true` is NOT set in package.json
-4. Follow normal release process with `newpkg-v1.0.0` tags
-
-**For private packages (like UI components):**
-
-1. Set `"private": true` in package.json
-2. Do NOT add tag patterns to workflow
-3. Do NOT add to `PUBLISHABLE_PACKAGES` array
-4. Package will be automatically skipped if accidentally included
-
----
-
-## Quick Reference
-
-```bash
-# 1. Update versions
-npm version 2.1.2 --prefix packages/core --no-git-tag-version
-npm version 2.1.1 --prefix packages/dice --no-git-tag-version
-git add packages/*/package.json
-git commit -m "chore(release): core 2.1.2, dice 2.1.1"
-git push origin main
-
-# 2. Build and verify
-npm ci
-npm run -w @platonic-dice/core build
-npm run -w @platonic-dice/dice build
-cd packages/core && npm pack --dry-run && cd -
-cd packages/dice && npm pack --dry-run && cd -
-
-# 3. Run checks
-for dir in packages/*; do [ -f "$dir/tsconfig.json" ] && npx tsc -p "$dir/tsconfig.json" --noEmit; done
-pnpm -r test --if-present
-
-# 4. Create and push tags
-git tag -a core-v2.1.2 -m "release: core v2.1.2"
-git tag -a dice-v2.1.1 -m "release: dice v2.1.1"
-git push origin core-v2.1.2 dice-v2.1.1
-
-# 5. Monitor workflow and verify publication
-```
+- Keep feature work on `develop` until it is ready to release.
+- Use pull requests with reviewers and CI passing before merging.
+- Label PRs with semantic bump labels only when package version changes are desired.
+- Keep `NPM_TOKEN` up to date in repository secrets and rotate it if it expires.
+- Do not rely on publishing to gate the merge; fixing publish failures after merge is safer.
