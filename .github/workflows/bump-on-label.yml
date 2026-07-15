@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -179,7 +180,10 @@ jobs:
 
             NAME=$(node -p "console.log(require('./${pkg}/package.json').name)")
             echo "Bumping $NAME in $pkg"
-            pnpm --filter "$NAME" version "$TYPE" --no-git-tag-version --no-workspaces-update
+            if [ -n "${NPM_TOKEN:-}" ]; then
+              printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > "$PWD/.npmrc"
+            fi
+            pnpm --filter "$NAME" exec npm version "$TYPE" --no-git-tag-version --no-workspaces-update
             git add "$pkg/package.json"
             UPDATED=true
           done < remaining.txt
