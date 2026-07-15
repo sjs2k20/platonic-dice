@@ -95,8 +95,7 @@ jobs:
             done
           done < pr-files.txt || true
 
-          if printf '%s
-' "${AFFECTED[@]}" | grep -qx "packages/core"; then
+          if printf '%s\n' "${AFFECTED[@]}" | grep -qx "packages/core"; then
             AFFECTED+=("packages/types-core")
           fi
 
@@ -109,13 +108,11 @@ jobs:
           # Unique preserve order
           UNIQUE=()
           for pkg in "${AFFECTED[@]}"; do
-            if ! printf '%s
-' "${UNIQUE[@]}" | grep -Fxq "$pkg"; then
+            if ! printf '%s\n' "${UNIQUE[@]}" | grep -Fxq "$pkg"; then
               UNIQUE+=("$pkg")
             fi
           done
-          printf '%s
-' "${UNIQUE[@]}" > affected.txt
+          printf '%s\n' "${UNIQUE[@]}" > affected.txt
           echo "affected=$(paste -sd' ' affected.txt)" >> $GITHUB_OUTPUT
 
       - name: Skip packages where package.json already changed in PR
@@ -141,8 +138,7 @@ jobs:
             echo "No remaining packages to bump." > remaining.txt
             exit 0
           fi
-          printf '%s
-' "${REMAINING[@]}" > remaining.txt
+          printf '%s\n' "${REMAINING[@]}" > remaining.txt
           echo "remaining=$(paste -sd' ' remaining.txt)" >> $GITHUB_OUTPUT
 
       - name: Checkout PR head branch

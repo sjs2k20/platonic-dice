@@ -1,102 +1,87 @@
-# CI / CD & release automation (overview)
+# CI / CD overview
 
-This document explains the workflows, labels, and safe release process used by this repository. It describes the label-driven versioning you requested and the Dependabot flow.
+This repository uses GitHub Actions to enforce quality checks on pull requests and to publish packages only after a merge to `main`.
 
-## Quick summary
+## Workflows
 
-- CI jobs: `CI / typecheck` and `CI / tests` — required before merging.
-- Dependabot opens dependency/security PRs. You review and approve them. After approval, the PR is set to auto‑merge (when CI passes).
-- If you want a PR to bump package versions, add one of: `semver/patch`, `semver/minor`, `semver/major`. The workflow will update `package.json` in‑PR.
-- Merges that include package.json version changes cause tags to be created and packages to be published.
+- `CI` (`.github/workflows/ci.yml`)
+  - Runs on pull requests targeting `develop` and `main`.
+  - Also runs on pushes to `main`.
+  - Performs:
+    - dependency install with `pnpm -w install --frozen-lockfile`
+    - lint across workspace packages with `pnpm -r --if-present lint`
+    - workspace build to ensure emitted declaration files are available
+    - typecheck for every package with a `tsconfig.json`
+    - tests across workspace packages with `pnpm -r --if-present test`
 
----
+- `Bump package versions on PR label` (`.github/workflows/bump-on-label.yml`)
+  - Runs when a maintainer adds `semver/patch`, `semver/minor`, or `semver/major` to a pull request.
+  - Determines which publishable packages are affected by the PR.
+  - Bumps only the changed package versions in the PR branch using `pnpm version --no-git-tag-version`.
+  - Pushes the bump commit back to the PR branch and comments the PR with the new versions.
+  - Skips packages whose `package.json` is already modified in the PR.
+  - Skips forks because it cannot push automated commits to a forked head branch.
 
-## Workflows (what they do)
+- `Publish changed packages on main` (`.github/workflows/publish-on-main.yml`)
+  - Runs on pushes to `main` and can also be triggered manually.
+  - Detects publishable package version changes in `package.json`.
+  - Builds and publishes only the changed packages.
+  - Creates or comments on a single failure issue when publishing fails.
 
-- `CI` (`.github/workflows/ci.yml`) — runs typecheck and tests on PRs and pushes to `main`. Required for merges.
-- `label-version-bump` — when a maintainer adds a semver label to a PR, this workflow:
-  - validates the label and actor permissions,
-  - determines which publishable packages are affected,
-  - bumps versions (patch/minor/major) in the PR branch and pushes the commit,
-  - comments the PR with the bumped versions.
-  - (PR must be from a branch in this repo — forks are skipped with a comment.)
-- `enable-automerge-on-approval` — when you approve a Dependabot PR that only changes dependencies, this enables GitHub auto‑merge for that PR. CI still gates the merge.
-- `auto-patch-bump` — only runs when a dependency PR (Dependabot or labelled `dependencies`) is merged; it creates a follow-up patch bump PR if a package’s source changed but `package.json` was not bumped in the merged PR.
-- `tag-on-version-change` — runs on push to `main`; if `package.json` versions changed it creates package tags (e.g. `core-v1.2.3`) which trigger publish.
-- `publish` — publishes packages when package‑specific tags are pushed (existing behavior).
-  - Tag-targeted behavior:
-    - `core-v*.*.*` targets `packages/core` and `packages/types-core`
-    - `types-core-v*.*.*` targets `packages/types-core`
-    - `dice-v*.*.*` targets `packages/dice`
-- `pnpm-updater` — scheduled job to open PRs updating `packageManager` fields to the latest pnpm.
-- `dependabot.yml` — Dependabot configuration (weekly checks, labels). It remains enabled for security and patch updates.
+## Recommended workflow
 
----
+1. Work on a branch from `develop`.
+2. Open a pull request to `develop`.
+3. Let the `CI` workflow run and fix any lint, typecheck, or test failures.
+4. If a package version should change as part of the PR, add one of the labels:
+   - `semver/patch`
+   - `semver/minor`
+   - `semver/major`
+5. Wait for the label workflow to bump package versions and rerun CI.
+6. Merge the PR to `develop` after the branch is green and reviewed.
+7. When you are ready to release, merge `develop` into `main` with a PR.
+8. `publish-on-main` runs after the merge and publishes only the changed packages.
 
-## Labels & how to use them
+## Branch protection guidance
 
-- semver/patch — bump patch in‑PR
-- semver/minor — bump minor in‑PR
-- semver/major — bump major in‑PR
-- dependencies — label for dependency PRs (used by auto‑patch-bump)
-
-Usage example (developer PR):
-
-1. After review, add `semver/patch` to the PR.
-2. `label-version-bump` will push a version bump commit into the PR branch.
-3. CI reruns; if green you merge the PR.
-4. `tag-on-version-change` will create tags for packages whose versions changed and `publish` will run with tag-targeted package selection.
-
-If you add no semver label, nothing is bumped automatically.
-
----
-
-## Dependabot flow (manual-approve + auto-merge)
-
-1. Dependabot opens a patch/security PR.
-2. You review and approve the PR.
-3. `enable-automerge-on-approval` enables GitHub auto‑merge for the PR (only if PR is dependency-only).
-4. Auto‑merge waits for CI checks; when they pass the PR merges.
-5. If source files changed without `package.json` being updated, `auto-patch-bump` opens a patch bump PR which auto‑merges after CI.
-
----
-
-## Branch protection — required settings
+For a professional GitFlow workflow, protect `develop` and `main` with the following rules:
 
 - Require pull requests before merging.
-- Require `CI / typecheck` and `CI / tests` as required status checks.
-- Allow auto‑merge (so Dependabot + automation can merge when checks pass).
-- (Optional) Require at least 1 reviewer for regular PRs; maintainers should approve Dependabot PRs before enabling auto‑merge.
+- Require the `CI` workflow to pass.
+- Do not require the publish workflow on `main` as a merge-blocker.
+  - The publish step should run after the release merge, and failures should be handled separately.
+- Require review approvals as appropriate for your team.
+- Optionally require signed commits if your workflow supports it.
 
----
+## Secrets
 
-## Why this design is safe
+- `NPM_TOKEN` — used by `publish-on-main.yml` to authenticate with npm.
+- `GITHUB_TOKEN` — automatically provided to workflows for checkout, issue comments, and pushing version bumps.
 
-- Human approval controls semantic bumps (labels) and Dependabot merges.
-- Version bumps happen in‑PR so they are reviewed and tested before merge (prevents accidental publishes).
-- The auto‑patch mechanism runs only for dependency merges and skips packages that already had `package.json` changed, preventing loops.
+## Manual local checks
 
----
+Run the same commands locally before pushing or opening a PR:
 
-## Troubleshooting & FAQs
+```bash
+pnpm -w install --frozen-lockfile
+pnpm -r --if-present lint
+pnpm -w --if-present build
+for dir in packages/*; do
+  if [ -f "$dir/tsconfig.json" ]; then
+    npx -y tsc -p "$dir/tsconfig.json" --noEmit
+  fi
+done
+pnpm -r --if-present test
+```
 
-Q: How do I prevent auto-publishing after a dependency merge?  
-A: Ensure the merged PR does not include `package.json` version changes; `auto-patch-bump` will create a PR for the bump and you can review it before it auto‑merges.
+## Failure and recovery
 
-Q: I labeled a PR but nothing happened.  
-A: Check that the label name is exactly `semver/patch`, `semver/minor` or `semver/major`, that the PR branch is in this repo (not a fork), and that you have write/maintain/admin permission.
+- If `CI` fails, fix the issue in the PR branch and push a new commit.
+- If `publish-on-main` fails, fix the underlying issue and rerun the workflow manually.
+- When `publish-on-main` fails, the workflow creates or updates a `publish-failure` issue so failures are easy to track.
 
-Q: Will Dependabot PRs be auto‑merged without review?  
-A: No — a maintainer must approve the PR first (the `enable-automerge-on-approval` workflow then enables auto‑merge).
+## Notes
 
----
-
-## Next steps / suggestions
-
-- Add `semver/*` labels to your repository (I can create them for you).
-- Optionally add a small `release` label for PRs you want to treat specially.
-- Keep `Require signed commits` disabled if you want automation to perform merges (or sign commits via bot if required).
-
----
-
-Documentation maintained in `.github/` — keep workflows and docs in sync.
+- Publishing is intentionally separate from branch protection so token rotation or temporary npm outages do not block merges.
+- Version bumps are automated only when you choose a `semver/*` label.
+- Keep workflow files and branch protection rules aligned with this document.
