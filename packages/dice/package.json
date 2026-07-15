@@ -47,7 +47,7 @@
     "@platonic-dice/types-core": "^3.0.2"
   },
   "devDependencies": {
-    "tsc-alias": "^1.8.16",
+    "tsc-alias": "^1.9.1",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.0.9",
     "@types/node": "^24.0.0"
