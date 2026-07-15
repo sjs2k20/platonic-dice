@@ -179,8 +179,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "chore(release): bump versions ($TYPE)" || echo "Nothing new to commit"
-          git pull --rebase origin main
-          git push
+          git push origin main --force-with-lease
 
       # ── 4. Build and publish publishable packages ────────────────────────────
 
