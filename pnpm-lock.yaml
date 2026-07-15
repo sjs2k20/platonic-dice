@@ -130,8 +130,8 @@ importers:
         specifier: ^0.4.5
         version: 0.4.26(eslint@9.39.5)
       globals:
-        specifier: ^15.13.0
-        version: 15.15.0
+        specifier: ^17.7.0
+        version: 17.7.0
       jsdom:
         specifier: ^23.2.0
         version: 23.2.0
@@ -2984,8 +2984,8 @@ packages:
     engines: {node: '>=18'}
     dev: true
 
-  /globals@15.15.0:
-    resolution: {integrity: sha512-7ACyT3wmyp3I61S4fG682L0VA2RGD9otkqGJIwNUMF1SWUombIIk+af1unuDYgMm082aHYwD+mzJvv9Iu8dsgg==}
+  /globals@17.7.0:
+    resolution: {integrity: sha512-Czmyns5dUsq4seFBR/Kdydhmo8y9kC79hiSkPn0YcGtNnYWnrgt0vjrSjx9tspoDGWm2CMarffRuLjM4xUz8xg==}
     engines: {node: '>=18'}
     dev: true
 
