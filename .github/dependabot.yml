@@ -14,10 +14,3 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "github-actions"
-automerged_updates:
-  - match:
-      update_type: "version-update:semver-patch"
-    merge_method: "squash"
-  - match:
-      update_type: "security"
-    merge_method: "squash"

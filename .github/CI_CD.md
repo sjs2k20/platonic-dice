@@ -42,6 +42,17 @@ This repository uses GitHub Actions to enforce quality checks on pull requests a
 7. When you are ready to release, merge `develop` into `main` with a PR.
 8. `publish-on-main` runs after the merge and publishes only the changed packages.
 
+## Dependabot PRs
+
+Dependabot will open dependency PRs for your review, and they should be handled like any other pull request:
+
+- review the dependency change,
+- ensure the `CI` workflow passes,
+- approve it,
+- merge it manually using GitHub’s merge button.
+
+Dependabot PRs are labeled with `dependencies` so they are easy to find. Do not use the `semver/*` labels for ordinary Dependabot updates unless you explicitly want the PR to also trigger an automated package version bump.
+
 ## Branch protection guidance
 
 For a professional GitFlow workflow, protect `develop` and `main` with the following rules:
