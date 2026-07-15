@@ -4,7 +4,7 @@ Type definitions for @platonic-dice/core.
 
 This package provides the TypeScript surface for the pure JS core package.
 
-Install alongside the runtime package:
+Install this alongside the runtime package:
 
 ```bash
 pnpm add @platonic-dice/core @platonic-dice/types-core
