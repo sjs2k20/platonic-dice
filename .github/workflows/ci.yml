@@ -18,49 +18,90 @@ env:
   CI: true
 
 jobs:
-  build:
-    name: lint / typecheck / test
+  lint:
+    name: lint
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: "8.15.9"
           cache: true
-
       - name: Install dependencies
         run: pnpm -w install --frozen-lockfile
-
-      - name: Lint (run in all packages that expose a lint script)
+      - name: Lint
         run: pnpm -r --if-present lint
 
-      - name: Build workspace packages (produce type declarations)
+  typecheck:
+    name: typecheck
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
+          cache: true
+      - name: Install dependencies
+        run: pnpm -w install --frozen-lockfile
+      - name: Build workspace packages
         run: pnpm -w --if-present build
-
-      - name: Typecheck (runs tsc --noEmit for packages that have a tsconfig.json)
+      - name: Typecheck
         run: |
           set -euo pipefail
-          echo "Looking for packages with tsconfig.json..."
           found=0
           for dir in packages/*; do
             if [ -f "$dir/tsconfig.json" ]; then
-              echo "Found tsconfig in $dir, running tsc --noEmit"
+              echo "Typechecking $dir"
               npx -y tsc -p "$dir/tsconfig.json" --noEmit
               found=1
             fi
           done
           if [ "$found" -eq 0 ]; then
-            echo "No package tsconfig.json files found; skipping typecheck step."
+            echo "No tsconfig.json files found; skipping."
           fi
 
-      - name: Run tests (root test script runs tests across workspace)
+  test:
+    name: test
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
+          cache: true
+      - name: Install dependencies
+        run: pnpm -w install --frozen-lockfile
+      - name: Build workspace packages
+        run: pnpm -w --if-present build
+      - name: Test
         run: pnpm -r --if-present test

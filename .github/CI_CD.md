@@ -16,7 +16,7 @@ This repository uses GitHub Actions to enforce quality checks on pull requests a
 
 - `Bump package versions on PR label` (`.github/workflows/bump-on-label.yml`)
   - Runs when a maintainer adds `semver/patch`, `semver/minor`, or `semver/major` to a pull request.
-  - Determines which publishable packages are affected by the PR.
+  - Detects affected publishable packages by scanning the PR file list recursively under each package directory.
   - Bumps only the changed package versions in the PR branch using `pnpm version --no-git-tag-version`.
   - Pushes the bump commit back to the PR branch and comments the PR with the new versions.
   - Skips packages whose `package.json` is already modified in the PR.
