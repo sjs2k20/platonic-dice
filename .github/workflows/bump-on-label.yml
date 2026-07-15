@@ -73,12 +73,24 @@ jobs:
             exit 0
           fi
 
-      - name: Get PR file list
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Fetch PR base branch for diff
+        run: |
+          set -euo pipefail
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+
+      - name: Get PR file list from git diff
         id: pr_files
         run: |
           set -euo pipefail
-          PR=${{ github.event.pull_request.number }}
-          gh api repos/${{ github.repository }}/pulls/$PR/files --jq '.[].filename' > pr-files.txt || true
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | sort > pr-files.txt
           echo "list=$(paste -sd',' pr-files.txt || true)" >> $GITHUB_OUTPUT
 
       - name: Determine affected publishable packages
@@ -101,11 +113,10 @@ jobs:
 
           if [ ${#AFFECTED[@]} -eq 0 ]; then
             echo "No publishable package files changed in this PR; nothing to bump."
-            gh pr comment ${{ github.event.pull_request.number }} --body "Label \\`${{ github.event.label.name }}\\` detected, but no publishable package files changed in this PR. Automatic version bump skipped."
+            gh pr comment ${{ github.event.pull_request.number }} --body "Label \`${{ github.event.label.name }}\` detected, but no publishable package files changed in this PR. Automatic version bump skipped."
             exit 0
           fi
 
-          # Unique preserve order
           UNIQUE=()
           for pkg in "${AFFECTED[@]}"; do
             if ! printf '%s\n' "${UNIQUE[@]}" | grep -Fxq "$pkg"; then
@@ -140,14 +151,6 @@ jobs:
           fi
           printf '%s\n' "${REMAINING[@]}" > remaining.txt
           echo "remaining=$(paste -sd' ' remaining.txt)" >> $GITHUB_OUTPUT
-
-      - name: Checkout PR head branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: true
-          fetch-depth: 0
 
       - name: Bump versions in PR branch
         id: do_bump
