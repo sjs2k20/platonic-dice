@@ -17,46 +17,52 @@ permissions:
 env:
   CI: true
 
-# Shared condition: always run on PRs; skip the bot's own bump commit on push.
-# 'head_commit' is only set on push events, so the PR branch of the OR ensures
-# this condition is always true for pull_request triggers.
-x-skip-guard: &skip-guard >
-  github.event_name == 'pull_request' ||
-  !startsWith(github.event.head_commit.message, 'chore(release):')
-
-# Shared setup steps reused across jobs via YAML anchors.
-x-setup: &setup
-  - uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
-  - name: Setup Node.js
-    uses: actions/setup-node@v4
-    with:
-      node-version: "24"
-  - name: Setup pnpm
-    uses: pnpm/action-setup@v2
-    with:
-      version: "8.15.9"
-      cache: true
-  - name: Install dependencies
-    run: pnpm -w install --frozen-lockfile
-
 jobs:
   lint:
     name: lint
-    if: *skip-guard
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
-      - *setup
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
+          cache: true
+      - name: Install dependencies
+        run: pnpm -w install --frozen-lockfile
       - name: Lint
         run: pnpm -r --if-present lint
 
   typecheck:
     name: typecheck
-    if: *skip-guard
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
-      - *setup
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
+          cache: true
+      - name: Install dependencies
+        run: pnpm -w install --frozen-lockfile
       - name: Build workspace packages
         run: pnpm -w --if-present build
       - name: Typecheck
@@ -74,9 +80,24 @@ jobs:
 
   test:
     name: test
-    if: *skip-guard
+    if: >
+      github.event_name == 'pull_request' ||
+      !startsWith(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     steps:
-      - *setup
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
+          cache: true
+      - name: Install dependencies
+        run: pnpm -w install --frozen-lockfile
       - name: Test
         run: pnpm -r --if-present test
