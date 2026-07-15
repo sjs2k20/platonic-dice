@@ -76,7 +76,9 @@ jobs:
               found=1
             fi
           done
-          [ "$found" -eq 0 ] && echo "No tsconfig.json files found; skipping."
+          if [ "$found" -eq 0 ]; then
+            echo "No tsconfig.json files found; skipping."
+          fi
 
   test:
     name: test
@@ -99,5 +101,7 @@ jobs:
           cache: true
       - name: Install dependencies
         run: pnpm -w install --frozen-lockfile
+      - name: Build workspace packages
+        run: pnpm -w --if-present build
       - name: Test
         run: pnpm -r --if-present test
