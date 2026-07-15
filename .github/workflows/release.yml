@@ -216,7 +216,7 @@ jobs:
             fi
 
             echo "=== Building $NAME ==="
-            pnpm --filter "$NAME" run build --if-present
+            pnpm --filter "$NAME" run build
 
             echo "=== Publishing $NAME@$VERSION ==="
             pushd "$pkg" >/dev/null
