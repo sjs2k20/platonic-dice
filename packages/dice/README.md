@@ -2,7 +2,7 @@
 
 Persistent dice objects with roll history and TypeScript support. This package builds on top of `@platonic-dice/core` and provides classes such as `Die` which maintain roll history, validators, and utilities for consuming applications.
 
-Version 2.1.0 adds support for `rollModTest()` - combining modifiers with test evaluation in a single method call.
+Version 2.1.0 adds new `rollModTest()` method - combining modifiers with test evaluation in a single method call.
 
 ## Installation
 

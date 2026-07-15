@@ -80,7 +80,7 @@ pnpm run test:types
 
 ## Examples
 
-The `examples/` directory contains comprehensive examples for all major functions. Run them to see the library in action:
+The `examples/` directory contains comprehensive examples for all the major functions. Run them to see the library in action:
 
 ```bash
 # Run all core examples (roll, rollDice, rollMod, rollDiceMod, rollTest, rollModTest)
