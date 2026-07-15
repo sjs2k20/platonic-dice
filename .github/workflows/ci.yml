@@ -17,56 +17,66 @@ permissions:
 env:
   CI: true
 
+# Shared condition: always run on PRs; skip the bot's own bump commit on push.
+# 'head_commit' is only set on push events, so the PR branch of the OR ensures
+# this condition is always true for pull_request triggers.
+x-skip-guard: &skip-guard >
+  github.event_name == 'pull_request' ||
+  !startsWith(github.event.head_commit.message, 'chore(release):')
+
+# Shared setup steps reused across jobs via YAML anchors.
+x-setup: &setup
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: "24"
+  - name: Setup pnpm
+    uses: pnpm/action-setup@v2
+    with:
+      version: "8.15.9"
+      cache: true
+  - name: Install dependencies
+    run: pnpm -w install --frozen-lockfile
+
 jobs:
-  build:
-    name: lint / typecheck / test
-    # Skip the automated version-bump commit pushed by the release workflow.
-    # For pull_request events head_commit is not set, so the left-hand side
-    # of the OR ensures CI always runs on PRs.
-    if: >
-      github.event_name == 'pull_request' ||
-      !startsWith(github.event.head_commit.message, 'chore(release):')
+  lint:
+    name: lint
+    if: *skip-guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: "8.15.9"
-          cache: true
-
-      - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile
-
-      - name: Lint (run in all packages that expose a lint script)
+      - *setup
+      - name: Lint
         run: pnpm -r --if-present lint
 
-      - name: Build workspace packages (produce type declarations)
+  typecheck:
+    name: typecheck
+    if: *skip-guard
+    runs-on: ubuntu-latest
+    steps:
+      - *setup
+      - name: Build workspace packages
         run: pnpm -w --if-present build
-
-      - name: Typecheck (runs tsc --noEmit for packages that have a tsconfig.json)
+      - name: Typecheck
         run: |
           set -euo pipefail
-          echo "Looking for packages with tsconfig.json..."
           found=0
           for dir in packages/*; do
             if [ -f "$dir/tsconfig.json" ]; then
-              echo "Found tsconfig in $dir, running tsc --noEmit"
+              echo "Typechecking $dir"
               npx -y tsc -p "$dir/tsconfig.json" --noEmit
               found=1
             fi
           done
-          if [ "$found" -eq 0 ]; then
-            echo "No package tsconfig.json files found; skipping typecheck step."
-          fi
+          [ "$found" -eq 0 ] && echo "No tsconfig.json files found; skipping."
 
-      - name: Run tests (root test script runs tests across workspace)
+  test:
+    name: test
+    if: *skip-guard
+    runs-on: ubuntu-latest
+    steps:
+      - *setup
+      - name: Test
         run: pnpm -r --if-present test
