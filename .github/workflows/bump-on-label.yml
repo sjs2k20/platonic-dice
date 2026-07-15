@@ -85,13 +85,19 @@ jobs:
       - name: Fetch PR base branch for diff
         run: |
           set -euo pipefail
-          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+          git fetch "$BASE_REF" --depth=1 || true
 
       - name: Get PR file list from git diff
         id: pr_files
         run: |
           set -euo pipefail
-          git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | sort > pr-files.txt
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+          if git merge-base --is-ancestor "$BASE_REF" HEAD 2>/dev/null; then
+            git diff --name-only "$BASE_REF"...HEAD | sort > pr-files.txt
+          else
+            git diff --name-only "$BASE_REF" HEAD | sort > pr-files.txt
+          fi
           echo "list=$(paste -sd',' pr-files.txt || true)" >> $GITHUB_OUTPUT
 
       - name: Determine affected publishable packages
@@ -183,7 +189,7 @@ jobs:
             if [ -n "${NPM_TOKEN:-}" ]; then
               printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > "$PWD/.npmrc"
             fi
-            pnpm --filter "$NAME" exec npm version "$TYPE" --no-git-tag-version --no-workspaces-update
+            pnpm --filter "$NAME" --workspace-root exec npm version "$TYPE" --no-git-tag-version --no-workspaces-update
             git add "$pkg/package.json"
             UPDATED=true
           done < remaining.txt
