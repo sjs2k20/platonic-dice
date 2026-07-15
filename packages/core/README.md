@@ -104,6 +104,12 @@ npm run examples:entities
 
 Each example demonstrates practical usage patterns and outputs results to help you understand the API.
 
+## Release process
+
+Package versions are bumped automatically from pull requests that carry a semver label (`semver/patch`, `semver/minor`, or `semver/major`). You do not need to edit the package version manually.
+
+When the PR is merged to `develop` and later `main`, the publish workflow publishes any package whose version changed.
+
 ## Contributing
 
 See the repository root `README.md` for contribution guidelines. Keep changes backwards-compatible where possible and include tests.

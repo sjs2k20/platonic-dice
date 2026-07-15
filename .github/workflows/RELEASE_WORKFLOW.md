@@ -17,6 +17,8 @@ This repository publishes packages only after a merge to `main`, not on tag crea
 8. When ready for a release, merge `develop` into `main` with a pull request.
 9. `publish-on-main.yml` runs on the merge commit and publishes only changed packages.
 
+No manual package.json edits are required; the semver label controls the version bump.
+
 ## What is published?
 
 The `publish-on-main` workflow determines which publishable packages changed and publishes only those packages.

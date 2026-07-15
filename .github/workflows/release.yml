@@ -1,0 +1,284 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Prevent concurrent releases on main
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: read
+
+jobs:
+  release:
+    name: Bump versions and publish
+    # Skip the bot's own version-bump commit to prevent an infinite loop.
+    # PAT-triggered pushes re-fire workflow runs, unlike GITHUB_TOKEN pushes.
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+    runs-on: ubuntu-latest
+    env:
+      # gh CLI uses GH_TOKEN. GITHUB_TOKEN is sufficient for reading PR info
+      # and posting comments; the PAT is only needed for the git push.
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+      - name: Checkout with PAT
+        uses: actions/checkout@v4
+        with:
+          # RELEASE_PAT allows pushing back to the protected main branch.
+          token: ${{ secrets.RELEASE_PAT }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: "8.15.9"
+
+      # ── 1. Detect which packages changed in this merge ───────────────────────
+
+      - name: Detect changed packages
+        id: changed
+        run: |
+          set -euo pipefail
+          ALL_PACKAGES=(packages/core packages/types-core packages/dice packages/ui)
+          CHANGED=()
+
+          git diff --name-only HEAD~1 HEAD > changed-files.txt
+          echo "=== Changed files ==="
+          cat changed-files.txt
+
+          for pkg in "${ALL_PACKAGES[@]}"; do
+            if grep -q "^${pkg}/" changed-files.txt; then
+              CHANGED+=("$pkg")
+            fi
+          done
+
+          if [ ${#CHANGED[@]} -eq 0 ]; then
+            echo "No package files changed; nothing to release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            printf '%s\n' "${CHANGED[@]}" > changed-packages.txt
+            echo "=== Packages to bump ==="
+            cat changed-packages.txt
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── 2. Determine semver bump level from PR label ─────────────────────────
+
+      - name: Get merged PR info
+        id: pr_info
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          COMMIT_TITLE=$(git log -1 --pretty=%s)
+          echo "Commit title: $COMMIT_TITLE"
+
+          # Extract PR number from squash-merge title: "My title (#123)"
+          if [[ "$COMMIT_TITLE" =~ \(#([0-9]+)\) ]]; then
+            PR_NUMBER="${BASH_REMATCH[1]}"
+            echo "PR number: $PR_NUMBER"
+          else
+            echo "No PR number found in commit title; defaulting to patch."
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            echo "head_ref=" >> "$GITHUB_OUTPUT"
+            echo "semver_label=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
+          SEMVER_LABEL=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq \
+            '[.labels[].name | select(startswith("semver/"))] | first // ""')
+
+          echo "Source branch : $HEAD_REF"
+          echo "Semver label  : ${SEMVER_LABEL:-none}"
+
+          echo "pr_number=$PR_NUMBER"       >> "$GITHUB_OUTPUT"
+          echo "head_ref=$HEAD_REF"         >> "$GITHUB_OUTPUT"
+          echo "semver_label=$SEMVER_LABEL" >> "$GITHUB_OUTPUT"
+
+      - name: Determine bump type
+        id: semver
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          LABEL="${{ steps.pr_info.outputs.semver_label }}"
+          HEAD_REF="${{ steps.pr_info.outputs.head_ref }}"
+          PR_NUMBER="${{ steps.pr_info.outputs.pr_number }}"
+
+          case "$LABEL" in
+            semver/patch) TYPE=patch ;;
+            semver/minor) TYPE=minor ;;
+            semver/major) TYPE=major ;;
+            "")
+              # develop→main requires an explicit label; all others default to patch
+              if [ "$HEAD_REF" = "develop" ]; then
+                MSG="**Release blocked**: this PR merged from \`develop\` into \`main\` without a semver label.
+
+          Add \`semver/patch\`, \`semver/minor\`, or \`semver/major\` to the PR and rerun the release workflow manually via the Actions tab."
+                echo "$MSG"
+                if [ -n "$PR_NUMBER" ]; then
+                  gh pr comment "$PR_NUMBER" --body "$MSG" || true
+                fi
+                exit 1
+              else
+                echo "No semver label; defaulting to patch (source: '${HEAD_REF:-unknown}')"
+                TYPE=patch
+              fi
+              ;;
+            *)
+              echo "Unrecognised label '$LABEL'; defaulting to patch"
+              TYPE=patch
+              ;;
+          esac
+
+          echo "type=$TYPE" >> "$GITHUB_OUTPUT"
+          echo "Bump type: $TYPE"
+
+      # ── 3. Bump versions ──────────────────────────────────────────────────────
+
+      - name: Bump package versions
+        id: bump
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          TYPE="${{ steps.semver.outputs.type }}"
+          BUMPED=()
+
+          while IFS= read -r pkg; do
+            if [ ! -f "$pkg/package.json" ]; then
+              echo "No package.json in $pkg; skipping"
+              continue
+            fi
+            pushd "$pkg" >/dev/null
+            npm version "$TYPE" --no-git-tag-version --no-workspaces-update
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            BUMPED+=("$pkg → $NEW_VERSION")
+            popd >/dev/null
+            git add "$pkg/package.json"
+          done < changed-packages.txt
+
+          printf '%s\n' "${BUMPED[@]}"
+          printf '%s\n' "${BUMPED[@]}" > bumped-summary.txt
+
+      - name: Commit and push version bump
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          TYPE="${{ steps.semver.outputs.type }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(release): bump versions ($TYPE)" || echo "Nothing new to commit"
+          git push
+
+      # ── 4. Build and publish publishable packages ────────────────────────────
+
+      - name: Install dependencies
+        if: steps.changed.outputs.skip == 'false'
+        run: pnpm -w install --frozen-lockfile
+
+      - name: Build and publish changed packages
+        if: steps.changed.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          PUBLISHABLE=(packages/core packages/types-core packages/dice)
+          printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > ~/.npmrc
+          FAILURES=0
+
+          while IFS= read -r pkg; do
+            # Skip packages not in the publishable list
+            IS_PUBLISHABLE=false
+            for pub in "${PUBLISHABLE[@]}"; do
+              [ "$pkg" = "$pub" ] && IS_PUBLISHABLE=true && break
+            done
+            if [ "$IS_PUBLISHABLE" = "false" ]; then
+              echo "Not publishable: $pkg — skipping publish"
+              continue
+            fi
+
+            NAME=$(node -p "require('./${pkg}/package.json').name")
+            VERSION=$(node -p "require('./${pkg}/package.json').version")
+            PRIVATE=$(node -p "require('./${pkg}/package.json').private || false")
+
+            if [ "$PRIVATE" = "true" ]; then
+              echo "Private package: $NAME — skipping publish"
+              continue
+            fi
+
+            echo "=== Building $NAME ==="
+            pnpm --filter "$NAME" run build --if-present
+
+            echo "=== Publishing $NAME@$VERSION ==="
+            pushd "$pkg" >/dev/null
+            if npm publish --registry https://registry.npmjs.org/ --access public; then
+              echo "Published $NAME@$VERSION"
+            else
+              if npm view "$NAME@$VERSION" --registry https://registry.npmjs.org/ >/dev/null 2>&1; then
+                echo "$NAME@$VERSION already on npm; skipping"
+              else
+                echo "ERROR: Failed to publish $NAME@$VERSION"
+                FAILURES=$((FAILURES + 1))
+              fi
+            fi
+            popd >/dev/null
+          done < changed-packages.txt
+
+          if [ "$FAILURES" -ne 0 ]; then
+            echo "$FAILURES package(s) failed to publish."
+            exit 1
+          fi
+
+      # ── 5. Open an issue if anything failed ──────────────────────────────────
+
+      - name: Open or update failure issue
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const sha = process.env.GITHUB_SHA;
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const title = `Release workflow failed on main`;
+            const body = [
+              `The release workflow failed at commit \`${sha}\`.`,
+              ``,
+              `**Failed run:** ${runUrl}`,
+              ``,
+              `Fix the issue and rerun the workflow manually via the Actions tab.`,
+            ].join('\n');
+
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['release-failure'],
+              per_page: 100,
+            });
+
+            const existing = openIssues.find(i => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: `Failed again at commit \`${sha}\`.\n\n**Run:** ${runUrl}`,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['release-failure'],
+              });
+            }

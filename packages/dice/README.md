@@ -53,10 +53,11 @@ cd packages/dice
 npm run build
 ```
 
-## Notes on publishing
+## Release process
 
-- This package depends on `@platonic-dice/core`. When publishing both packages in the same release, ensure both `package.json` versions are bumped to the same release tag (the repository's release workflow can publish matching versions automatically).
-- The package is scoped (`@platonic-dice/dice`) — make sure the npm scope exists for your account or organization before publishing.
+This package is published through the repository release workflow. Version bumps are handled automatically when a pull request carries a semver label (`semver/patch`, `semver/minor`, or `semver/major`).
+
+You do not need to edit the package version manually; the workflow updates it for you before the package is published from `main`.
 
 ## License
 
