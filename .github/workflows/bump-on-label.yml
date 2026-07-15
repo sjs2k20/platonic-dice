@@ -186,10 +186,9 @@ jobs:
 
             NAME=$(node -p "console.log(require('./${pkg}/package.json').name)")
             echo "Bumping $NAME in $pkg"
-            if [ -n "${NPM_TOKEN:-}" ]; then
-              printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN" > "$PWD/.npmrc"
-            fi
-            pnpm --filter "$NAME" --workspace-root exec npm version "$TYPE" --no-git-tag-version --no-workspaces-update
+            pushd "$pkg" >/dev/null
+            npm version "$TYPE" --no-git-tag-version
+            popd >/dev/null
             git add "$pkg/package.json"
             UPDATED=true
           done < remaining.txt
