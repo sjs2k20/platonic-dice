@@ -108,29 +108,28 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
 
 ## Publishing
 
-### npm Packages (core & dice)
+### Release process
 
-We publish packages by creating package-specific tags and letting GitHub Actions run the release workflow.
+Releases are driven by pull request labels and merges to `main`.
 
-**Quick process:**
+1. Work on a branch from `develop`.
+2. Open a pull request to `develop`.
+3. Add one of the semver labels before merging:
+   - `semver/patch`
+   - `semver/minor`
+   - `semver/major`
+4. The GitHub Actions workflow bumps the affected package versions in the PR branch for you.
+5. Merge the PR to `develop` once CI is green.
+6. When you are ready to release, merge `develop` into `main`.
+7. The publish workflow runs on `main` and publishes only the packages whose versions changed.
 
-1. Bump package versions (e.g., `packages/core/package.json` to `2.1.2`)
-2. Commit: `git commit -m "chore(release): core 2.1.2"`
-3. Tag: `git tag -a core-v2.1.2 -m "release: core v2.1.2"`
-4. Push: `git push origin core-v2.1.2`
-
-The workflow at `.github/workflows/publish.yml` publishes packages matching the tag version to npm. See `.github/workflows/RELEASE_WORKFLOW.md` for detailed instructions.
-
-**Tag-targeted publishing behavior:**
-
-- `core-vX.Y.Z` targets `@platonic-dice/core` only
-- `types-core-vX.Y.Z` targets `@platonic-dice/types-core` only
-- `dice-vX.Y.Z` targets `@platonic-dice/dice` only
+No manual edits to the package version numbers are required. The semver label triggers the version bump automatically.
 
 **Requirements:**
 
-- Repository secret `NPM_TOKEN` with publish permissions for `@platonic-dice` scope
-- Use package-specific tags: `core-v*.*.*`, `types-core-v*.*.*`, or `dice-v*.*.*`
+- Repository secret `NPM_TOKEN` with publish permissions for the `@platonic-dice` scope
+- Keep branch protections on `develop` and `main` in place
+- Let CI pass before merging
 
 ### GitHub Pages (ui)
 

@@ -10,6 +10,10 @@ Install this alongside the runtime package:
 pnpm add @platonic-dice/core @platonic-dice/types-core
 ```
 
+## Release process
+
+This package follows the same release workflow as the other publishable packages. Add a semver label to the pull request that changes it, and the repository workflow will bump the version automatically before the release is published from `main`.
+
 ## Type Testing
 
 This package includes type tests using `tsd` to validate the public API surface:

@@ -3,6 +3,7 @@ name: Publish changed packages on main
 on:
   push:
     branches: [main]
+
   workflow_dispatch: {}
 
 permissions:
@@ -27,12 +28,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: '8.15.9'
+          version: "8.15.9"
           cache: true
 
       - name: Install dependencies
@@ -49,9 +50,10 @@ jobs:
           AFFECTED=()
           while IFS= read -r file; do
             for pkg in "${PUBLISHABLE[@]}"; do
-              case "$file" in
-                "$pkg"/package.json) AFFECTED+=("$pkg") ;;
-              esac
+              if [[ "$file" == "$pkg"/* || "$file" == "$pkg" ]]; then
+                AFFECTED+=("$pkg")
+                break
+              fi
             done
           done < changed-files.txt
 
