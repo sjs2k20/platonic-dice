@@ -1,6 +1,6 @@
 # @platonic-dice/core
 
-Core JavaScript/TypeScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs.
+Core JavaScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs. Type declarations are supplied separately by `@platonic-dice/types-core`.
 
 This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exports rolling helpers including `roll`, `rollMod`, `rollTest`, and `rollModTest` (combining modifiers with test evaluation), entities (die types, roll types, outcomes), and utility functions.
 
@@ -53,7 +53,7 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
 
 ## Build & Test
 
-This package's sources live under `src/`. To run tests or build from the monorepo root:
+This package's JavaScript sources live under `src/`. Its build copies the runtime JavaScript into `dist/`; the npm tarball contains that `dist/` directory, plus package metadata, the README, and the license. To run tests or build from the monorepo root:
 
 ```bash
 # from repo root

@@ -191,10 +191,32 @@ jobs:
           set -euo pipefail
           PUBLISHABLE=(packages/core packages/types-core packages/dice)
           printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > ~/.npmrc
-          FAILURES=0
 
+          # Build every changed public package before publishing any of them.
           while IFS= read -r pkg; do
-            # Skip packages not in the publishable list
+            IS_PUBLISHABLE=false
+            for pub in "${PUBLISHABLE[@]}"; do
+              [ "$pkg" = "$pub" ] && IS_PUBLISHABLE=true && break
+            done
+            if [ "$IS_PUBLISHABLE" = "false" ]; then
+              echo "Not publishable: $pkg — skipping build"
+              continue
+            fi
+
+            NAME=$(node -p "require('./${pkg}/package.json').name")
+            PRIVATE=$(node -p "require('./${pkg}/package.json').private || false")
+
+            if [ "$PRIVATE" = "true" ]; then
+              echo "Private package: $NAME — skipping build"
+              continue
+            fi
+
+            echo "=== Building $NAME (if defined) ==="
+            pnpm --filter "$NAME" run --if-present build
+          done < changed-packages.txt
+
+          FAILURES=0
+          while IFS= read -r pkg; do
             IS_PUBLISHABLE=false
             for pub in "${PUBLISHABLE[@]}"; do
               [ "$pkg" = "$pub" ] && IS_PUBLISHABLE=true && break
@@ -213,12 +235,9 @@ jobs:
               continue
             fi
 
-            echo "=== Building $NAME ==="
-            pnpm --filter "$NAME" run build
-
             echo "=== Publishing $NAME@$VERSION ==="
             pushd "$pkg" >/dev/null
-            if pnpm publish --no-git-checks --registry https://registry.npmjs.org/ --access public; then
+            if pnpm publish --ignore-scripts --no-git-checks --registry https://registry.npmjs.org/ --access public; then
               echo "Published $NAME@$VERSION"
             else
               if npm view "$NAME@$VERSION" --registry https://registry.npmjs.org/ >/dev/null 2>&1; then
