@@ -183,7 +183,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.changed.outputs.skip == 'false'
-        run: pnpm -w install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build and publish changed packages
         if: steps.changed.outputs.skip == 'false'

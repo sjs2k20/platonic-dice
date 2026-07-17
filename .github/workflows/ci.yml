@@ -35,7 +35,7 @@ jobs:
       - name: Activate pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
       - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile --prod=false
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Lint
         run: pnpm -r --if-present lint
 
@@ -56,7 +56,7 @@ jobs:
       - name: Activate pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
       - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile --prod=false
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Build workspace packages
         run: pnpm -w --if-present build
       - name: Typecheck
@@ -91,7 +91,7 @@ jobs:
       - name: Activate pnpm
         run: corepack enable && corepack prepare pnpm@11.12.0 --activate
       - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile --prod=false
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Build workspace packages
         run: pnpm -w --if-present build
       - name: Test
