@@ -38,12 +38,12 @@ importers:
   packages/dice:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^3.0.2
-        version: 3.0.4
+        specifier: workspace:^
+        version: link:../core
+    devDependencies:
       '@platonic-dice/types-core':
         specifier: workspace:*
         version: link:../types-core
-    devDependencies:
       '@types/node':
         specifier: ^24.13.3
         version: 24.13.3

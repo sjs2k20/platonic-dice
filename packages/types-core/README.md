@@ -1,8 +1,8 @@
 # @platonic-dice/types-core
 
-Type definitions for @platonic-dice/core.
+Type definitions for `@platonic-dice/core`.
 
-This package provides the TypeScript surface for the pure JS core package.
+This package is published independently to npm as `@platonic-dice/types-core`. Its npm tarball contains this package's declaration files and metadata, not the whole monorepo. It provides the TypeScript surface for the pure JS core package.
 
 Install this alongside the runtime package:
 
@@ -12,7 +12,9 @@ pnpm add @platonic-dice/core @platonic-dice/types-core
 
 ## Release process
 
-This package follows the same release workflow as the other publishable packages. Add a semver label to the pull request that changes it, and the repository workflow will bump the version automatically before the release is published from `main`.
+This package is published independently from the other packages in the monorepo. The publish workflow releases only this package when its own version changes.
+
+Versions are bumped after a pull request is merged to `main`. A `develop` to `main` release pull request requires one semver label (`semver/patch`, `semver/minor`, or `semver/major`); hotfix and maintenance pull requests default to a patch release. You do not need to edit the package version manually.
 
 ## Type Testing
 

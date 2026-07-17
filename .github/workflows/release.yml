@@ -218,7 +218,7 @@ jobs:
 
             echo "=== Publishing $NAME@$VERSION ==="
             pushd "$pkg" >/dev/null
-            if npm publish --registry https://registry.npmjs.org/ --access public; then
+            if pnpm publish --no-git-checks --registry https://registry.npmjs.org/ --access public; then
               echo "Published $NAME@$VERSION"
             else
               if npm view "$NAME@$VERSION" --registry https://registry.npmjs.org/ >/dev/null 2>&1; then
