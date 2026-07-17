@@ -17,6 +17,8 @@ This repository is structured as a pnpm workspace. Each package lives under `pac
 If pnpm is not installed yet, use Corepack:
 
 ```bash
+nvm install
+nvm use
 corepack enable
 corepack prepare pnpm@11.12.0 --activate
 ```
@@ -122,24 +124,26 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
 
 ### Release process
 
-Releases are driven by pull request labels and merges to `main`.
+Packages are versioned and published independently after a pull request is merged to `main`. The release workflow detects changed package directories, bumps their versions, and publishes changed public packages to npm with pnpm.
 
-1. Work on a branch from `develop`.
-2. Open a pull request to `develop`.
-3. Add one of the semver labels before merging:
-   - `semver/patch`
-   - `semver/minor`
-   - `semver/major`
-4. The GitHub Actions workflow bumps the affected package versions in the PR branch for you.
-5. Merge the PR to `develop` once CI is green.
-6. When you are ready to release, merge `develop` into `main`.
-7. The publish workflow runs on `main` and publishes only the packages whose versions changed.
+1. Develop features on branches from `develop` and merge them back to `develop` without a version bump.
+2. Open a release pull request from `develop` to `main` and add exactly one semver label:
 
-No manual edits to the package version numbers are required. The semver label triggers the version bump automatically.
+- `semver/patch`
+- `semver/minor`
+- `semver/major`
+
+3. Merge the release pull request with squash merge once CI is green.
+4. The release workflow bumps and publishes each changed public package independently.
+
+Hotfix, maintenance, and Dependabot pull requests may merge directly to `main`. They default to a patch release when no semver label is present.
+
+No manual edits to package versions are required. In particular, a package's npm tarball contains that package's own files, not the monorepo.
 
 **Requirements:**
 
 - Repository secret `NPM_TOKEN` with publish permissions for the `@platonic-dice` scope
+- Repository secret `RELEASE_PAT` with permission to push the post-release version-bump commit to `main`
 - Keep branch protections on `develop` and `main` in place
 - Let CI pass before merging
 

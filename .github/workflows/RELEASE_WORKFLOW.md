@@ -1,6 +1,6 @@
 # Release workflow
 
-This repository publishes packages only after a merge to `main`, not on tag creation. The release workflow is built around GitFlow-style development and label-driven version bumps.
+This repository publishes packages only after a merge to `main`, not on tag creation. The release workflow is built around GitFlow-style development and post-merge, label-driven version bumps.
 
 ## CI toolchain
 
@@ -10,19 +10,16 @@ This repository publishes packages only after a merge to `main`, not on tag crea
 ## Current release flow
 
 1. Develop features and fixes on a branch based off `develop`.
-2. Open a pull request to `develop`.
-3. Let the `CI` workflow run and ensure the PR passes.
-4. If the PR includes package changes that should publish a new version, add one of:
+2. Open a pull request to `develop` and let `CI` pass before merging it.
+3. When ready to release, open a pull request from `develop` to `main`.
+4. Add exactly one semver label to that release pull request:
    - `semver/patch`
    - `semver/minor`
    - `semver/major`
-5. The `release.yml` workflow evaluates semver labels from the merged PR when `main` is updated.
-6. After the version bump commit is pushed, `CI` reruns on the updated PR.
-7. Merge the PR to `develop` once it is reviewed and green.
-8. When ready for a release, merge `develop` into `main` with a pull request.
-9. `release.yml` runs on the merge commit and publishes only changed packages.
+5. Squash-merge the release pull request to `main`.
+6. `release.yml` runs on the merge commit, detects changed packages, bumps their versions, and publishes each changed public package independently.
 
-No manual package.json edits are required; the semver label controls the version bump.
+Hotfix, maintenance, and Dependabot branches may merge directly to `main`; without a semver label they default to a patch release. No manual package.json edits are required.
 
 ## What is published?
 
@@ -34,15 +31,15 @@ Publishable packages in this repository are currently:
 - `packages/types-core`
 - `packages/dice`
 
-Only packages with a changed `package.json` version on `main` are published.
+Only packages whose directories changed in the merged pull request are versioned. Public packages among those changes are published individually with `pnpm publish`, which rewrites pnpm `workspace:` ranges to ordinary npm semver ranges in the published metadata.
 
 ## Manual reruns and failure handling
 
 The publish workflow is not required for merge approval. That means:
 
 - A merge to `main` can complete even if publishing later fails.
-- Publishing failures are surfaced by a `publish-failure` GitHub issue.
-- After fixing the failure (for example by rotating `NPM_TOKEN`), rerun the `Release` workflow from the Actions tab.
+- Publishing failures are surfaced by a `release-failure` GitHub issue.
+- After fixing the failure, create a fresh release-triggering merge or publish the already-bumped package version manually. Re-running an old workflow run can fail because `main` has moved forward.
 
 ## Version bump labels
 
@@ -52,7 +49,7 @@ Use labels to control semantic version bumps from the PR UI:
 - `semver/minor` — bump minor versions
 - `semver/major` — bump major versions
 
-If no label is added, package versions are not bumped automatically.
+If no label is added to a `develop` to `main` release PR, the workflow fails without publishing. Hotfix, maintenance, and Dependabot branches default to `patch`.
 
 ## Local release verification
 

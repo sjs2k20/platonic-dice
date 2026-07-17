@@ -2,7 +2,7 @@
 
 Core JavaScript/TypeScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs.
 
-This package contains the pure logic used by higher-level packages (for example `@platonic-dice/dice`). It exports rolling helpers including `roll`, `rollMod`, `rollTest`, and `rollModTest` (combining modifiers with test evaluation), entities (die types, roll types, outcomes), and utility functions.
+This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exports rolling helpers including `roll`, `rollMod`, `rollTest`, and `rollModTest` (combining modifiers with test evaluation), entities (die types, roll types, outcomes), and utility functions.
 
 ## Installation
 
@@ -105,9 +105,9 @@ Each example demonstrates practical usage patterns and outputs results to help y
 
 ## Release process
 
-Package versions are bumped automatically from pull requests that carry a semver label (`semver/patch`, `semver/minor`, or `semver/major`). You do not need to edit the package version manually.
+This package is published independently from the other packages in the monorepo. The publish workflow releases only this package when its own version changes.
 
-When the PR is merged to `develop` and later `main`, the publish workflow publishes any package whose version changed.
+Versions are bumped after a pull request is merged to `main`. A `develop` to `main` release pull request requires one semver label (`semver/patch`, `semver/minor`, or `semver/major`); hotfix and maintenance pull requests default to a patch release. You do not need to edit the package version manually.
 
 ## Contributing
 
