@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout with PAT
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # RELEASE_PAT allows pushing back to the protected main branch.
           token: ${{ secrets.RELEASE_PAT }}
@@ -41,7 +41,7 @@ jobs:
           node-version: "24"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v6
         with:
           version: "8.15.9"
 
