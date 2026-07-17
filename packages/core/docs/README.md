@@ -106,9 +106,10 @@ node examples/rollDice-example.js
 node examples/rollMod-example.js
 node examples/rollDiceMod-example.js
 node examples/rollTest-example.js
-node examples/rollModTest-example.js
 node examples/rollDiceTest-example.js
+node examples/rollModTest-example.js
 node examples/rollModTest-advanced-features-example.js
+node examples/rollDiceModTest-example.js
 node examples/analyseTest-example.js
 node examples/analyseModTest-example.js
 

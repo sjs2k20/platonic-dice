@@ -94,8 +94,26 @@ function createCacheKey(
     conditions: testConditions.conditions,
   });
 
-  // Create modifier key (use function toString for consistent hashing)
-  const modifierKey = modifier ? modifier.fn.toString() : "none";
+  // Create modifier key; prefer a short, stable fingerprint. We use the
+  // modifier function's text but truncate to avoid extremely long cache keys.
+  let modifierKey = "none";
+  if (modifier) {
+    // Prefer an explicit `id` fingerprint when available (stable hash).
+    if (modifier && typeof modifier.id === "string") {
+      modifierKey = modifier.id;
+    } else {
+      try {
+        const fn =
+          modifier.fn && typeof modifier.fn === "function"
+            ? modifier.fn
+            : modifier;
+        const s = String(fn);
+        modifierKey = s.length > 200 ? s.slice(0, 200) + "..." : s;
+      } catch (e) {
+        modifierKey = "modifier";
+      }
+    }
+  }
 
   return `${dieType}|${testType}|${conditionsKey}|${modifierKey}|${useNaturalCrits}`;
 }
@@ -193,7 +211,12 @@ function createOutcomeMap(
     const value = modifier ? modifier.apply(baseRoll) : baseRoll;
 
     // Determine base outcome from test evaluation
-    let outcome = determineOutcome(value, testConditions);
+    let outcome = determineOutcome(
+      value,
+      /** @type {import("../entities/TestConditions").TestConditionsInstance} */ (
+        testConditions
+      ),
+    );
 
     // Apply natural crit overrides if enabled
     if (shouldUseNaturalCrits) {

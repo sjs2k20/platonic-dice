@@ -125,7 +125,7 @@ function rollModTest(
   modifier,
   testConditions,
   rollType = undefined,
-  options = {}
+  options = {},
 ) {
   if (!dieType) throw new TypeError("dieType is required.");
   if (!modifier) throw new TypeError("modifier is required.");
@@ -133,6 +133,7 @@ function rollModTest(
 
   // Normalise the modifier (skip if already a RollModifier instance)
   const { RollModifier } = require("./entities");
+  /** @type {import("./entities/RollModifier").RollModifierLike} */
   const mod =
     modifier instanceof RollModifier
       ? modifier
@@ -163,7 +164,7 @@ function rollModTest(
         // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
         conditionSet,
         mod,
-        options.useNaturalCrits
+        options.useNaturalCrits,
       );
       outcomeMap = {};
       const sides = numSides(dieType);
@@ -181,7 +182,7 @@ function rollModTest(
       // @ts-ignore - ModifiedTestConditions is compatible with TestConditions for outcome mapping
       conditionSet,
       mod, // include modifier
-      options.useNaturalCrits
+      options.useNaturalCrits,
     );
   }
 

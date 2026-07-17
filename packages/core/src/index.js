@@ -9,14 +9,21 @@
  */
 
 // --- Core modules ---
+/** @type {typeof import("./rollDice.js")} */
 const rollDice = require("./rollDice.js");
+/** @type {typeof import("./roll.js")} */
 const roll = require("./roll.js");
+/** @type {typeof import("./rollMod.js")} */
 const rollMod = require("./rollMod.js");
+/** @type {typeof import("./rollDiceMod.js")} */
 const rollDiceMod = require("./rollDiceMod.js");
 const rollDiceTest = require("./rollDiceTest.js");
 const rollTest = require("./rollTest.js");
+/** @type {typeof import("./rollModTest.js")} */
 const rollModTest = require("./rollModTest.js");
+/** @type {typeof import("./analyseTest.js")} */
 const analyseTest = require("./analyseTest.js");
+/** @type {typeof import("./analyseModTest.js")} */
 const analyseModTest = require("./analyseModTest.js");
 
 // --- Entities (public API) ---
