@@ -44,7 +44,7 @@ const result = d20.rollModTest((n) => n + 5, {
 
 ## Build
 
-This package is written in TypeScript and compiles to `dist/`.
+This package is written in TypeScript and compiles to `dist/`, which contains its JavaScript runtime, generated declarations, and declaration maps. The npm tarball contains that `dist/` directory, plus package metadata, the README, and the license.
 
 ```bash
 pnpm --filter @platonic-dice/dice build
@@ -56,7 +56,7 @@ This package is published independently from the other packages in the monorepo.
 
 Versions are bumped after a pull request is merged to `main`. A `develop` to `main` release pull request requires one semver label (`semver/patch`, `semver/minor`, or `semver/major`); hotfix and maintenance pull requests default to a patch release. You do not need to edit the package version manually.
 
-During publishing, pnpm converts this package's internal workspace dependency ranges into ordinary npm semver ranges in the published package metadata.
+During publishing, pnpm converts this package's `workspace:^` dependency on `@platonic-dice/core` into an ordinary caret semver range in the published package metadata. `@platonic-dice/types-core` is used only for local compilation and is not a runtime dependency of this package.
 
 ## License
 
