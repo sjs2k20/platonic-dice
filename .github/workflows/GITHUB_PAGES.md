@@ -8,9 +8,14 @@ The UI showcase application is automatically deployed to GitHub Pages when chang
 
 ## How It Works
 
+### CI Toolchain
+
+- Node.js: `24`
+- pnpm: `11.12.0`
+
 ### Automatic Deployment
 
-The deployment is handled by `.github/workflows/deploy-pages.yml`:
+The deployment is handled by the GitHub Actions Pages deployment workflow in `.github/workflows/`:
 
 1. **Triggers** on:
    - Push to `main` branch affecting UI, core, or dice packages

@@ -7,7 +7,19 @@ A monorepo containing dice-rolling packages and an interactive showcase:
 - `@platonic-dice/dice` — higher-level persistent dice objects (history, validators, TypeScript types) built on `@platonic-dice/core`.
 - `@platonic-dice/ui` — React showcase application ([live demo](https://sjs2k20.github.io/platonic-dice/)) deployed to GitHub Pages.
 
-This repository is structured as an npm workspace. Each package lives under `packages/<name>` and has its own `package.json`, README and build/test scripts.
+This repository is structured as a pnpm workspace. Each package lives under `packages/<name>` and has its own `package.json`, README and build/test scripts.
+
+## Toolchain
+
+- Node.js: `>=24`
+- pnpm: `11.12.0`
+
+If pnpm is not installed yet, use Corepack:
+
+```bash
+corepack enable
+corepack prepare pnpm@11.12.0 --activate
+```
 
 ## Install
 
@@ -31,7 +43,7 @@ Locally (development):
 pnpm install
 
 # build all packages
-pnpm run build
+pnpm build
 
 # run tests across workspaces
 pnpm -r test
@@ -42,21 +54,21 @@ pnpm -r test
 ### @platonic-dice/core
 
 - Exposes functions for rolling dice (`roll`, `rollDice`, `rollMod`, `rollTest`, `rollModTest`), enums (`DieType`, `RollType`, `TestType`, `Outcome`), and utilities.
-- **Version 2.1.0** adds `rollModTest()` for combining modifiers with test evaluation, and `analyseModTest()` for probability analysis.
+- Includes `rollModTest()` for combining modifiers with test evaluation, and `analyseModTest()` for probability analysis.
 - Sources: `packages/core/src`
 - Entry: `packages/core/src/index.js`
 
 ### @platonic-dice/dice
 
 - Provides the `Die` class and history tooling which consumes `@platonic-dice/core`.
-- **Version 2.1.0** adds `Die.rollModTest()` method with separate history tracking for modified test rolls.
+- Includes `Die.rollModTest()` with separate history tracking for modified test rolls.
 - Written in TypeScript; built output is `packages/dice/dist`.
 - Entry: `packages/dice/dist/index.js` (after build)
 
 ### @platonic-dice/ui
 
 - React showcase application demonstrating the dice packages.
-- **Version 0.0.1 (PREVIEW)** — not a finished product, for demo purposes.
+- Current package version is 0.2.3 (PREVIEW), and the UI is intended as a demo application.
 - Live demo: https://sjs2k20.github.io/platonic-dice/
 - Automatically deploys to GitHub Pages on pushes to `main`
 - See `.github/workflows/GITHUB_PAGES.md` for deployment details
@@ -71,7 +83,7 @@ const { Die } = require("@platonic-dice/dice");
 
 console.log(roll("d20"));
 
-// New in 2.1.0: combine modifier with test evaluation
+// Combine modifier with test evaluation
 const result = rollModTest("d20", (n) => n + 5, {
   testType: "skill",
   target: 15,
@@ -142,7 +154,7 @@ The UI package automatically deploys to https://sjs2k20.github.io/platonic-dice/
 ## Contributing
 
 - Fork -> branch -> PR. Follow existing code style and add tests for new behavior.
-- Run `npm run build` and `npm test` before opening a PR.
+- Run `pnpm build` and `pnpm test` before opening a PR.
 
 ## License
 

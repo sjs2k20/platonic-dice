@@ -2,6 +2,11 @@
 
 This repository publishes packages only after a merge to `main`, not on tag creation. The release workflow is built around GitFlow-style development and label-driven version bumps.
 
+## CI toolchain
+
+- Node.js: `24`
+- pnpm: `11.12.0`
+
 ## Current release flow
 
 1. Develop features and fixes on a branch based off `develop`.
@@ -11,17 +16,17 @@ This repository publishes packages only after a merge to `main`, not on tag crea
    - `semver/patch`
    - `semver/minor`
    - `semver/major`
-5. The `bump-on-label` workflow will bump the affected package versions in the PR branch.
+5. The `release.yml` workflow evaluates semver labels from the merged PR when `main` is updated.
 6. After the version bump commit is pushed, `CI` reruns on the updated PR.
 7. Merge the PR to `develop` once it is reviewed and green.
 8. When ready for a release, merge `develop` into `main` with a pull request.
-9. `publish-on-main.yml` runs on the merge commit and publishes only changed packages.
+9. `release.yml` runs on the merge commit and publishes only changed packages.
 
 No manual package.json edits are required; the semver label controls the version bump.
 
 ## What is published?
 
-The `publish-on-main` workflow determines which publishable packages changed and publishes only those packages.
+The `release.yml` workflow determines which publishable packages changed and publishes only those packages.
 
 Publishable packages in this repository are currently:
 
@@ -37,7 +42,7 @@ The publish workflow is not required for merge approval. That means:
 
 - A merge to `main` can complete even if publishing later fails.
 - Publishing failures are surfaced by a `publish-failure` GitHub issue.
-- After fixing the failure (for example by rotating `NPM_TOKEN`), use the workflow "Run workflow" button on GitHub to rerun `publish-on-main`.
+- After fixing the failure (for example by rotating `NPM_TOKEN`), rerun the `Release` workflow from the Actions tab.
 
 ## Version bump labels
 
