@@ -213,10 +213,10 @@ console.log(
 All functions are thoroughly tested with Jest:
 
 ```bash
-npm test
+pnpm --filter @platonic-dice/core test
 ```
 
-Current test coverage evolves over time; run `npm test` for current totals.
+Current test coverage evolves over time; run `pnpm --filter @platonic-dice/core test` for current totals.
 
 ## TypeScript Support
 

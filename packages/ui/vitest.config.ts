@@ -12,6 +12,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@platonic-dice/core": path.resolve(__dirname, "../core/src"),
+      "@platonic-dice/dice": path.resolve(__dirname, "../dice/src"),
+      "@dice": path.resolve(__dirname, "../dice/src"),
       "@": path.resolve(__dirname, "./src"),
       "@components": path.resolve(__dirname, "./src/components"),
       "@config": path.resolve(__dirname, "./src/config"),

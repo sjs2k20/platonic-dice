@@ -28,7 +28,7 @@ const {
 console.log(roll(DieType.D20));
 console.log(rollDice(DieType.D6, { count: 3 }));
 
-// New in 2.1.0: rollModTest combines modifiers with test evaluation
+// rollModTest combines modifiers with test evaluation
 const result = rollModTest(DieType.D20, (n) => n + 5, {
   testType: "skill",
   target: 15,
@@ -57,16 +57,15 @@ This package's sources live under `src/`. To run tests or build from the monorep
 
 ```bash
 # from repo root
-npm run build
-npm test
+pnpm build
+pnpm test
 ```
 
 Or run package-local scripts:
 
 ```bash
-cd packages/core
 # run unit tests
-npm test
+pnpm --filter @platonic-dice/core test
 ```
 
 ### Type Testing
@@ -84,22 +83,22 @@ The `examples/` directory contains comprehensive examples for all the major func
 
 ```bash
 # Run all core examples (roll, rollDice, rollMod, rollDiceMod, rollTest, rollModTest)
-npm run examples
+pnpm --filter @platonic-dice/core examples
 
 # Run all examples including advanced features and analysis functions
-npm run examples:all
+pnpm --filter @platonic-dice/core examples:all
 
 # Run individual example files
-npm run examples:roll
-npm run examples:rollDice
-npm run examples:rollMod
-npm run examples:rollDiceMod
-npm run examples:rollTest
-npm run examples:rollModTest
-npm run examples:rollModTest:advanced
-npm run examples:analyseTest
-npm run examples:analyseModTest
-npm run examples:entities
+pnpm --filter @platonic-dice/core examples:roll
+pnpm --filter @platonic-dice/core examples:rollDice
+pnpm --filter @platonic-dice/core examples:rollMod
+pnpm --filter @platonic-dice/core examples:rollDiceMod
+pnpm --filter @platonic-dice/core examples:rollTest
+pnpm --filter @platonic-dice/core examples:rollModTest
+pnpm --filter @platonic-dice/core examples:rollModTest:advanced
+pnpm --filter @platonic-dice/core examples:analyseTest
+pnpm --filter @platonic-dice/core examples:analyseModTest
+pnpm --filter @platonic-dice/core examples:entities
 ```
 
 Each example demonstrates practical usage patterns and outputs results to help you understand the API.

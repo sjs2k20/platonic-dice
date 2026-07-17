@@ -2,6 +2,11 @@
 
 Interactive React showcase application for the `@platonic-dice` packages.
 
+## Toolchain
+
+- Node.js: `>=24`
+- pnpm: `11.12.0`
+
 ## Features
 
 - 🎲 Interactive dice rolling demonstrations
