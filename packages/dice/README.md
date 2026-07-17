@@ -1,6 +1,6 @@
 # @platonic-dice/dice
 
-Persistent dice objects with roll history and TypeScript support. This package builds on top of `@platonic-dice/core` and provides classes such as `Die` which maintain roll history, validators, and utilities for consuming applications, including `rollModTest()` for combined modifier/test evaluation.
+Persistent dice objects with roll history and TypeScript support. This package is published independently to npm as `@platonic-dice/dice`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It builds on top of `@platonic-dice/core` and provides classes such as `Die` which maintain roll history, validators, and utilities for consuming applications, including `rollModTest()` for combined modifier/test evaluation.
 
 ## Installation
 
@@ -52,9 +52,11 @@ pnpm --filter @platonic-dice/dice build
 
 ## Release process
 
-This package is published through the repository release workflow. Version bumps are handled automatically when a pull request carries a semver label (`semver/patch`, `semver/minor`, or `semver/major`).
+This package is published independently from the other packages in the monorepo. The publish workflow releases only this package when its own version changes.
 
-You do not need to edit the package version manually; the workflow updates it for you before the package is published from `main`.
+Versions are bumped after a pull request is merged to `main`. A `develop` to `main` release pull request requires one semver label (`semver/patch`, `semver/minor`, or `semver/major`); hotfix and maintenance pull requests default to a patch release. You do not need to edit the package version manually.
+
+During publishing, pnpm converts this package's internal workspace dependency ranges into ordinary npm semver ranges in the published package metadata.
 
 ## License
 
