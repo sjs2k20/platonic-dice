@@ -41,8 +41,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.4
       '@platonic-dice/types-core':
-        specifier: ^3.0.2
-        version: 3.0.4(@platonic-dice/core@3.0.4)
+        specifier: workspace:*
+        version: link:../types-core
     devDependencies:
       '@types/node':
         specifier: ^24.13.3
