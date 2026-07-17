@@ -32,13 +32,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: "24"
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: "8.15.9"
-          cache: true
+      - name: Activate pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
       - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Lint
         run: pnpm -r --if-present lint
 
@@ -56,13 +53,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: "24"
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: "8.15.9"
-          cache: true
+      - name: Activate pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
       - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Build workspace packages
         run: pnpm -w --if-present build
       - name: Typecheck
@@ -94,13 +88,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: "24"
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: "8.15.9"
-          cache: true
+      - name: Activate pnpm
+        run: corepack enable && corepack prepare pnpm@11.12.0 --activate
       - name: Install dependencies
-        run: pnpm -w install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --prod=false
       - name: Build workspace packages
         run: pnpm -w --if-present build
       - name: Test
