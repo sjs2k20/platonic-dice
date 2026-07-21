@@ -4,6 +4,7 @@ import {
   rollDice,
   rollMod,
   rollDiceMod,
+  rollDiceModTest,
   rollTest,
   rollModTest,
   DieType,
@@ -36,6 +37,20 @@ expectType<{
   base: { array: number[]; sum: number };
   modified: { each: { array: number[]; sum: number }; net: { value: number } };
 }>(rollDiceMod(DieType.D8, (n) => n * 2, { count: 2 }));
+
+// rollDiceModTest helpers
+expectType<{
+  base: { array: number[]; sum: number };
+  modified: { each: { array: number[]; sum: number }; net: { value: number } };
+  result: Object;
+}>(
+  rollDiceModTest(
+    DieType.D6,
+    { each: (n) => n + 1 },
+    [{ testType: TestType.AtLeast, target: 4 }],
+    { count: 2 },
+  ),
+);
 
 // rollTest helpers
 expectType<{ base: number; outcome: OutcomeValue }>(

@@ -80,7 +80,7 @@ pnpm -r test
 CommonJS (Node):
 
 ```js
-const { roll, rollModTest } = require("@platonic-dice/core");
+const { roll, rollModTest, rollDiceModTest } = require("@platonic-dice/core");
 const { Die } = require("@platonic-dice/dice");
 
 console.log(roll("d20"));
@@ -103,12 +103,30 @@ const testResult = d.rollModTest((n) => n + 3, {
   target: 10,
 });
 console.log(`Result: ${testResult}`);
+
+const poolResult = rollDiceModTest(
+  "d6",
+  { each: (n) => n + 1, net: (sum) => sum + 2 },
+  [{ testType: "at_least", target: 5 }],
+  {
+    count: 4,
+    rules: [{ type: "condition_count", conditionIndex: 0, atLeast: 2 }],
+  },
+);
+console.log(
+  `Pool passed: ${poolResult.result.passed}, total: ${poolResult.modified.net.value}`,
+);
 ```
 
 TypeScript / ESM:
 
 ```ts
-import { roll, rollModTest, DieType } from "@platonic-dice/core";
+import {
+  roll,
+  rollModTest,
+  rollDiceModTest,
+  DieType,
+} from "@platonic-dice/core";
 import { Die } from "@platonic-dice/dice";
 
 console.log(roll(DieType.D20));
@@ -118,6 +136,16 @@ const result = rollModTest(DieType.D20, (n) => n + 5, {
   testType: "skill",
   target: 15,
 });
+
+const pool = rollDiceModTest(
+  DieType.D6,
+  { each: (n) => n + 1, net: (sum) => sum + 2 },
+  [{ testType: "at_least", target: 5 }],
+  {
+    count: 4,
+    rules: [{ type: "condition_count", conditionIndex: 0, atLeast: 2 }],
+  },
+);
 ```
 
 ## Publishing
