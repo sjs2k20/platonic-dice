@@ -18,6 +18,8 @@ const rollMod = require("./rollMod.js");
 /** @type {typeof import("./rollDiceMod.js")} */
 const rollDiceMod = require("./rollDiceMod.js");
 const rollDiceTest = require("./rollDiceTest.js");
+/** @type {typeof import("./rollDiceModTest.js")} */
+const rollDiceModTest = require("./rollDiceModTest.js");
 const rollTest = require("./rollTest.js");
 /** @type {typeof import("./rollModTest.js")} */
 const rollModTest = require("./rollModTest.js");
@@ -38,6 +40,7 @@ Object.assign(exports, rollDice);
 Object.assign(exports, rollMod);
 Object.assign(exports, rollDiceMod);
 Object.assign(exports, rollDiceTest);
+Object.assign(exports, rollDiceModTest);
 Object.assign(exports, entities);
 Object.assign(exports, rollTest);
 Object.assign(exports, rollModTest);
@@ -71,5 +74,6 @@ exports.computeModifiedRange = entities.computeModifiedRange;
 exports.rollTest = rollTest.rollTest;
 exports.rollModTest = rollModTest.rollModTest;
 exports.rollDiceTest = rollDiceTest.rollDiceTest;
+exports.rollDiceModTest = rollDiceModTest.rollDiceModTest;
 exports.analyseTest = analyseTest.analyseTest;
 exports.analyseModTest = analyseModTest.analyseModTest;

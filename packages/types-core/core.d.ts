@@ -19,6 +19,9 @@ export * from "./rollDiceMod";
 // Re-export rollDiceTest
 export * from "./rollDiceTest";
 
+// Re-export rollDiceModTest
+export * from "./rollDiceModTest";
+
 // Re-export rollTest
 export * from "./rollTest";
 

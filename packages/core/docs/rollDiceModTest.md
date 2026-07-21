@@ -79,7 +79,7 @@ rollDiceModTest(
 ## Parameters
 
 - **dieType**: The type of die to roll (`DieType.D4` through `DieType.D20`).
-- **modifier**: Modifier input accepted by `rollDiceMod`.
+- **modifier**: Required modifier input accepted by `rollDiceMod`.
   - Function `(sum) => number` (net modifier),
   - `RollModifier` instance,
   - Object `{ each?, net? }` for separate per-die and total modifiers.
@@ -105,6 +105,7 @@ rollDiceModTest(
 
 - `result` evaluation is based on base rolls with the per-die modifier behavior.
 - If you pass a single function or `RollModifier`, it is treated as a net modifier, so condition evaluation effectively uses unmodified die faces.
+- `condition_count` rules count successes after the per-die modifier; `value_count` rules count raw die faces.
 - If `conditions` is a `DiceTestConditions` instance, `options.count` must match `conditions.count`.
 
 ## See Also
