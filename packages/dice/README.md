@@ -42,6 +42,17 @@ const result = d20.rollModTest((n) => n + 5, {
 });
 ```
 
+### @platonic-dice/core
+
+The core package is a pure js module that handles the dice rolling logic. It is published separately at `@platonic-dice/core`. It is pulled in as a direct
+dependency of this package.
+
+### Type Definitions
+
+Type definitions are maintained in the separate
+`@platonic-dice/types-core` package. It is pulled in as a dev dependency
+of this package.
+
 ## Build
 
 This package is written in TypeScript and compiles to `dist/`, which contains its JavaScript runtime, generated declarations, and declaration maps. The npm tarball contains that `dist/` directory, plus package metadata, the README, and the license.
