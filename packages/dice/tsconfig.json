@@ -7,9 +7,8 @@
     "outDir": "dist",
     "isolatedModules": true,
     "types": ["node", "vitest", "@platonic-dice/types-core"],
-    "baseUrl": ".",
     "paths": {
-      "@dice/*": ["src/*"]
+      "@dice/*": ["./src/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],

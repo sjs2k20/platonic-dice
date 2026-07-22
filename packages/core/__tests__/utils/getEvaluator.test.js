@@ -1,4 +1,3 @@
-/* eslint-env jest */
 const { getEvaluator } = require("../../src/utils/getEvaluator");
 const { DieType } = require("../../src/entities/DieType");
 const { TestType } = require("../../src/entities/TestType");
@@ -32,7 +31,7 @@ describe("getEvaluator", () => {
       const tc = new tcModule.TestConditions(
         TestType.AtLeast,
         { target: 5 },
-        DieType.D6
+        DieType.D6,
       );
 
       const evaluator = getEvaluator(DieType.D6, tc, null, null);

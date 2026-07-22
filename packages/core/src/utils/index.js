@@ -19,7 +19,7 @@
 // Lazy-loaded per-export getters to avoid circular require during
 // module initialization. Each exported name is resolved on first
 // access and cached locally. Properties are `configurable: true`
-// so test frameworks (e.g., Jest) can spy/mock them.
+// so test frameworks (e.g., Vitest) can spy/mock them.
 
 /** @type {typeof import("./determineOutcome").determineOutcome | undefined} */
 let _determineOutcome;

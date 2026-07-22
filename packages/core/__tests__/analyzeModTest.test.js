@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 const { analyseModTest } = require("../src/analyseModTest.js");
 const { DieType } = require("../src/entities/DieType");
 const { TestType } = require("../src/entities/TestType");
@@ -68,7 +65,7 @@ describe("analyseModTest", () => {
         DieType.D20,
         (n) => n + 5,
         { testType: TestType.Skill, target: 20 },
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       // Skill tests produce actual critical outcomes
@@ -83,7 +80,7 @@ describe("analyseModTest", () => {
         DieType.D20,
         (n) => n + 15, // Large modifier
         { testType: TestType.AtLeast, target: 20 },
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       // AtLeast with natural crits just enforces natural max/min as success/failure
@@ -111,7 +108,7 @@ describe("analyseModTest", () => {
         DieType.D20,
         (n) => n + 3,
         { testType: TestType.AtLeast, target: 15 },
-        { useNaturalCrits: false }
+        { useNaturalCrits: false },
       );
 
       expect(analysis.outcomeCounts[Outcome.CriticalSuccess]).toBeUndefined();
@@ -150,7 +147,7 @@ describe("analyseModTest", () => {
           n; // Use the parameter
           return 10;
         },
-        { testType: TestType.AtLeast, target: 10 }
+        { testType: TestType.AtLeast, target: 10 },
       );
 
       // All rolls become 10, all succeed
@@ -245,7 +242,7 @@ describe("analyseModTest", () => {
       });
 
       const totalProbability = Object.values(
-        analysis.outcomeProbabilities
+        analysis.outcomeProbabilities,
       ).reduce((sum, prob) => sum + prob, 0);
       expect(totalProbability).toBeCloseTo(1);
     });

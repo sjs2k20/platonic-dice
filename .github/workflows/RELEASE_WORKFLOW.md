@@ -16,7 +16,7 @@ This repository publishes packages only after a merge to `main`, not on tag crea
    - `semver/patch`
    - `semver/minor`
    - `semver/major`
-5. Squash-merge the release pull request to `main`.
+5. Merge the release pull request to `main` (squash, merge commit, or rebase are all supported).
 6. `release.yml` runs on the merge commit, detects changed packages, bumps their versions, and publishes each changed public package independently.
 
 Hotfix, maintenance, and Dependabot branches may merge directly to `main`; without a semver label they default to a patch release. No manual package.json edits are required.

@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 const {
   getRegistration,
   registry,
@@ -39,7 +35,7 @@ describe("testRegistry", () => {
     const conditions = new TestConditions(
       TestType.AtLeast,
       { target: 4 },
-      DieType.D6
+      DieType.D6,
     );
 
     const evalFn = reg.buildEvaluator(DieType.D6, conditions, null, null);
@@ -50,7 +46,7 @@ describe("testRegistry", () => {
       TestType.AtLeast,
       conditions,
       null,
-      null
+      null,
     );
     for (let b = 1; b <= 6; b++) {
       expect(evalFn(b)).toBe(map[b]);

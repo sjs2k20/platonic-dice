@@ -12,12 +12,9 @@ const td = require("../src/entities/TestConditions.js");
 const rollTestModule = require("../src/rollTest.js");
 const { DieType, TestType } = require("../src/entities");
 const utils = require("../src/utils");
+import { vi } from "vitest";
 
 describe("@platonic-dice/core/rollTest", () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   // --- Validation ---
   describe("validation", () => {
     it("should throw TypeError if dieType is missing", () => {
@@ -25,15 +22,15 @@ describe("@platonic-dice/core/rollTest", () => {
         rollTestModule.rollTest(undefined, {
           testType: TestType.AtLeast,
           target: 5,
-        })
+        }),
       ).toThrow(TypeError);
     });
 
     it("should delegate invalid testConditions to normaliseTestConditions", () => {
-      const spy = jest.spyOn(td, "normaliseTestConditions");
+      const spy = vi.spyOn(td, "normaliseTestConditions");
       const dieType = DieType.D6;
       const cond = { testType: "invalid" };
-      jest.spyOn(r, "roll").mockReturnValue(3);
+      vi.spyOn(r, "roll").mockReturnValue(3);
       expect(() => rollTestModule.rollTest(dieType, cond)).toThrow();
       expect(spy).toHaveBeenCalledWith(cond, dieType);
     });
@@ -45,7 +42,7 @@ describe("@platonic-dice/core/rollTest", () => {
       const dieType = DieType.D6;
       const testConditions = { testType: TestType.AtLeast, target: 4 };
 
-      jest.spyOn(r, "roll").mockReturnValue(5);
+      vi.spyOn(r, "roll").mockReturnValue(5);
 
       const result = rollTestModule.rollTest(dieType, testConditions);
 
@@ -58,12 +55,12 @@ describe("@platonic-dice/core/rollTest", () => {
       const dieType = DieType.D20;
       const testConditions = { testType: TestType.AtMost, target: 10 };
 
-      jest.spyOn(r, "roll").mockReturnValue(7);
+      vi.spyOn(r, "roll").mockReturnValue(7);
 
       const result = rollTestModule.rollTest(
         dieType,
         testConditions,
-        "advantage"
+        "advantage",
       );
 
       expect(result.base).toBe(7);
@@ -74,8 +71,6 @@ describe("@platonic-dice/core/rollTest", () => {
 
   // --- Alias tests ---
   describe("aliases", () => {
-    afterEach(() => jest.restoreAllMocks());
-
     // Pick a representative subset of aliases: D6 × AtLeast, D20 × AtMost, D8 × Exact
     const testAliases = [
       {
@@ -97,7 +92,7 @@ describe("@platonic-dice/core/rollTest", () => {
 
     testAliases.forEach(({ aliasName, dieType, testType }) => {
       it(`alias ${aliasName} should return base and outcome correctly`, () => {
-        jest.spyOn(r, "roll").mockReturnValue(4);
+        vi.spyOn(r, "roll").mockReturnValue(4);
 
         const aliasFn = rollTestModule[aliasName];
         expect(typeof aliasFn).toBe("function");
@@ -119,7 +114,7 @@ describe("@platonic-dice/core/rollTest", () => {
     it("should work with default rollType (undefined)", () => {
       const aliasFn = rollTestModule.rollD6AtLeast;
 
-      jest.spyOn(r, "roll").mockReturnValue(5);
+      vi.spyOn(r, "roll").mockReturnValue(5);
 
       const result = aliasFn(4); // default rollType = undefined
 

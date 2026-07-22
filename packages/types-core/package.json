@@ -43,7 +43,7 @@
     "directory": "test-d"
   },
   "devDependencies": {
-    "tsd": "^0.33.0",
-    "@platonic-dice/core": "workspace:*"
+    "@platonic-dice/core": "workspace:*",
+    "tsd": "^0.33.0"
   }
 }

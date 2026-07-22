@@ -1,15 +1,12 @@
-/**
- * @jest-environment node
- */
-
 const { rollTest } = require("../../src/rollTest.js");
 const { DieType, TestType, Outcome } = require("../../src/entities");
+import { vi } from "vitest";
 
 describe("rollTest - Natural Crits", () => {
   describe("default behavior (auto-enable for Skill tests)", () => {
     it("should auto-enable natural crits for Skill tests", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       const result = rollTest(DieType.D20, {
         testType: TestType.Skill,
@@ -26,7 +23,7 @@ describe("rollTest - Natural Crits", () => {
 
     it("should NOT auto-enable natural crits for non-Skill tests", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       const result = rollTest(DieType.D20, {
         testType: TestType.AtLeast,
@@ -43,7 +40,7 @@ describe("rollTest - Natural Crits", () => {
   describe("explicit useNaturalCrits: true for Skill tests", () => {
     it("should trigger critical success on natural max roll", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       const result = rollTest(
         DieType.D20,
@@ -54,7 +51,7 @@ describe("rollTest - Natural Crits", () => {
           critical_failure: 1,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(20);
@@ -65,7 +62,7 @@ describe("rollTest - Natural Crits", () => {
 
     it("should trigger critical failure on natural 1", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.001); // Will roll 1 on d20
+      Math.random = vi.fn(() => 0.001); // Will roll 1 on d20
 
       const result = rollTest(
         DieType.D20,
@@ -76,7 +73,7 @@ describe("rollTest - Natural Crits", () => {
           critical_failure: 1,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(1);
@@ -89,7 +86,7 @@ describe("rollTest - Natural Crits", () => {
   describe("explicit useNaturalCrits: true for non-Skill tests", () => {
     it("should trigger Success on natural max for AtLeast test", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       // Without natural crits, 20 >= 20 would be Success anyway
       // But if we had rolled 19, it would fail
@@ -101,7 +98,7 @@ describe("rollTest - Natural Crits", () => {
           target: 20, // Only natural 20 hits this
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(20);
@@ -112,7 +109,7 @@ describe("rollTest - Natural Crits", () => {
 
     it("should trigger Failure on natural 1 for AtLeast test", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.001); // Will roll 1 on d20
+      Math.random = vi.fn(() => 0.001); // Will roll 1 on d20
 
       const result = rollTest(
         DieType.D20,
@@ -121,7 +118,7 @@ describe("rollTest - Natural Crits", () => {
           target: 1, // Should normally succeed
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(1);
@@ -132,7 +129,7 @@ describe("rollTest - Natural Crits", () => {
 
     it("should NOT work with Exact test type (natural crits don't apply)", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 6 on d6
+      Math.random = vi.fn(() => 0.999); // Will roll 6 on d6
 
       const result = rollTest(
         DieType.D6,
@@ -141,7 +138,7 @@ describe("rollTest - Natural Crits", () => {
           target: 3, // Not 6
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(6);
@@ -154,7 +151,7 @@ describe("rollTest - Natural Crits", () => {
       const originalRandom = Math.random;
 
       // Test natural max = failure for AtMost
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
       const result1 = rollTest(
         DieType.D20,
         {
@@ -162,13 +159,13 @@ describe("rollTest - Natural Crits", () => {
           target: 10,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
       expect(result1.base).toBe(20);
       expect(result1.outcome).toBe(Outcome.Failure); // Natural max = failure for AtMost
 
       // Test natural 1 = success for AtMost
-      Math.random = jest.fn(() => 0.001); // Will roll 1
+      Math.random = vi.fn(() => 0.001); // Will roll 1
       const result2 = rollTest(
         DieType.D20,
         {
@@ -176,7 +173,7 @@ describe("rollTest - Natural Crits", () => {
           target: 10,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
       expect(result2.base).toBe(1);
       expect(result2.outcome).toBe(Outcome.Success); // Natural 1 = success for AtMost
@@ -188,7 +185,7 @@ describe("rollTest - Natural Crits", () => {
   describe("explicit useNaturalCrits: false", () => {
     it("should disable natural crits for Skill tests", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.9); // Will roll 19 on d20
+      Math.random = vi.fn(() => 0.9); // Will roll 19 on d20
 
       const result = rollTest(
         DieType.D20,
@@ -199,7 +196,7 @@ describe("rollTest - Natural Crits", () => {
           critical_failure: 1,
         },
         undefined,
-        { useNaturalCrits: false }
+        { useNaturalCrits: false },
       );
 
       expect(result.base).toBe(19);
@@ -210,7 +207,7 @@ describe("rollTest - Natural Crits", () => {
 
     it("should not affect non-Skill tests (already default false)", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       const result = rollTest(
         DieType.D20,
@@ -219,7 +216,7 @@ describe("rollTest - Natural Crits", () => {
           target: 15,
         },
         undefined,
-        { useNaturalCrits: false }
+        { useNaturalCrits: false },
       );
 
       expect(result.base).toBe(20);
@@ -232,7 +229,7 @@ describe("rollTest - Natural Crits", () => {
   describe("different die types", () => {
     it("should work with D6", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 6
+      Math.random = vi.fn(() => 0.999); // Will roll 6
 
       const result = rollTest(
         DieType.D6,
@@ -243,7 +240,7 @@ describe("rollTest - Natural Crits", () => {
           critical_failure: 1,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(6);
@@ -254,7 +251,7 @@ describe("rollTest - Natural Crits", () => {
 
     it("should work with D12", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.001); // Will roll 1
+      Math.random = vi.fn(() => 0.001); // Will roll 1
 
       const result = rollTest(
         DieType.D12,
@@ -265,7 +262,7 @@ describe("rollTest - Natural Crits", () => {
           critical_failure: 1,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(1);

@@ -212,7 +212,7 @@ console.log(
 
 ## Testing
 
-All functions are thoroughly tested with Jest:
+All functions are thoroughly tested with Vitest:
 
 ```bash
 pnpm --filter @platonic-dice/core test
