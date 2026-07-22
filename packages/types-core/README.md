@@ -4,7 +4,7 @@ Type definitions for `@platonic-dice/core`.
 
 This package is published independently to npm as `@platonic-dice/types-core`. Its npm tarball contains this package's declaration files and metadata, not the whole monorepo. It provides the TypeScript surface for the pure JavaScript core package.
 
-The root-level `.d.ts` files and `entities/` declarations are committed source files. This package has no compilation step and no generated `dist/` directory; `tsd` validates the declarations before release.
+The root-level `.d.ts` files and `entities/` declarations are committed source files. This package has no compilation step and no generated `dist/` directory.
 
 Install this alongside the runtime package:
 

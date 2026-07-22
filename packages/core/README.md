@@ -68,13 +68,15 @@ Or run package-local scripts:
 pnpm --filter @platonic-dice/core test
 ```
 
-### Type Testing
+### Type Definitions
 
-Type definitions are provided by the separate `@platonic-dice/types-core` package. To test the type surface:
+Type definitions are maintained in the separate
+`@platonic-dice/types-core` package.
+
+Install it alongside `@platonic-dice/core` if you need the exported type surface:
 
 ```bash
-cd packages/types-core
-pnpm run test:types
+pnpm add @platonic-dice/core @platonic-dice/types-core
 ```
 
 ## Examples

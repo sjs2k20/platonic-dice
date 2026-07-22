@@ -206,7 +206,6 @@ console.log(
 ## Package Constraints
 
 - **Supported Dice**: D4, D6, D8, D10, D12, D20
-- **D100 NOT supported**: This package explicitly excludes percentile dice
 - **CommonJS**: Package uses CommonJS modules
 - **Node.js**: Requires Node.js environment
 
