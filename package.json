@@ -12,7 +12,8 @@
   },
   "scripts": {
     "test": "CI=true pnpm -r test",
-    "build": "pnpm -r build"
+    "build": "pnpm -r build",
+    "lint": "pnpm -r --if-present lint"
   },
   "author": "Stephen James Saunders",
   "license": "MIT",
