@@ -4,10 +4,9 @@
     "allowJs": true,
     "checkJs": false,
     "noEmit": true,
-    "moduleResolution": "Node",
-    "baseUrl": ".",
+    "moduleResolution": "bundler",
     "paths": {
-      "@platonic-dice/core/*": ["src/*"]
+      "@platonic-dice/core/*": ["./src/*"]
     }
   },
   "include": ["src/**/*"],

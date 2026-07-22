@@ -11,17 +11,14 @@
 
 const { DieType } = require("../../src/entities");
 const { generateResult } = require("../../src/utils/generateResult");
+import { vi } from "vitest";
 
 describe("@platonic-dice/core/utils/generateResult", () => {
-  beforeEach(() => {
-    jest.restoreAllMocks();
-  });
-
   describe("validation", () => {
     it("should throw a TypeError if dieType is invalid", () => {
       expect(() => generateResult("banana")).toThrow(TypeError);
       expect(() => generateResult("banana")).toThrow(
-        "Invalid die type: banana"
+        "Invalid die type: banana",
       );
     });
   });
@@ -46,18 +43,18 @@ describe("@platonic-dice/core/utils/generateResult", () => {
     });
 
     it("should produce predictable output when Math.random is mocked", () => {
-      jest.spyOn(Math, "random").mockReturnValue(0.5);
+      vi.spyOn(Math, "random").mockReturnValue(0.5);
       // For d20: floor(0.5 * 20) + 1 = 11
       expect(generateResult(DieType.D20)).toBe(11);
     });
 
     it("should return 1 when Math.random returns 0", () => {
-      jest.spyOn(Math, "random").mockReturnValue(0);
+      vi.spyOn(Math, "random").mockReturnValue(0);
       expect(generateResult(DieType.D10)).toBe(1);
     });
 
     it("should return max side when Math.random returns a value very close to 1", () => {
-      jest.spyOn(Math, "random").mockReturnValue(0.999999);
+      vi.spyOn(Math, "random").mockReturnValue(0.999999);
       expect(generateResult(DieType.D10)).toBe(10);
     });
   });

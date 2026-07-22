@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 const { rollModTest } = require("../../src/rollModTest.js");
 const {
   DieType,
@@ -10,12 +6,13 @@ const {
   TestType,
   Outcome,
 } = require("../../src/entities");
+import { vi } from "vitest";
 
 describe("rollModTest - Natural Crits", () => {
   describe("useNaturalCrits option", () => {
     it("should trigger critical success on natural max roll (Skill test)", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       const result = rollModTest(
         DieType.D20,
@@ -27,7 +24,7 @@ describe("rollModTest - Natural Crits", () => {
           critical_failure: 6, // Achievable with min roll (1+5=6)
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(20);
@@ -39,7 +36,7 @@ describe("rollModTest - Natural Crits", () => {
 
     it("should trigger critical failure on natural 1 roll (Skill test)", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.001); // Will roll 1 on d20
+      Math.random = vi.fn(() => 0.001); // Will roll 1 on d20
 
       const result = rollModTest(
         DieType.D20,
@@ -51,7 +48,7 @@ describe("rollModTest - Natural Crits", () => {
           critical_failure: 101, // Achievable (1+100=101)
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(1);
@@ -63,7 +60,7 @@ describe("rollModTest - Natural Crits", () => {
 
     it("should not affect non-Skill test types", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.999); // Will roll 20 on d20
 
       const result = rollModTest(
         DieType.D20,
@@ -73,7 +70,7 @@ describe("rollModTest - Natural Crits", () => {
           target: 15,
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result.base).toBe(20);
@@ -84,7 +81,7 @@ describe("rollModTest - Natural Crits", () => {
 
     it("should not trigger when useNaturalCrits is false", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.9); // Will roll 19 on d20 (floor(0.9*20)+1=18+1=19)
+      Math.random = vi.fn(() => 0.9); // Will roll 19 on d20 (floor(0.9*20)+1=18+1=19)
 
       const result = rollModTest(
         DieType.D20,
@@ -96,7 +93,7 @@ describe("rollModTest - Natural Crits", () => {
           critical_failure: 6, // Achievable (1+5=6)
         },
         undefined,
-        { useNaturalCrits: false }
+        { useNaturalCrits: false },
       );
 
       expect(result.base).toBe(19);
@@ -108,7 +105,7 @@ describe("rollModTest - Natural Crits", () => {
 
     it("should work with different die types", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.999); // Will roll max value
+      Math.random = vi.fn(() => 0.999); // Will roll max value
 
       // D6: natural 6
       const result1 = rollModTest(
@@ -121,13 +118,13 @@ describe("rollModTest - Natural Crits", () => {
           critical_failure: 3, // Achievable (1+2=3)
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result1.base).toBe(6);
       expect(result1.outcome).toBe(Outcome.CriticalSuccess);
 
-      Math.random = jest.fn(() => 0.001); // Will roll 1
+      Math.random = vi.fn(() => 0.001); // Will roll 1
 
       // D6: natural 1
       const result2 = rollModTest(
@@ -140,7 +137,7 @@ describe("rollModTest - Natural Crits", () => {
           critical_failure: 11, // Achievable (1+10=11)
         },
         undefined,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       expect(result2.base).toBe(1);
@@ -157,7 +154,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.9, 0.05]; // Will roll 19 and 2 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       // With a modifier, 2+5=7 might be a success, while 19+5=24 might be critical
       const result = rollModTest(
@@ -169,7 +166,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           critical_success: 24,
           critical_failure: 6,
         },
-        RollType.Advantage
+        RollType.Advantage,
       );
 
       // Should pick 19 (24 modified, critical success) over 2 (7 modified, success)
@@ -184,7 +181,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.7, 0.1]; // Will roll 15 and 3 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -193,7 +190,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           testType: TestType.AtLeast,
           target: 12,
         },
-        RollType.Advantage
+        RollType.Advantage,
       );
 
       // 15-2=13 (success), 3-2=1 (failure)
@@ -208,7 +205,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.95, 0.6]; // Will roll 20 and 13 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -219,7 +216,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           critical_success: 22,
           critical_failure: 3,
         },
-        RollType.Advantage
+        RollType.Advantage,
       );
 
       // 20+2=22 (critical success), 13+2=15 (success)
@@ -235,7 +232,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.1, 0.9]; // Will roll 3 and 19 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -246,7 +243,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           critical_success: 24,
           critical_failure: 8,
         },
-        RollType.Disadvantage
+        RollType.Disadvantage,
       );
 
       // 3+5=8 (critical failure), 19+5=24 (critical success)
@@ -262,7 +259,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.7, 0.1]; // Will roll 15 and 3 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -271,7 +268,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           testType: TestType.AtLeast,
           target: 15,
         },
-        RollType.Disadvantage
+        RollType.Disadvantage,
       );
 
       // 15+2=17 (success), 3+2=5 (failure)
@@ -286,7 +283,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.05, 0.2]; // Will roll 2 and 5 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -297,7 +294,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           critical_success: 17,
           critical_failure: 3,
         },
-        RollType.Disadvantage
+        RollType.Disadvantage,
       );
 
       // 2-3=-1 (critical failure), 5-3=2 (failure)
@@ -313,7 +310,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.999, 0.45]; // Will roll 20 and 10 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -325,7 +322,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           critical_failure: 3, // Achievable (1+2=3)
         },
         RollType.Advantage,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       // 20+2=22 (natural crit), 10+2=12 (success)
@@ -339,7 +336,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
       const originalRandom = Math.random;
       const rolls = [0.95, 0.001]; // Will roll 20 and 1 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
@@ -351,7 +348,7 @@ describe("rollModTest - Advantage/Disadvantage with Outcomes", () => {
           critical_failure: 101, // Achievable (1+100=101)
         },
         RollType.Disadvantage,
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       // 20+100=120 (critical success), 1+100=101 (natural fail = critical failure)
