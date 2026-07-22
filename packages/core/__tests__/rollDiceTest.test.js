@@ -5,10 +5,6 @@ const rollDiceTestModule = require("../src/rollDiceTest");
 const rollUtils = require("../src/roll");
 
 describe("@platonic-dice/core/rollDiceTest", () => {
-  beforeEach(() => {
-    jest.restoreAllMocks();
-  });
-
   describe("validation", () => {
     it("should throw a TypeError for invalid die types", () => {
       expect(() =>
@@ -39,10 +35,7 @@ describe("@platonic-dice/core/rollDiceTest", () => {
 
   describe("evaluation", () => {
     it("evaluates multiple dice against multiple conditions and returns matrix/counts", () => {
-      jest
-        .spyOn(rollUtils, "roll")
-        .mockReturnValueOnce(4)
-        .mockReturnValueOnce(6);
+      vi.spyOn(rollUtils, "roll").mockReturnValueOnce(4).mockReturnValueOnce(6);
 
       const res = rollDiceTestModule.rollDiceTest(
         DieType.D6,
@@ -69,8 +62,7 @@ describe("@platonic-dice/core/rollDiceTest", () => {
     });
 
     it("applies rules and reports pass/fail correctly", () => {
-      jest
-        .spyOn(rollUtils, "roll")
+      vi.spyOn(rollUtils, "roll")
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(1);

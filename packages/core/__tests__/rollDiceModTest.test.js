@@ -10,12 +10,9 @@ const {
   TestConditionsArray,
   TestType,
 } = require("../src/entities");
+import { vi } from "vitest";
 
 describe("@platonic-dice/core/rollDiceModTest", () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   describe("validation", () => {
     const conditions = [{ testType: TestType.AtLeast, target: 4 }];
 
@@ -52,7 +49,7 @@ describe("@platonic-dice/core/rollDiceModTest", () => {
   });
 
   it("applies each modifiers to condition outcomes while retaining all roll results", () => {
-    jest.spyOn(rd, "rollDice").mockReturnValue({ array: [3, 4], sum: 7 });
+    vi.spyOn(rd, "rollDice").mockReturnValue({ array: [3, 4], sum: 7 });
 
     const result = rollDiceModTest(
       DieType.D6,
@@ -79,7 +76,7 @@ describe("@platonic-dice/core/rollDiceModTest", () => {
   });
 
   it("leaves evaluation unchanged for net-only modifiers", () => {
-    jest.spyOn(rd, "rollDice").mockReturnValue({ array: [3, 4], sum: 7 });
+    vi.spyOn(rd, "rollDice").mockReturnValue({ array: [3, 4], sum: 7 });
 
     const result = rollDiceModTest(
       DieType.D6,
@@ -97,7 +94,7 @@ describe("@platonic-dice/core/rollDiceModTest", () => {
   });
 
   it("treats standalone functions and RollModifier instances as net-only", () => {
-    jest.spyOn(rd, "rollDice").mockReturnValue({ array: [2], sum: 2 });
+    vi.spyOn(rd, "rollDice").mockReturnValue({ array: [2], sum: 2 });
     const conditions = [{ testType: TestType.AtLeast, target: 3 }];
 
     const fromFunction = rollDiceModTest(
@@ -118,7 +115,7 @@ describe("@platonic-dice/core/rollDiceModTest", () => {
   });
 
   it("uses raw faces for value_count and modified outcomes for condition_count", () => {
-    jest.spyOn(rd, "rollDice").mockReturnValue({ array: [4, 4], sum: 8 });
+    vi.spyOn(rd, "rollDice").mockReturnValue({ array: [4, 4], sum: 8 });
 
     const result = rollDiceModTest(
       DieType.D6,
@@ -139,7 +136,7 @@ describe("@platonic-dice/core/rollDiceModTest", () => {
   });
 
   it("accepts TestConditionsArray and DiceTestConditions inputs", () => {
-    jest.spyOn(rd, "rollDice").mockReturnValue({ array: [5], sum: 5 });
+    vi.spyOn(rd, "rollDice").mockReturnValue({ array: [5], sum: 5 });
     const conditionArray = new TestConditionsArray(
       [{ testType: TestType.AtLeast, target: 5 }],
       DieType.D6,

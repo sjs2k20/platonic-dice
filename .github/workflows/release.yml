@@ -81,18 +81,29 @@ jobs:
           set -euo pipefail
           COMMIT_TITLE=$(git log -1 --pretty=%s)
           echo "Commit title: $COMMIT_TITLE"
+          PR_NUMBER=""
 
-          # Extract PR number from squash-merge title: "My title (#123)"
-          if [[ "$COMMIT_TITLE" =~ \(#([0-9]+)\) ]]; then
+          # Prefer API lookup by commit SHA (works for squash/merge/rebase).
+          PR_NUMBER=$(gh api \
+            "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" \
+            --jq '[.[] | select(.base.ref == "main")][0].number // ""' || true)
+
+          # Fallback for older merge styles when API association is unavailable.
+          if [ -z "$PR_NUMBER" ] && [[ "$COMMIT_TITLE" =~ \(#([0-9]+)\) ]]; then
             PR_NUMBER="${BASH_REMATCH[1]}"
-            echo "PR number: $PR_NUMBER"
-          else
-            echo "No PR number found in commit title; defaulting to patch."
+          elif [ -z "$PR_NUMBER" ] && [[ "$COMMIT_TITLE" =~ \#([0-9]+) ]]; then
+            PR_NUMBER="${BASH_REMATCH[1]}"
+          fi
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No merged PR resolved for this commit; defaulting to patch path."
             echo "pr_number=" >> "$GITHUB_OUTPUT"
             echo "head_ref=" >> "$GITHUB_OUTPUT"
             echo "semver_label=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
+          echo "PR number: $PR_NUMBER"
 
           HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
           SEMVER_LABEL=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq \

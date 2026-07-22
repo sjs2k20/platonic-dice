@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 const {
   ModifiedTestConditions,
   computeModifiedRange,
@@ -54,7 +50,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           { target: 15 },
           DieType.D6,
-          (n) => n + 10 // Range: 11-16
+          (n) => n + 10, // Range: 11-16
         );
         expect(conditions.testType).toBe(TestType.AtLeast);
         expect(conditions.conditions.target).toBe(15);
@@ -66,7 +62,7 @@ describe("ModifiedTestConditions", () => {
             TestType.AtLeast,
             { target: 20 }, // Out of range 11-16
             DieType.D6,
-            (n) => n + 10
+            (n) => n + 10,
           );
         }).toThrow(RangeError);
       });
@@ -77,7 +73,7 @@ describe("ModifiedTestConditions", () => {
             TestType.AtLeast,
             { target: 5 }, // Out of range 11-16
             DieType.D6,
-            (n) => n + 10
+            (n) => n + 10,
           );
         }).toThrow(RangeError);
       });
@@ -87,7 +83,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           { target: 11 },
           DieType.D6,
-          (n) => n + 10
+          (n) => n + 10,
         );
         expect(conditions.conditions.target).toBe(11);
       });
@@ -97,7 +93,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           { target: 16 },
           DieType.D6,
-          (n) => n + 10
+          (n) => n + 10,
         );
         expect(conditions.conditions.target).toBe(16);
       });
@@ -109,7 +105,7 @@ describe("ModifiedTestConditions", () => {
           TestType.Exact,
           { target: 8 },
           DieType.D6,
-          (n) => n + 2 // Range: 3-8
+          (n) => n + 2, // Range: 3-8
         );
         expect(conditions.conditions.target).toBe(8);
       });
@@ -120,7 +116,7 @@ describe("ModifiedTestConditions", () => {
             TestType.Exact,
             { target: 10 }, // Out of range 3-8
             DieType.D6,
-            (n) => n + 2
+            (n) => n + 2,
           );
         }).toThrow(RangeError);
       });
@@ -132,7 +128,7 @@ describe("ModifiedTestConditions", () => {
           TestType.Within,
           { min: 12, max: 15 },
           DieType.D6,
-          (n) => n + 10 // Range: 11-16
+          (n) => n + 10, // Range: 11-16
         );
         expect(conditions.conditions.min).toBe(12);
         expect(conditions.conditions.max).toBe(15);
@@ -144,7 +140,7 @@ describe("ModifiedTestConditions", () => {
             TestType.Within,
             { min: 5, max: 20 }, // Outside 11-16
             DieType.D6,
-            (n) => n + 10
+            (n) => n + 10,
           );
         }).toThrow(RangeError);
       });
@@ -156,7 +152,7 @@ describe("ModifiedTestConditions", () => {
           TestType.InList,
           { values: [12, 14, 16] },
           DieType.D6,
-          (n) => n + 10 // Range: 11-16
+          (n) => n + 10, // Range: 11-16
         );
         expect(conditions.conditions.values).toEqual([12, 14, 16]);
       });
@@ -167,7 +163,7 @@ describe("ModifiedTestConditions", () => {
             TestType.InList,
             { values: [5, 10, 20] }, // 5 and 20 out of range 11-16
             DieType.D6,
-            (n) => n + 10
+            (n) => n + 10,
           );
         }).toThrow(RangeError);
       });
@@ -179,7 +175,7 @@ describe("ModifiedTestConditions", () => {
           TestType.Skill,
           { target: 15, critical_success: 22, critical_failure: 3 },
           DieType.D20,
-          (n) => n + 2 // Range: 3-22
+          (n) => n + 2, // Range: 3-22
         );
         expect(conditions.conditions.target).toBe(15);
         expect(conditions.conditions.critical_success).toBe(22);
@@ -192,7 +188,7 @@ describe("ModifiedTestConditions", () => {
             TestType.Skill,
             { target: 15, critical_success: 10 },
             DieType.D20,
-            (n) => n + 2
+            (n) => n + 2,
           );
         }).toThrow(RangeError);
       });
@@ -203,7 +199,7 @@ describe("ModifiedTestConditions", () => {
             TestType.Skill,
             { target: 10, critical_failure: 15 },
             DieType.D20,
-            (n) => n + 2
+            (n) => n + 2,
           );
         }).toThrow(RangeError);
       });
@@ -214,7 +210,7 @@ describe("ModifiedTestConditions", () => {
             TestType.Skill,
             { target: 50 }, // Out of range 3-22
             DieType.D20,
-            (n) => n + 2
+            (n) => n + 2,
           );
         }).toThrow(RangeError);
       });
@@ -227,7 +223,7 @@ describe("ModifiedTestConditions", () => {
         TestType.AtLeast,
         { target: -5 },
         DieType.D10,
-        (n) => n - 10 // Range: -9 to 0 (1-10=-9, 10-10=0)
+        (n) => n - 10, // Range: -9 to 0 (1-10=-9, 10-10=0)
       );
       expect(conditions.conditions.target).toBe(-5);
     });
@@ -238,7 +234,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           { target: 5 },
           DieType.D10,
-          (n) => n - 10 // Range: -9 to 0
+          (n) => n - 10, // Range: -9 to 0
         );
       }).toThrow(RangeError);
     });
@@ -251,7 +247,7 @@ describe("ModifiedTestConditions", () => {
         TestType.AtLeast,
         { target: 12 },
         DieType.D6,
-        mod // Range: 8-13
+        mod, // Range: 8-13
       );
       expect(conditions.conditions.target).toBe(12);
     });
@@ -261,7 +257,7 @@ describe("ModifiedTestConditions", () => {
         TestType.AtLeast,
         { target: 12 },
         DieType.D6,
-        (n) => n + 7
+        (n) => n + 7,
       );
       expect(conditions.modifier).toBeInstanceOf(RollModifier);
     });
@@ -274,7 +270,7 @@ describe("ModifiedTestConditions", () => {
           "invalid",
           { target: 10 },
           DieType.D6,
-          (n) => n + 5
+          (n) => n + 5,
         );
       }).toThrow(TypeError);
     });
@@ -285,7 +281,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           null,
           DieType.D6,
-          (n) => n + 5
+          (n) => n + 5,
         );
       }).toThrow(TypeError);
     });
@@ -296,7 +292,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           { target: 10 },
           null,
-          (n) => n + 5
+          (n) => n + 5,
         );
       }).toThrow(TypeError);
     });
@@ -307,7 +303,7 @@ describe("ModifiedTestConditions", () => {
           TestType.AtLeast,
           { target: 10 },
           DieType.D6,
-          null
+          null,
         );
       }).toThrow(TypeError);
     });

@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 const { analyseTest } = require("../src/analyseTest.js");
 const { DieType } = require("../src/entities/DieType");
 const { TestType } = require("../src/entities/TestType");
@@ -17,7 +14,7 @@ describe("analyseTest", () => {
 
       expect(analysis.totalPossibilities).toBe(20);
       expect(analysis.rolls).toEqual(
-        Array.from({ length: 20 }, (_, i) => i + 1)
+        Array.from({ length: 20 }, (_, i) => i + 1),
       );
       expect(analysis.outcomeCounts[Outcome.Success]).toBe(6); // 15-20
       expect(analysis.outcomeCounts[Outcome.Failure]).toBe(14); // 1-14
@@ -69,7 +66,7 @@ describe("analyseTest", () => {
       const analysis = analyseTest(
         DieType.D20,
         { testType: TestType.AtLeast, target: 15 },
-        { useNaturalCrits: true }
+        { useNaturalCrits: true },
       );
 
       // For AtLeast with useNaturalCrits, natural max=success, natural min=failure
@@ -84,7 +81,7 @@ describe("analyseTest", () => {
       const analysis = analyseTest(
         DieType.D20,
         { testType: TestType.AtLeast, target: 15 },
-        { useNaturalCrits: false }
+        { useNaturalCrits: false },
       );
 
       expect(analysis.outcomeCounts[Outcome.CriticalSuccess]).toBeUndefined();
@@ -169,7 +166,7 @@ describe("analyseTest", () => {
       const testConditions = new TestConditions(
         TestType.AtLeast,
         { target: 12 },
-        DieType.D20
+        DieType.D20,
       );
       const analysis = analyseTest(DieType.D20, testConditions);
 
@@ -231,7 +228,7 @@ describe("analyseTest", () => {
       });
 
       const totalProbability = Object.values(
-        analysis.outcomeProbabilities
+        analysis.outcomeProbabilities,
       ).reduce((sum, prob) => sum + prob, 0);
       expect(totalProbability).toBeCloseTo(1);
     });
@@ -257,7 +254,7 @@ describe("analyseTest", () => {
 
       expect(analysis.totalPossibilities).toBe(12);
       expect(analysis.outcomeProbabilities[Outcome.Success]).toBeCloseTo(
-        1 / 12
+        1 / 12,
       );
     });
 

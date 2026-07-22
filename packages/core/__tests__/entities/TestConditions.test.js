@@ -16,7 +16,7 @@ const {
   areValidTestConditions,
   normaliseTestConditions,
 } = require("../../src/entities/TestConditions");
-
+import { vi } from "vitest";
 const { TestType } = require("../../src/entities/TestType");
 const { DieType } = require("../../src/entities/DieType");
 
@@ -28,7 +28,7 @@ const { DieType } = require("../../src/entities/DieType");
 
 describe("@platonic-dice/core/entities/TestConditions", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ────────────────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
       const tc = new TestConditions(
         TestType.AtLeast,
         { target: 10 },
-        DieType.D20
+        DieType.D20,
       );
       expect(tc).toBeInstanceOf(TestConditions);
       expect(tc.testType).toBe(TestType.AtLeast);
@@ -49,51 +49,51 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
 
     it("should throw TypeError if testType is invalid", () => {
       expect(() => new TestConditions("invalidType", {}, DieType.D6)).toThrow(
-        TypeError
+        TypeError,
       );
       expect(() => new TestConditions("invalidType", {}, DieType.D6)).toThrow(
-        /Invalid test type/
+        /Invalid test type/,
       );
     });
 
     it("should throw TypeError if conditions is not an object", () => {
       expect(
-        () => new TestConditions(TestType.AtLeast, null, DieType.D6)
+        () => new TestConditions(TestType.AtLeast, null, DieType.D6),
       ).toThrow(TypeError);
       expect(
-        () => new TestConditions(TestType.AtLeast, 42, DieType.D6)
+        () => new TestConditions(TestType.AtLeast, 42, DieType.D6),
       ).toThrow(TypeError);
       expect(
-        () => new TestConditions(TestType.AtLeast, "bad", DieType.D6)
+        () => new TestConditions(TestType.AtLeast, "bad", DieType.D6),
       ).toThrow(TypeError);
     });
 
     it("should throw TypeError if dieType is missing", () => {
       expect(() => new TestConditions(TestType.AtLeast, {}, undefined)).toThrow(
-        TypeError
+        TypeError,
       );
       expect(() => new TestConditions(TestType.AtLeast, {}, null)).toThrow(
-        TypeError
+        TypeError,
       );
     });
 
     it("should throw RangeError for out-of-range target values", () => {
       expect(
-        () => new TestConditions(TestType.AtLeast, { target: 99 }, DieType.D6)
+        () => new TestConditions(TestType.AtLeast, { target: 99 }, DieType.D6),
       ).toThrow(RangeError);
     });
 
     it("should throw RangeError for 'within' with invalid range", () => {
       expect(
         () =>
-          new TestConditions(TestType.Within, { min: 5, max: 2 }, DieType.D6)
+          new TestConditions(TestType.Within, { min: 5, max: 2 }, DieType.D6),
       ).toThrow(RangeError);
     });
 
     it("should throw RangeError for 'in_list' with invalid values", () => {
       expect(
         () =>
-          new TestConditions(TestType.InList, { values: [0, 8] }, DieType.D6)
+          new TestConditions(TestType.InList, { values: [0, 8] }, DieType.D6),
       ).toThrow(RangeError);
     });
 
@@ -103,8 +103,8 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
           new TestConditions(
             TestType.Skill,
             { target: 10, critical_success: 5, critical_failure: 12 },
-            DieType.D20
-          )
+            DieType.D20,
+          ),
       ).toThrow(RangeError);
     });
   });
@@ -134,31 +134,31 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
 
     it("should validate simple target conditions", () => {
       expect(
-        areValidTestConditions({ ...base, target: 3 }, TestType.AtLeast)
+        areValidTestConditions({ ...base, target: 3 }, TestType.AtLeast),
       ).toBe(true);
       expect(
-        areValidTestConditions({ ...base, target: 7 }, TestType.AtLeast)
+        areValidTestConditions({ ...base, target: 7 }, TestType.AtLeast),
       ).toBe(false);
     });
 
     it("should validate 'within' conditions correctly", () => {
       expect(
-        areValidTestConditions({ ...base, min: 1, max: 4 }, TestType.Within)
+        areValidTestConditions({ ...base, min: 1, max: 4 }, TestType.Within),
       ).toBe(true);
       expect(
-        areValidTestConditions({ ...base, min: 4, max: 1 }, TestType.Within)
+        areValidTestConditions({ ...base, min: 4, max: 1 }, TestType.Within),
       ).toBe(false);
     });
 
     it("should validate 'in_list' conditions", () => {
       expect(
-        areValidTestConditions({ ...base, values: [1, 2, 3] }, TestType.InList)
+        areValidTestConditions({ ...base, values: [1, 2, 3] }, TestType.InList),
       ).toBe(true);
       expect(
-        areValidTestConditions({ ...base, values: [0, 8] }, TestType.InList)
+        areValidTestConditions({ ...base, values: [0, 8] }, TestType.InList),
       ).toBe(false);
       expect(
-        areValidTestConditions({ ...base, values: [] }, TestType.InList)
+        areValidTestConditions({ ...base, values: [] }, TestType.InList),
       ).toBe(false);
     });
 
@@ -166,21 +166,21 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
       expect(
         areValidTestConditions(
           { ...base, target: 4, critical_success: 6, critical_failure: 1 },
-          TestType.Skill
-        )
+          TestType.Skill,
+        ),
       ).toBe(true);
 
       expect(
         areValidTestConditions(
           { ...base, target: 10, critical_success: 5, critical_failure: 12 },
-          TestType.Skill
-        )
+          TestType.Skill,
+        ),
       ).toBe(false);
     });
 
     it("should return false for unknown testType", () => {
       expect(
-        areValidTestConditions({ ...base, target: 3 }, "unknown_type")
+        areValidTestConditions({ ...base, target: 3 }, "unknown_type"),
       ).toBe(false);
     });
   });
@@ -195,7 +195,7 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
       const instance = new TestConditions(
         TestType.Exact,
         { target: 3 },
-        mockDieType
+        mockDieType,
       );
       const result = normaliseTestConditions(instance, mockDieType);
       expect(result).toBe(instance);
@@ -226,19 +226,19 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
 
     it("should throw TypeError for invalid input types", () => {
       expect(() => normaliseTestConditions(null, mockDieType)).toThrow(
-        TypeError
+        TypeError,
       );
       expect(() => normaliseTestConditions(undefined, mockDieType)).toThrow(
-        TypeError
+        TypeError,
       );
       expect(() => normaliseTestConditions(123, mockDieType)).toThrow(
-        TypeError
+        TypeError,
       );
       expect(() => normaliseTestConditions("invalid", mockDieType)).toThrow(
-        TypeError
+        TypeError,
       );
       expect(() => normaliseTestConditions(() => {}, mockDieType)).toThrow(
-        TypeError
+        TypeError,
       );
     });
 
@@ -266,21 +266,20 @@ describe("@platonic-dice/core/entities/TestConditions", () => {
 
   describe("integration: delegate to utils validators (TDD)", () => {
     it("calls utils/testValidators.areValidTestConditions during construction", () => {
-      jest.resetModules();
-      const mockValidators = {
-        areValidTestConditions: jest.fn().mockReturnValue(true),
-      };
-      jest.mock("../../src/utils/testValidators.js", () => mockValidators);
+      vi.resetModules();
 
       const { TestConditions } = require("../../src/entities/TestConditions");
-      const { TestType, DieType } = require("../../src/entities");
+
+      const validators = require("../../src/utils/testValidators");
+
+      const spy = vi.spyOn(validators, "areValidTestConditions");
 
       const tc = new TestConditions(
         TestType.AtLeast,
         { target: 2 },
-        DieType.D6
+        DieType.D6,
       );
-      expect(mockValidators.areValidTestConditions).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalled();
     });
   });
 });

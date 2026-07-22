@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 const { rollModTest } = require("../src/rollModTest.js");
 const {
   DieType,
@@ -11,6 +7,7 @@ const {
   TestConditions,
   Outcome,
 } = require("../src/entities");
+import { vi } from "vitest";
 
 describe("rollModTest", () => {
   describe("basic functionality", () => {
@@ -40,12 +37,12 @@ describe("rollModTest", () => {
     it("should evaluate outcome based on modified value, not base", () => {
       // Mock Math.random to return consistent values
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.4); // Will roll an 8 on d20 (0.4 * 20 = 8)
+      Math.random = vi.fn(() => 0.4); // Will roll an 8 on d20 (0.4 * 20 = 8)
 
       const result = rollModTest(
         DieType.D20,
         (n) => n + 10, // Base 8 + 10 = 18
-        { testType: TestType.AtLeast, target: 15 }
+        { testType: TestType.AtLeast, target: 15 },
       );
 
       expect(result.base).toBe(9); // floor(0.4 * 20) + 1 = 9
@@ -86,7 +83,7 @@ describe("rollModTest", () => {
         TestType.AtLeast,
         { target: 15 },
         DieType.D20,
-        (n) => n + 5
+        (n) => n + 5,
       );
 
       const result = rollModTest(DieType.D20, (n) => n + 5, conditions);
@@ -111,12 +108,12 @@ describe("rollModTest", () => {
 
     it("should handle AtLeast test type correctly", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.45); // Will roll 10 on d20
+      Math.random = vi.fn(() => 0.45); // Will roll 10 on d20
 
       const result = rollModTest(
         DieType.D20,
         (n) => n + 5, // 10 + 5 = 15
-        { testType: TestType.AtLeast, target: 15 }
+        { testType: TestType.AtLeast, target: 15 },
       );
 
       expect(result.modified).toBe(15);
@@ -127,12 +124,12 @@ describe("rollModTest", () => {
 
     it("should handle Exact test type correctly", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.25); // Will roll 6 on d20
+      Math.random = vi.fn(() => 0.25); // Will roll 6 on d20
 
       const result = rollModTest(
         DieType.D20,
         (n) => n + 4, // 6 + 4 = 10
-        { testType: TestType.Exact, target: 10 }
+        { testType: TestType.Exact, target: 10 },
       );
 
       expect(result.modified).toBe(10);
@@ -143,7 +140,7 @@ describe("rollModTest", () => {
 
     it("should handle Skill test type with critical success", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.95); // Will roll 20 on d20
+      Math.random = vi.fn(() => 0.95); // Will roll 20 on d20
 
       const result = rollModTest(
         DieType.D20,
@@ -153,7 +150,7 @@ describe("rollModTest", () => {
           target: 12,
           critical_success: 20,
           critical_failure: 1,
-        }
+        },
       );
 
       expect(result.base).toBe(20);
@@ -168,13 +165,13 @@ describe("rollModTest", () => {
       const originalRandom = Math.random;
       const rolls = [0.1, 0.9]; // Will roll 2 and 18 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
         (n) => n + 2,
         { testType: TestType.AtLeast, target: 15 },
-        RollType.Advantage
+        RollType.Advantage,
       );
 
       expect(result.base).toBe(19); // max(3, 19) = 19
@@ -188,13 +185,13 @@ describe("rollModTest", () => {
       const originalRandom = Math.random;
       const rolls = [0.1, 0.9]; // Will roll 2 and 18 on d20
       let callCount = 0;
-      Math.random = jest.fn(() => rolls[callCount++]);
+      Math.random = vi.fn(() => rolls[callCount++]);
 
       const result = rollModTest(
         DieType.D20,
         (n) => n + 10,
         { testType: TestType.AtLeast, target: 15 },
-        RollType.Disadvantage
+        RollType.Disadvantage,
       );
 
       expect(result.base).toBe(3); // min(3, 19) = 3
@@ -208,7 +205,7 @@ describe("rollModTest", () => {
   describe("validation", () => {
     it("should throw if dieType is missing", () => {
       expect(() =>
-        rollModTest(null, (n) => n, { testType: TestType.AtLeast, target: 10 })
+        rollModTest(null, (n) => n, { testType: TestType.AtLeast, target: 10 }),
       ).toThrow(TypeError);
     });
 
@@ -217,7 +214,7 @@ describe("rollModTest", () => {
         rollModTest(DieType.D20, null, {
           testType: TestType.AtLeast,
           target: 10,
-        })
+        }),
       ).toThrow(TypeError);
     });
 
@@ -230,7 +227,7 @@ describe("rollModTest", () => {
         rollModTest("invalid", (n) => n, {
           testType: TestType.AtLeast,
           target: 10,
-        })
+        }),
       ).toThrow();
     });
 
@@ -239,7 +236,7 @@ describe("rollModTest", () => {
         rollModTest(DieType.D20, "not a function", {
           testType: TestType.AtLeast,
           target: 10,
-        })
+        }),
       ).toThrow();
     });
   });
@@ -256,12 +253,12 @@ describe("rollModTest", () => {
 
     it("should handle modifier that reduces the roll value", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.9); // Will roll 19 on d20
+      Math.random = vi.fn(() => 0.9); // Will roll 19 on d20
 
       const result = rollModTest(
         DieType.D20,
         (n) => n - 10, // 19 - 10 = 9
-        { testType: TestType.AtLeast, target: 10 }
+        { testType: TestType.AtLeast, target: 10 },
       );
 
       expect(result.base).toBe(19);
@@ -273,12 +270,12 @@ describe("rollModTest", () => {
 
     it("should handle modifier that increases the roll value", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.1); // Will roll 1 on d6 (floor(0.1 * 6) + 1 = 1)
+      Math.random = vi.fn(() => 0.1); // Will roll 1 on d6 (floor(0.1 * 6) + 1 = 1)
 
       const result = rollModTest(
         DieType.D6,
         (n) => n + 3, // 1 + 3 = 4
-        { testType: TestType.AtLeast, target: 4 }
+        { testType: TestType.AtLeast, target: 4 },
       );
 
       expect(result.base).toBe(1);
@@ -292,7 +289,7 @@ describe("rollModTest", () => {
   describe("extended range validation", () => {
     it("should accept target above base die range when modifier extends it", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.9); // Will roll 6 on d6
+      Math.random = vi.fn(() => 0.9); // Will roll 6 on d6
 
       // D6 + 10 modifier gives range 11-16, target 15 is valid
       const result = rollModTest(DieType.D6, (n) => n + 10, {
@@ -309,7 +306,7 @@ describe("rollModTest", () => {
 
     it("should accept target below base die range when negative modifier reduces it", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.05); // Will roll 2 on d20 (floor(0.05 * 20) + 1 = 2)
+      Math.random = vi.fn(() => 0.05); // Will roll 2 on d20 (floor(0.05 * 20) + 1 = 2)
 
       // D20 - 5 modifier gives range -4 to 15, target 0 is valid
       const result = rollModTest(DieType.D20, (n) => n - 5, {
@@ -336,7 +333,7 @@ describe("rollModTest", () => {
 
     it("should handle exact value tests with extended range", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.5); // Will roll 4 on d6
+      Math.random = vi.fn(() => 0.5); // Will roll 4 on d6
 
       // D6 * 2 gives range 2-12, target 8 is achievable (4*2=8)
       const result = rollModTest(DieType.D6, (n) => n * 2, {
@@ -353,7 +350,7 @@ describe("rollModTest", () => {
 
     it("should handle skill tests with critical thresholds in extended range", () => {
       const originalRandom = Math.random;
-      Math.random = jest.fn(() => 0.95); // Will roll 6 on d6
+      Math.random = vi.fn(() => 0.95); // Will roll 6 on d6
 
       // D6 + 15 gives range 16-21
       const result = rollModTest(DieType.D6, (n) => n + 15, {
