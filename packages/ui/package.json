@@ -38,7 +38,7 @@
   "dependencies": {
     "@platonic-dice/core": "^3.0.7",
     "@platonic-dice/dice": "^2.3.8",
-    "react": "^19.2.7",
+    "react": "^19.2.8",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1"
   },
