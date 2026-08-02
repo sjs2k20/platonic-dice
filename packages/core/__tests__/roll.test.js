@@ -314,6 +314,36 @@ describe("@platonic-dice/core/roll", () => {
         },
       });
     });
+
+    it("should evaluate an expression with a simple aggregate clause", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("3D6 GET AT LEAST 2x 5+ AND total >= 15");
+
+      expect(result).toEqual({
+        expression: "3D6 GET AT LEAST 2x 5+ AND total >= 15",
+        count: 3,
+        dieType: DieType.D6,
+        rolls: [4, 5, 6],
+        base: 15,
+        modifier: 0,
+        modifierType: "add",
+        modified: 15,
+        test: {
+          testType: "at_least",
+          target: 15,
+          outcome: "success",
+          aggregate: {
+            count: 2,
+            threshold: 5,
+            total: 15,
+          },
+        },
+      });
+    });
   });
 
   describe("aliases", () => {

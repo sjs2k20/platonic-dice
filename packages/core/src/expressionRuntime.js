@@ -31,34 +31,48 @@ function parseExpression(expression) {
   }
 
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
+  const aggregateClauseMatch = trimmed.match(
+    /^(\S+?)\s+GET\s+(AT\s+LEAST|AT\s+MOST|EXACTLY)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+TOTAL\s*(>=|<=|=)\s*(\d+)$/i,
+  );
   const keywordClauseMatch = trimmed.match(
     /^(\S+?)\s+(GET|AT\s+LEAST|AT\s+MOST|EXACTLY)\s*(>=|<=|=|\d+)\s*(\d+)?$/i,
   );
   const compactClauseMatch = normalized.match(/^(.*?)(>=|<=|=)(\d+)$/);
-  const testMatch = keywordClauseMatch
+  const testMatch = aggregateClauseMatch
     ? {
-        expression: keywordClauseMatch[1],
-        operator:
-          keywordClauseMatch[2].toUpperCase() === "GET"
-            ? keywordClauseMatch[3]
-            : keywordClauseMatch[2].toUpperCase() === "AT LEAST"
-              ? ">="
-              : keywordClauseMatch[2].toUpperCase() === "AT MOST"
-                ? "<="
-                : "=",
-        target: Number(
-          keywordClauseMatch[4] ||
-            keywordClauseMatch[5] ||
-            keywordClauseMatch[3],
-        ),
+        expression: aggregateClauseMatch[1],
+        operator: ">=",
+        target: Number(aggregateClauseMatch[6]),
+        aggregate: {
+          count: Number(aggregateClauseMatch[3]),
+          threshold: Number(aggregateClauseMatch[4] || aggregateClauseMatch[3]),
+          total: Number(aggregateClauseMatch[6]),
+        },
       }
-    : compactClauseMatch
+    : keywordClauseMatch
       ? {
-          expression: compactClauseMatch[1],
-          operator: compactClauseMatch[2],
-          target: Number(compactClauseMatch[3]),
+          expression: keywordClauseMatch[1],
+          operator:
+            keywordClauseMatch[2].toUpperCase() === "GET"
+              ? keywordClauseMatch[3]
+              : keywordClauseMatch[2].toUpperCase() === "AT LEAST"
+                ? ">="
+                : keywordClauseMatch[2].toUpperCase() === "AT MOST"
+                  ? "<="
+                  : "=",
+          target: Number(
+            keywordClauseMatch[4] ||
+              keywordClauseMatch[5] ||
+              keywordClauseMatch[3],
+          ),
         }
-      : undefined;
+      : compactClauseMatch
+        ? {
+            expression: compactClauseMatch[1],
+            operator: compactClauseMatch[2],
+            target: Number(compactClauseMatch[3]),
+          }
+        : undefined;
   const baseExpression = testMatch ? testMatch.expression : normalized;
   const testOperator = testMatch ? testMatch.operator : undefined;
   const testTarget = testMatch ? testMatch.target : undefined;
@@ -94,6 +108,9 @@ function parseExpression(expression) {
               ? TestType.AtMost
               : TestType.Exact,
         target: testTarget,
+        ...(testMatch && testMatch.aggregate
+          ? { aggregate: testMatch.aggregate }
+          : {}),
       }
     : undefined;
 
@@ -195,11 +212,20 @@ function executeExpression(bound) {
     ? {
         testType: bound.test.testType,
         target: bound.test.target,
-        outcome: utils.determineOutcome(modified, {
-          testType: bound.test.testType,
-          target: bound.test.target,
-          dieType: bound.dieType,
-        }),
+        outcome: bound.test.aggregate
+          ? (() => {
+              const passesAggregate =
+                rolls.filter((value) => value >= bound.test.aggregate.threshold)
+                  .length >= bound.test.aggregate.count &&
+                modified >= bound.test.aggregate.total;
+              return passesAggregate ? "success" : "failure";
+            })()
+          : utils.determineOutcome(modified, {
+              testType: bound.test.testType,
+              target: bound.test.target,
+              dieType: bound.dieType,
+            }),
+        ...(bound.test.aggregate ? { aggregate: bound.test.aggregate } : {}),
       }
     : undefined;
 
