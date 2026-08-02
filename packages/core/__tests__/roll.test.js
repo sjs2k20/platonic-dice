@@ -46,6 +46,47 @@ describe("@platonic-dice/core/roll", () => {
     });
   });
 
+  describe("expression-first API", () => {
+    it("should execute a simple expression string and return structured results", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(4);
+
+      const result = rollModule.roll("2D6+5");
+
+      expect(result).toEqual({
+        expression: "2D6+5",
+        count: 2,
+        dieType: DieType.D6,
+        rolls: [2, 4],
+        base: 6,
+        modifier: 5,
+        modifierType: "add",
+        modified: 11,
+      });
+    });
+
+    it("should execute a multiplicative expression string", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("3D6x2");
+
+      expect(result).toEqual({
+        expression: "3D6x2",
+        count: 3,
+        dieType: DieType.D6,
+        rolls: [2, 4, 6],
+        base: 12,
+        modifier: 2,
+        modifierType: "multiply",
+        modified: 24,
+      });
+    });
+  });
+
   describe("aliases", () => {
     it("rollAdv should return max of two rolls", () => {
       vi.spyOn(utils, "generateResult")

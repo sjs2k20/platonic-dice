@@ -26,6 +26,7 @@ const {
   isValidRollType,
 } = require("./entities");
 const utils = require("./utils");
+const { rollExpression } = require("./expressionRuntime");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -45,6 +46,14 @@ const utils = require("./utils");
  * const result = roll(DieType.D20, RollType.Advantage);
  */
 function roll(dieType, rollType = undefined) {
+  if (
+    typeof dieType === "string" &&
+    dieType.trim() &&
+    /\d+d\d+/i.test(dieType)
+  ) {
+    return rollExpression(dieType);
+  }
+
   // --- Validation ---
   if (!isValidDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
@@ -132,4 +141,5 @@ module.exports = {
   rollD10,
   rollD12,
   rollD20,
+  rollExpression,
 };
