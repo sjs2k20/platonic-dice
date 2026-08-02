@@ -6,8 +6,10 @@ const utils = require("./utils");
  * Supported forms:
  * - <count>d<die>[+|-<modifier>]
  * - <count>d<die>x<multiplier>
+ * - <count>d<die><adv|dis>
+ * - <count>d<die><adv|dis>[+|-<modifier>]
  *
- * Examples: 2D6+5, 3d10-2, 3D6x2
+ * Examples: 2D6+5, 3d10-2, 3D6x2, 1D20ADV, 1D20ADV+3
  */
 function parseExpression(expression) {
   if (typeof expression !== "string") {
@@ -22,17 +24,37 @@ function parseExpression(expression) {
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
   const additiveMatch = normalized.match(/^([1-9]\d*)D(\d+)([+-]\d+)?$/);
   const multiplicativeMatch = normalized.match(/^([1-9]\d*)D(\d+)X(\d+)$/);
+  const rollModeMatch = normalized.match(
+    /^([1-9]\d*)D(\d+)(ADV|DIS)([+-]\d+)?$/,
+  );
 
-  if (!additiveMatch && !multiplicativeMatch) {
+  if (!additiveMatch && !multiplicativeMatch && !rollModeMatch) {
     throw new TypeError(`Unsupported expression: ${expression}`);
   }
 
-  const count = Number((additiveMatch || multiplicativeMatch)[1]);
-  const dieSides = Number((additiveMatch || multiplicativeMatch)[2]);
+  const count = Number(
+    (additiveMatch || multiplicativeMatch || rollModeMatch)[1],
+  );
+  const dieSides = Number(
+    (additiveMatch || multiplicativeMatch || rollModeMatch)[2],
+  );
   const dieType = `d${dieSides}`;
 
   if (!isValidDieType(dieType)) {
     throw new TypeError(`Unsupported die type: ${dieType}`);
+  }
+
+  if (rollModeMatch) {
+    const rollMode = rollModeMatch[3].toLowerCase();
+    const modifier = rollModeMatch[4] ? Number(rollModeMatch[4]) : 0;
+    return {
+      expression: trimmed,
+      count,
+      dieType,
+      modifier,
+      modifierType: "add",
+      rollMode: rollMode === "adv" ? "advantage" : "disadvantage",
+    };
   }
 
   if (additiveMatch) {
@@ -81,6 +103,7 @@ function bindExpression(ast) {
     dieType: ast.dieType,
     modifier: ast.modifier,
     modifierType: ast.modifierType || "add",
+    rollMode: ast.rollMode,
   };
 }
 
@@ -88,24 +111,32 @@ function bindExpression(ast) {
  * Executes a bound expression using the existing roll-generation helpers.
  */
 function executeExpression(bound) {
-  const rolls = Array.from({ length: bound.count }, () =>
+  const rollCount = bound.rollMode ? 2 : bound.count;
+  const rolls = Array.from({ length: rollCount }, () =>
     utils.generateResult(bound.dieType),
   );
   const base = rolls.reduce((total, value) => total + value, 0);
+  const effectiveBase =
+    bound.rollMode === "advantage"
+      ? Math.max(...rolls)
+      : bound.rollMode === "disadvantage"
+        ? Math.min(...rolls)
+        : base;
   const modified =
     bound.modifierType === "multiply"
-      ? base * bound.modifier
-      : base + bound.modifier;
+      ? effectiveBase * bound.modifier
+      : effectiveBase + bound.modifier;
 
   return {
     expression: bound.expression,
     count: bound.count,
     dieType: bound.dieType,
     rolls,
-    base,
+    base: effectiveBase,
     modifier: bound.modifier,
     modifierType: bound.modifierType,
     modified,
+    rollMode: bound.rollMode,
   };
 }
 

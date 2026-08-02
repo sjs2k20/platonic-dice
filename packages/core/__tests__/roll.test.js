@@ -85,6 +85,46 @@ describe("@platonic-dice/core/roll", () => {
         modified: 24,
       });
     });
+
+    it("should execute an expression string with advantage", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(3)
+        .mockReturnValueOnce(5);
+
+      const result = rollModule.roll("1D20ADV");
+
+      expect(result).toEqual({
+        expression: "1D20ADV",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [3, 5],
+        base: 5,
+        modifier: 0,
+        modifierType: "add",
+        modified: 5,
+        rollMode: "advantage",
+      });
+    });
+
+    it("should execute an expression string with modifier and advantage", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("1D20ADV+3");
+
+      expect(result).toEqual({
+        expression: "1D20ADV+3",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [2, 6],
+        base: 6,
+        modifier: 3,
+        modifierType: "add",
+        modified: 9,
+        rollMode: "advantage",
+      });
+    });
   });
 
   describe("aliases", () => {
