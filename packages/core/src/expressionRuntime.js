@@ -8,8 +8,9 @@ const utils = require("./utils");
  * - <count>d<die>x<multiplier>
  * - <count>d<die><adv|dis>
  * - <count>d<die><adv|dis>[+|-<modifier>]
+ * - <count>d<die><adv|dis>x<multiplier>
  *
- * Examples: 2D6+5, 3d10-2, 3D6x2, 1D20ADV, 1D20ADV+3
+ * Examples: 2D6+5, 3d10-2, 3D6x2, 1D20ADV, 1D20ADV+3, 1D20ADVx2
  */
 function parseExpression(expression) {
   if (typeof expression !== "string") {
@@ -25,7 +26,7 @@ function parseExpression(expression) {
   const additiveMatch = normalized.match(/^([1-9]\d*)D(\d+)([+-]\d+)?$/);
   const multiplicativeMatch = normalized.match(/^([1-9]\d*)D(\d+)X(\d+)$/);
   const rollModeMatch = normalized.match(
-    /^([1-9]\d*)D(\d+)(ADV|DIS)([+-]\d+)?$/,
+    /^([1-9]\d*)D(\d+)(ADV|DIS)([+-]\d+|X\d+)?$/,
   );
 
   if (!additiveMatch && !multiplicativeMatch && !rollModeMatch) {
@@ -46,13 +47,20 @@ function parseExpression(expression) {
 
   if (rollModeMatch) {
     const rollMode = rollModeMatch[3].toLowerCase();
-    const modifier = rollModeMatch[4] ? Number(rollModeMatch[4]) : 0;
+    const suffix = rollModeMatch[4] || "";
+    const modifier = suffix.startsWith("X")
+      ? Number(suffix.slice(1))
+      : suffix
+        ? Number(suffix)
+        : 0;
+    const modifierType = suffix.startsWith("X") ? "multiply" : "add";
+
     return {
       expression: trimmed,
       count,
       dieType,
       modifier,
-      modifierType: "add",
+      modifierType,
       rollMode: rollMode === "adv" ? "advantage" : "disadvantage",
     };
   }

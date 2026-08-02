@@ -125,6 +125,26 @@ describe("@platonic-dice/core/roll", () => {
         rollMode: "advantage",
       });
     });
+
+    it("should execute an expression string with multiplier and advantage", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("1D20ADVx2");
+
+      expect(result).toEqual({
+        expression: "1D20ADVx2",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [2, 6],
+        base: 6,
+        modifier: 2,
+        modifierType: "multiply",
+        modified: 12,
+        rollMode: "advantage",
+      });
+    });
   });
 
   describe("aliases", () => {
