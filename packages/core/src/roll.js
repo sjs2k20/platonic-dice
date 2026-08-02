@@ -46,14 +46,6 @@ const { rollExpression } = require("./expressionRuntime");
  * const result = roll(DieType.D20, RollType.Advantage);
  */
 function roll(dieType, rollType = undefined) {
-  if (
-    typeof dieType === "string" &&
-    dieType.trim() &&
-    /\d+d\d+/i.test(dieType)
-  ) {
-    return rollExpression(dieType);
-  }
-
   // --- Validation ---
   if (!isValidDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
