@@ -315,6 +315,32 @@ describe("@platonic-dice/core/roll", () => {
       });
     });
 
+    it("should evaluate an expression with chained each and net modifiers", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(3);
+
+      const result = rollModule.roll("4D6+1toEach+10");
+
+      expect(result).toEqual({
+        expression: "4D6+1toEach+10",
+        count: 4,
+        dieType: DieType.D6,
+        rolls: [4, 1, 2, 3],
+        base: 10,
+        modifier: 10,
+        modifierType: "add",
+        modified: 24,
+        perDieModifier: 1,
+        modifierPlan: {
+          each: 1,
+          net: 10,
+        },
+      });
+    });
+
     it("should evaluate an expression with a simple aggregate clause", () => {
       vi.spyOn(utils, "generateResult")
         .mockReturnValueOnce(4)
@@ -338,6 +364,36 @@ describe("@platonic-dice/core/roll", () => {
           outcome: "success",
           aggregate: {
             count: 2,
+            threshold: 5,
+            total: 15,
+          },
+        },
+      });
+    });
+
+    it("should evaluate an expression with the explicit aggregate example syntax", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(4);
+
+      const result = rollModule.roll("3D6 GET atLeast 1x 5+ AND total >= 15");
+
+      expect(result).toEqual({
+        expression: "3D6 GET atLeast 1x 5+ AND total >= 15",
+        count: 3,
+        dieType: DieType.D6,
+        rolls: [5, 5, 4],
+        base: 14,
+        modifier: 0,
+        modifierType: "add",
+        modified: 14,
+        test: {
+          testType: "at_least",
+          target: 15,
+          outcome: "failure",
+          aggregate: {
+            count: 1,
             threshold: 5,
             total: 15,
           },

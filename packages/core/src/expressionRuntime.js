@@ -32,7 +32,7 @@ function parseExpression(expression) {
 
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
   const aggregateClauseMatch = trimmed.match(
-    /^(\S+?)\s+GET\s+(AT\s+LEAST|AT\s+MOST|EXACTLY)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+TOTAL\s*(>=|<=|=)\s*(\d+)$/i,
+    /^(\S+?)\s+GET\s+(AT\s+LEAST|AT\s+MOST|EXACTLY|ATLEAST|ATMOST|EXACT)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+TOTAL\s*(>=|<=|=)\s*(\d+)$/i,
   );
   const keywordClauseMatch = trimmed.match(
     /^(\S+?)\s+(GET|AT\s+LEAST|AT\s+MOST|EXACTLY)\s*(>=|<=|=|\d+)\s*(\d+)?$/i,
@@ -77,7 +77,9 @@ function parseExpression(expression) {
   const testOperator = testMatch ? testMatch.operator : undefined;
   const testTarget = testMatch ? testMatch.target : undefined;
 
-  const additiveMatch = baseExpression.match(/^([1-9]\d*)D(\d+)([+-]\d+)?$/);
+  const additiveMatch = baseExpression.match(
+    /^([1-9]\d*)D(\d+)(?:([+-]\d+)(?:(toEach)([+-]\d+))?)?$/i,
+  );
   const multiplicativeMatch = baseExpression.match(/^([1-9]\d*)D(\d+)X(\d+)$/);
   const rollModeMatch = baseExpression.match(
     /^([1-9]\d*)D(\d+)(ADV|DIS)([+-]\d+|X\d+)?$/,
@@ -136,13 +138,29 @@ function parseExpression(expression) {
   }
 
   if (additiveMatch) {
-    const modifier = additiveMatch[3] ? Number(additiveMatch[3]) : 0;
+    const firstModifier = additiveMatch[3] ? Number(additiveMatch[3]) : 0;
+    const hasPerDieModifier = Boolean(additiveMatch[4]);
+    const netModifier = additiveMatch[5]
+      ? Number(additiveMatch[5])
+      : firstModifier;
+    const modifier = hasPerDieModifier ? netModifier : firstModifier;
+
     return {
       expression: trimmed,
       count,
       dieType,
       modifier,
       modifierType: "add",
+      ...(hasPerDieModifier
+        ? {
+            perDieModifier:
+              Math.abs(firstModifier) * (firstModifier < 0 ? -1 : 1),
+            modifierPlan: {
+              each: Math.abs(firstModifier) * (firstModifier < 0 ? -1 : 1),
+              net: netModifier,
+            },
+          }
+        : {}),
       test,
     };
   }
@@ -183,6 +201,12 @@ function bindExpression(ast) {
     dieType: ast.dieType,
     modifier: ast.modifier,
     modifierType: ast.modifierType || "add",
+    ...(ast.perDieModifier != null
+      ? {
+          perDieModifier: ast.perDieModifier,
+          modifierPlan: ast.modifierPlan,
+        }
+      : {}),
     rollMode: ast.rollMode,
     test: ast.test,
   };
@@ -203,10 +227,17 @@ function executeExpression(bound) {
       : bound.rollMode === "disadvantage"
         ? Math.min(...rolls)
         : base;
+  const perDieRolls =
+    bound.perDieModifier != null
+      ? rolls.map((value) => value + bound.perDieModifier)
+      : rolls;
+  const perDieSum = perDieRolls.reduce((total, value) => total + value, 0);
   const modified =
-    bound.modifierType === "multiply"
-      ? effectiveBase * bound.modifier
-      : effectiveBase + bound.modifier;
+    bound.perDieModifier != null
+      ? perDieSum + bound.modifier
+      : bound.modifierType === "multiply"
+        ? effectiveBase * bound.modifier
+        : effectiveBase + bound.modifier;
 
   const test = bound.test
     ? {
@@ -237,6 +268,12 @@ function executeExpression(bound) {
     base: effectiveBase,
     modifier: bound.modifier,
     modifierType: bound.modifierType,
+    ...(bound.perDieModifier != null
+      ? {
+          perDieModifier: bound.perDieModifier,
+          modifierPlan: bound.modifierPlan,
+        }
+      : {}),
     modified,
     rollMode: bound.rollMode,
     ...(test ? { test } : {}),
