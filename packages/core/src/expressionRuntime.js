@@ -1,6 +1,11 @@
 const { isValidDieType } = require("./entities");
 const utils = require("./utils");
 
+function createExpressionError(expression, reason) {
+  const message = `${reason} for expression "${expression}". Supported forms: 2D6+5, 3D6x2, 1D20ADV+3.`;
+  return new TypeError(message);
+}
+
 /**
  * Parses a simple expression into a structured AST-like shape.
  * Supported forms:
@@ -14,12 +19,15 @@ const utils = require("./utils");
  */
 function parseExpression(expression) {
   if (typeof expression !== "string") {
-    throw new TypeError("Invalid expression: expected a string");
+    throw createExpressionError(
+      expression,
+      "Invalid expression: expected a string",
+    );
   }
 
   const trimmed = expression.trim();
   if (!trimmed) {
-    throw new TypeError("Invalid expression: empty string");
+    throw createExpressionError(expression, "Invalid expression: empty string");
   }
 
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
@@ -30,7 +38,7 @@ function parseExpression(expression) {
   );
 
   if (!additiveMatch && !multiplicativeMatch && !rollModeMatch) {
-    throw new TypeError(`Unsupported expression: ${expression}`);
+    throw createExpressionError(expression, "Unsupported expression");
   }
 
   const count = Number(
@@ -42,7 +50,7 @@ function parseExpression(expression) {
   const dieType = `d${dieSides}`;
 
   if (!isValidDieType(dieType)) {
-    throw new TypeError(`Unsupported die type: ${dieType}`);
+    throw createExpressionError(expression, `Unsupported die type: ${dieType}`);
   }
 
   if (rollModeMatch) {

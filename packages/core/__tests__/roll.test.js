@@ -14,6 +14,11 @@ describe("@platonic-dice/core/roll", () => {
     it("should throw a TypeError for invalid roll types", () => {
       expect(() => rollModule.roll(DieType.D6, "invalid")).toThrow(TypeError);
     });
+
+    it("should surface actionable diagnostics for invalid expressions", () => {
+      expect(() => rollModule.roll("2D7")).toThrow(/Supported forms/i);
+      expect(() => rollModule.roll("2D7")).toThrow(/2D6\+5/i);
+    });
   });
 
   describe("core roll behavior", () => {
@@ -143,6 +148,25 @@ describe("@platonic-dice/core/roll", () => {
         modifierType: "multiply",
         modified: 12,
         rollMode: "advantage",
+      });
+    });
+
+    it("should execute an expression string with a negative modifier", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(4);
+
+      const result = rollModule.roll("2D6-3");
+
+      expect(result).toEqual({
+        expression: "2D6-3",
+        count: 2,
+        dieType: DieType.D6,
+        rolls: [2, 4],
+        base: 6,
+        modifier: -3,
+        modifierType: "add",
+        modified: 3,
       });
     });
   });
