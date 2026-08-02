@@ -15,6 +15,10 @@
    - Core Logic: Pure, deterministic functions (e.g., combat calculations, dice rolls).
 4. **YAGNI & DRY (You Aren't Gonna Need It / Don't Repeat Yourself):**
    - Implement the minimal viable abstraction needed for the current phase.
+5. **Predictable DSL Evolution:**
+   - Favor explicit, grammar-stable syntax for new capabilities so the language remains readable and extensible over time.
+   - Use a single reserved keyword such as `GET` as the canonical flag for introducing test-condition logic, rather than relying on ambiguous shorthand that makes later parser evolution harder.
+   - Keep user-friendly shortcuts optional where they add value, but do not let them become the core contract of the DSL.
 
 ## Agent Execution Protocol
 

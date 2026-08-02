@@ -195,6 +195,31 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(4);
 
+      const result = rollModule.roll("1D20ADV GET >= 15");
+
+      expect(result).toEqual({
+        expression: "1D20ADV GET >= 15",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [6, 4],
+        base: 6,
+        modifier: 0,
+        modifierType: "add",
+        modified: 6,
+        rollMode: "advantage",
+        test: {
+          testType: "at_least",
+          target: 15,
+          outcome: "failure",
+        },
+      });
+    });
+
+    it("should still accept shorthand operator syntax as a convenience form", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(6)
+        .mockReturnValueOnce(4);
+
       const result = rollModule.roll("1D20ADV>=15");
 
       expect(result).toEqual({
@@ -261,6 +286,31 @@ describe("@platonic-dice/core/roll", () => {
           testType: "at_most",
           target: 4,
           outcome: "failure",
+        },
+      });
+    });
+
+    it("should evaluate an expression with an exact keyword clause", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(6)
+        .mockReturnValueOnce(4);
+
+      const result = rollModule.roll("1D20ADV EXACTLY 6");
+
+      expect(result).toEqual({
+        expression: "1D20ADV EXACTLY 6",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [6, 4],
+        base: 6,
+        modifier: 0,
+        modifierType: "add",
+        modified: 6,
+        rollMode: "advantage",
+        test: {
+          testType: "exact",
+          target: 6,
+          outcome: "success",
         },
       });
     });
