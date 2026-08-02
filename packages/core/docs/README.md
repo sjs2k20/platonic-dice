@@ -9,6 +9,7 @@ Rolling functions that return dice values and/or outcomes.
 | Function          | Description                                  | Documentation                                   | Example                                                                       |
 | ----------------- | -------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------- |
 | `roll`            | Roll a single die                            | [docs/roll.md](./roll.md)                       | [examples/roll-example.js](../examples/roll-example.js)                       |
+| `rollExpression`  | Evaluate the expression-first DSL            | [docs/roll.md](./roll.md)                       | [examples/roll-example.js](../examples/roll-example.js)                       |
 | `rollDice`        | Roll multiple dice                           | [docs/rollDice.md](./rollDice.md)               | [examples/rollDice-example.js](../examples/rollDice-example.js)               |
 | `rollMod`         | Roll single die with modifier                | [docs/rollMod.md](./rollMod.md)                 | [examples/rollMod-example.js](../examples/rollMod-example.js)                 |
 | `rollDiceMod`     | Roll multiple dice with modifier             | [docs/rollDiceMod.md](./rollDiceMod.md)         | [examples/rollDiceMod-example.js](../examples/rollDiceMod-example.js)         |

@@ -14,6 +14,7 @@ const {
   rollD10,
   rollD12,
   rollD20,
+  rollExpression,
   DieType,
   RollType,
 } = require("../src");
@@ -74,12 +75,20 @@ console.log();
 console.log("--- Combining Aliases ---");
 console.log(`rollD20(RollType.Advantage): ${rollD20(RollType.Advantage)}`);
 console.log(
-  `rollD20(RollType.Disadvantage): ${rollD20(RollType.Disadvantage)}`
+  `rollD20(RollType.Disadvantage): ${rollD20(RollType.Disadvantage)}`,
 );
 console.log(`rollD10(RollType.Advantage): ${rollD10(RollType.Advantage)}`);
 console.log();
 
-// Example 8: Attack roll simulation
+// Example 8: Expression-first DSL example
+console.log("=== Expression-First DSL ===");
+const expressionResult = rollExpression("1D20ADV GET atLeast 15");
+console.log(
+  `Expression result: ${JSON.stringify(expressionResult.test, null, 2)}`,
+);
+console.log();
+
+// Example 9: Attack roll simulation
 console.log("=== Attack Roll Simulation ===");
 console.log("Player attacks with advantage:");
 const attackRoll = rollAdv(DieType.D20);
@@ -93,7 +102,7 @@ if (attackRoll >= 15) {
 }
 console.log();
 
-// Example 9: Ability score generation (4d6 drop lowest)
+// Example 10: Ability score generation (4d6 drop lowest)
 console.log("=== Ability Score Generation (4d6 drop lowest) ===");
 function rollAbilityScore() {
   const rolls = [rollD6(), rollD6(), rollD6(), rollD6()];
@@ -123,7 +132,7 @@ Object.entries(stats).forEach(([stat, value]) => {
 });
 console.log();
 
-// Example 10: Critical hit simulation
+// Example 11: Critical hit simulation
 console.log("=== Critical Hit Damage ===");
 const attackIs20 = 20; // Simulating a crit
 console.log(`Attack roll: ${attackIs20} (CRITICAL HIT!)`);
@@ -135,7 +144,7 @@ console.log(`  First d8: ${normalDamage}`);
 console.log(`  Second d8: ${critDamage}`);
 console.log(`  Total damage: ${totalDamage}\n`);
 
-// Example 11: Random encounter
+// Example 12: Random encounter
 console.log("=== Random Encounter ===");
 const encounterType = rollD6();
 console.log(`Encounter roll (d6): ${encounterType}`);
@@ -161,7 +170,7 @@ switch (encounterType) {
 }
 console.log();
 
-// Example 12: Initiative order
+// Example 13: Initiative order
 console.log("=== Initiative Order (Party of 4) ===");
 const party = [
   { name: "Fighter", initiative: rollD20() },
@@ -177,7 +186,7 @@ party.forEach((character, index) => {
 });
 console.log();
 
-// Example 13: Percentile-style check with d10s
+// Example 14: Percentile-style check with d10s
 console.log("=== Percentile Check (using 2d10) ===");
 const tens = (rollD10() - 1) * 10; // 0, 10, 20, ..., 90
 const ones = rollD10() - 1; // 0-9
@@ -190,7 +199,7 @@ if (percentile < 50) {
 }
 console.log();
 
-// Example 14: Wild Magic Surge (d20)
+// Example 15: Wild Magic Surge (d20)
 console.log("=== Wild Magic Surge ===");
 const surgeRoll = rollD20();
 console.log(`Surge check (d20): ${surgeRoll}`);

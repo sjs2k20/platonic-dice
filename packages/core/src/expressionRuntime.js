@@ -32,10 +32,10 @@ function parseExpression(expression) {
 
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
   const aggregateClauseMatch = trimmed.match(
-    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+(?:TOTAL|total)\s*(>=|<=|=)\s*(\d+)$/,
+    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)\s*(\d+)(?:x\s*(\d+)\+)?\s+(AND|OR)\s+(?:TOTAL|total)\s*(>=|<=|=)\s*(\d+)$/,
   );
   const aggregateLikeMatch = trimmed.match(
-    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+(?:TOTAL|total)\s*([<>]=?|=)\s*(\d+)$/,
+    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)\s*(\d+)(?:x\s*(\d+)\+)?\s+(AND|OR)\s+(?:TOTAL|total)\s*([<>]=?|=)\s*(\d+)$/,
   );
   const explicitKeywordClauseMatch = trimmed.match(
     /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)?\s*(>=|<=|=)?\s*(\d+)?$/,
@@ -47,19 +47,33 @@ function parseExpression(expression) {
   if (aggregateLikeMatch && !aggregateClauseMatch) {
     throw createExpressionError(
       expression,
-      "Invalid aggregate clause: expected >=, <=, or = after AND TOTAL",
+      "Invalid aggregate clause: expected >=, <=, or = after AND/OR TOTAL",
     );
   }
   const testMatch = aggregateClauseMatch
     ? {
         expression: aggregateClauseMatch[1],
-        operator: ">=",
-        target: Number(aggregateClauseMatch[6]),
-        aggregate: {
-          count: Number(aggregateClauseMatch[3]),
-          threshold: Number(aggregateClauseMatch[4] || aggregateClauseMatch[3]),
-          total: Number(aggregateClauseMatch[6]),
-        },
+        operator:
+          aggregateClauseMatch[2] === "atMost"
+            ? "<="
+            : aggregateClauseMatch[2] === "exactly"
+              ? "="
+              : ">=",
+        target: Number(aggregateClauseMatch[7]),
+        aggregate: (() => {
+          const aggregate = {
+            count: Number(aggregateClauseMatch[3]),
+            threshold: Number(
+              aggregateClauseMatch[4] || aggregateClauseMatch[3],
+            ),
+            total: Number(aggregateClauseMatch[7]),
+          };
+          Object.defineProperty(aggregate, "conjunction", {
+            value: aggregateClauseMatch[5].toLowerCase(),
+            enumerable: false,
+          });
+          return aggregate;
+        })(),
       }
     : explicitKeywordClauseMatch
       ? {
@@ -267,6 +281,7 @@ function executeExpression(bound) {
                 rolls.filter((value) => value >= thresholdValue).length >=
                 thresholdCount;
               const passesTotal = modified >= totalValue;
+              const conjunction = bound.test.aggregate.conjunction || "and";
               if (thresholdCount > bound.count) {
                 throw createExpressionError(
                   bound.expression,
@@ -279,7 +294,13 @@ function executeExpression(bound) {
                   "Invalid aggregate clause: threshold exceeds die faces",
                 );
               }
-              return passesThreshold && passesTotal ? "success" : "failure";
+              return conjunction === "or"
+                ? passesThreshold || passesTotal
+                  ? "success"
+                  : "failure"
+                : passesThreshold && passesTotal
+                  ? "success"
+                  : "failure";
             })()
           : (() => {
               const baseValue = bound.rollMode

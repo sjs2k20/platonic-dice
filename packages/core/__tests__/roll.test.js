@@ -3,6 +3,7 @@
 const { DieType, RollType, TestType } = require("../src/entities");
 const utils = require("../src/utils");
 const rollModule = require("../src/roll");
+const coreIndex = require("../src/index");
 const { executeExpression } = require("../src/expressionRuntime");
 import { vi } from "vitest";
 
@@ -356,6 +357,11 @@ describe("@platonic-dice/core/roll", () => {
       expect(result.test.outcome).toBe("critical_success");
     });
 
+    it("should expose rollExpression from the package root", () => {
+      expect(coreIndex.rollExpression).toBeDefined();
+      expect(typeof coreIndex.rollExpression).toBe("function");
+    });
+
     it("should evaluate an expression with chained each and net modifiers", () => {
       vi.spyOn(utils, "generateResult")
         .mockReturnValueOnce(4)
@@ -439,6 +445,22 @@ describe("@platonic-dice/core/roll", () => {
             total: 15,
           },
         },
+      });
+    });
+
+    it("should support OR aggregate clauses for total-threshold checks", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("3D6 GET atLeast 2x 5+ OR total >= 15");
+
+      expect(result.test.outcome).toBe("success");
+      expect(result.test.aggregate).toEqual({
+        count: 2,
+        threshold: 5,
+        total: 15,
       });
     });
   });

@@ -14,6 +14,22 @@ npm install @platonic-dice/core @platonic-dice/types-core
 
 ## Quick usage
 
+The expression-first API is available through `rollExpression` and can be used alongside the legacy helpers:
+
+```js
+const { rollExpression, DieType } = require("@platonic-dice/core");
+
+const result = rollExpression("1D20ADV GET atLeast 15");
+console.log(result.test.outcome);
+```
+
+Supported expression forms include:
+
+- arithmetic rolls such as `2D6+5` and `3D6x2`
+- advantage/disadvantage such as `1D20ADV` and `1D20DIS`
+- explicit tests via `GET`, such as `1D20ADV GET >= 15` or `1D20ADV GET atMost 4`
+- aggregate clauses such as `3D6 GET atLeast 2x 5+ AND total >= 15` or `3D6 GET atLeast 2x 5+ OR total >= 15`
+
 CommonJS:
 
 ```js

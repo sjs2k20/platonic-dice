@@ -6,6 +6,8 @@ Rolls a single die and returns the result.
 
 `roll` is the most basic dice rolling function. It rolls a single die of the specified type and optionally applies advantage or disadvantage mechanics.
 
+For the expression-first DSL, use `rollExpression` from the package root. It accepts expressions such as `2D6+5`, `1D20ADV GET >= 15`, `3D6 GET atLeast 2x 5+ AND total >= 15`, and `3D6 GET atLeast 2x 5+ OR total >= 15`.
+
 ## Usage
 
 ```javascript
@@ -34,7 +36,6 @@ roll(
 ### Parameters
 
 - **dieType**: The type of die to roll
-
   - `DieType.D4` - Four-sided die (1-4)
   - `DieType.D6` - Six-sided die (1-6)
   - `DieType.D8` - Eight-sided die (1-8)
@@ -50,6 +51,15 @@ roll(
 ### Returns
 
 `number` - The result of the die roll
+
+### Expression-first DSL
+
+```javascript
+const { rollExpression } = require("@platonic-dice/core");
+
+const result = rollExpression("1D20ADV GET atLeast 15");
+console.log(result.test.outcome);
+```
 
 ### Convenience Aliases
 
