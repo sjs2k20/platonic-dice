@@ -32,12 +32,24 @@ function parseExpression(expression) {
 
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
   const aggregateClauseMatch = trimmed.match(
-    /^(\S+?)\s+GET\s+(AT\s+LEAST|AT\s+MOST|EXACTLY|ATLEAST|ATMOST|EXACT)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+TOTAL\s*(>=|<=|=)\s*(\d+)$/i,
+    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+(?:TOTAL|total)\s*(>=|<=|=)\s*(\d+)$/,
   );
-  const keywordClauseMatch = trimmed.match(
-    /^(\S+?)\s+(GET|AT\s+LEAST|AT\s+MOST|EXACTLY)\s*(>=|<=|=|\d+)\s*(\d+)?$/i,
+  const aggregateLikeMatch = trimmed.match(
+    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)\s*(\d+)(?:x\s*(\d+)\+)?\s+AND\s+(?:TOTAL|total)\s*([<>]=?|=)\s*(\d+)$/,
+  );
+  const explicitKeywordClauseMatch = trimmed.match(
+    /^(\S+?)\s+GET\s+(atLeast|atMost|exactly)?\s*(>=|<=|=)?\s*(\d+)?$/,
+  );
+  const bareKeywordClauseMatch = trimmed.match(
+    /^(\S+?)\s+(atLeast|atMost|exactly)\s*(>=|<=|=|\d+)?\s*(\d+)?$/,
   );
   const compactClauseMatch = normalized.match(/^(.*?)(>=|<=|=)(\d+)$/);
+  if (aggregateLikeMatch && !aggregateClauseMatch) {
+    throw createExpressionError(
+      expression,
+      "Invalid aggregate clause: expected >=, <=, or = after AND TOTAL",
+    );
+  }
   const testMatch = aggregateClauseMatch
     ? {
         expression: aggregateClauseMatch[1],
@@ -49,22 +61,18 @@ function parseExpression(expression) {
           total: Number(aggregateClauseMatch[6]),
         },
       }
-    : keywordClauseMatch
+    : explicitKeywordClauseMatch
       ? {
-          expression: keywordClauseMatch[1],
-          operator:
-            keywordClauseMatch[2].toUpperCase() === "GET"
-              ? keywordClauseMatch[3]
-              : keywordClauseMatch[2].toUpperCase() === "AT LEAST"
-                ? ">="
-                : keywordClauseMatch[2].toUpperCase() === "AT MOST"
-                  ? "<="
-                  : "=",
-          target: Number(
-            keywordClauseMatch[4] ||
-              keywordClauseMatch[5] ||
-              keywordClauseMatch[3],
-          ),
+          expression: explicitKeywordClauseMatch[1],
+          operator: (() => {
+            const clause = explicitKeywordClauseMatch[2] || "";
+            const operator = explicitKeywordClauseMatch[3] || "";
+            if (clause === "atLeast") return ">=";
+            if (clause === "atMost") return "<=";
+            if (operator === ">=" || operator === "<=") return operator;
+            return "=";
+          })(),
+          target: Number(explicitKeywordClauseMatch[4]),
         }
       : compactClauseMatch
         ? {
@@ -73,6 +81,13 @@ function parseExpression(expression) {
             target: Number(compactClauseMatch[3]),
           }
         : undefined;
+  if (!testMatch && bareKeywordClauseMatch) {
+    throw createExpressionError(
+      expression,
+      "Explicit test clauses must be prefixed with GET",
+    );
+  }
+
   const baseExpression = testMatch ? testMatch.expression : normalized;
   const testOperator = testMatch ? testMatch.operator : undefined;
   const testTarget = testMatch ? testMatch.target : undefined;

@@ -19,6 +19,19 @@ describe("@platonic-dice/core/roll", () => {
       expect(() => rollModule.roll("2D7")).toThrow(/Supported forms/i);
       expect(() => rollModule.roll("2D7")).toThrow(/2D6\+5/i);
     });
+
+    it("should require GET for explicit test clauses", () => {
+      expect(() => rollModule.roll("1D20ADV atMost 4")).toThrow(/GET/i);
+      expect(() => rollModule.roll("1D20ADV exactly 6")).toThrow(/GET/i);
+      expect(() => rollModule.roll("1D20ADV atLeast 15")).toThrow(/GET/i);
+      expect(() => rollModule.roll("1D20ADV GET atMost 4")).not.toThrow();
+    });
+
+    it("should surface a targeted diagnostic for malformed aggregate clauses", () => {
+      expect(() =>
+        rollModule.roll("3D6 GET atLeast 2x 5+ AND total > 15"),
+      ).toThrow(/aggregate/i);
+    });
   });
 
   describe("core roll behavior", () => {
@@ -265,15 +278,15 @@ describe("@platonic-dice/core/roll", () => {
       });
     });
 
-    it("should evaluate an expression with a keyword-style test clause", () => {
+    it("should evaluate an expression with a GET keyword-style test clause", () => {
       vi.spyOn(utils, "generateResult")
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(5);
 
-      const result = rollModule.roll("1D20ADV AT MOST 4");
+      const result = rollModule.roll("1D20ADV GET atMost 4");
 
       expect(result).toEqual({
-        expression: "1D20ADV AT MOST 4",
+        expression: "1D20ADV GET atMost 4",
         count: 1,
         dieType: DieType.D20,
         rolls: [3, 5],
@@ -290,15 +303,15 @@ describe("@platonic-dice/core/roll", () => {
       });
     });
 
-    it("should evaluate an expression with an exact keyword clause", () => {
+    it("should evaluate an expression with an exact GET keyword clause", () => {
       vi.spyOn(utils, "generateResult")
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.roll("1D20ADV EXACTLY 6");
+      const result = rollModule.roll("1D20ADV GET exactly 6");
 
       expect(result).toEqual({
-        expression: "1D20ADV EXACTLY 6",
+        expression: "1D20ADV GET exactly 6",
         count: 1,
         dieType: DieType.D20,
         rolls: [6, 4],
@@ -347,10 +360,10 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(5)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.roll("3D6 GET AT LEAST 2x 5+ AND total >= 15");
+      const result = rollModule.roll("3D6 GET atLeast 2x 5+ AND total >= 15");
 
       expect(result).toEqual({
-        expression: "3D6 GET AT LEAST 2x 5+ AND total >= 15",
+        expression: "3D6 GET atLeast 2x 5+ AND total >= 15",
         count: 3,
         dieType: DieType.D6,
         rolls: [4, 5, 6],
