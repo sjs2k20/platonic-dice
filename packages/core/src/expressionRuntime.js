@@ -1,8 +1,8 @@
-const { isValidDieType } = require("./entities");
+const { isValidDieType, TestType } = require("./entities");
 const utils = require("./utils");
 
 function createExpressionError(expression, reason) {
-  const message = `${reason} for expression "${expression}". Supported forms: 2D6+5, 3D6x2, 1D20ADV+3.`;
+  const message = `${reason} for expression "${expression}". Supported forms: 2D6+5, 3D6x2, 1D20ADV+3, 1D20ADV>=15.`;
   return new TypeError(message);
 }
 
@@ -31,9 +31,41 @@ function parseExpression(expression) {
   }
 
   const normalized = trimmed.replace(/\s+/g, "").toUpperCase();
-  const additiveMatch = normalized.match(/^([1-9]\d*)D(\d+)([+-]\d+)?$/);
-  const multiplicativeMatch = normalized.match(/^([1-9]\d*)D(\d+)X(\d+)$/);
-  const rollModeMatch = normalized.match(
+  const keywordClauseMatch = trimmed.match(
+    /^(\S+?)\s+(GET|AT\s+LEAST|AT\s+MOST|EXACTLY)\s*(>=|<=|=|\d+)\s*(\d+)?$/i,
+  );
+  const compactClauseMatch = normalized.match(/^(.*?)(>=|<=|=)(\d+)$/);
+  const testMatch = keywordClauseMatch
+    ? {
+        expression: keywordClauseMatch[1],
+        operator:
+          keywordClauseMatch[2].toUpperCase() === "GET"
+            ? keywordClauseMatch[3]
+            : keywordClauseMatch[2].toUpperCase() === "AT LEAST"
+              ? ">="
+              : keywordClauseMatch[2].toUpperCase() === "AT MOST"
+                ? "<="
+                : "=",
+        target: Number(
+          keywordClauseMatch[4] ||
+            keywordClauseMatch[5] ||
+            keywordClauseMatch[3],
+        ),
+      }
+    : compactClauseMatch
+      ? {
+          expression: compactClauseMatch[1],
+          operator: compactClauseMatch[2],
+          target: Number(compactClauseMatch[3]),
+        }
+      : undefined;
+  const baseExpression = testMatch ? testMatch.expression : normalized;
+  const testOperator = testMatch ? testMatch.operator : undefined;
+  const testTarget = testMatch ? testMatch.target : undefined;
+
+  const additiveMatch = baseExpression.match(/^([1-9]\d*)D(\d+)([+-]\d+)?$/);
+  const multiplicativeMatch = baseExpression.match(/^([1-9]\d*)D(\d+)X(\d+)$/);
+  const rollModeMatch = baseExpression.match(
     /^([1-9]\d*)D(\d+)(ADV|DIS)([+-]\d+|X\d+)?$/,
   );
 
@@ -53,6 +85,18 @@ function parseExpression(expression) {
     throw createExpressionError(expression, `Unsupported die type: ${dieType}`);
   }
 
+  const test = testOperator
+    ? {
+        testType:
+          testOperator === ">="
+            ? TestType.AtLeast
+            : testOperator === "<="
+              ? TestType.AtMost
+              : TestType.Exact,
+        target: testTarget,
+      }
+    : undefined;
+
   if (rollModeMatch) {
     const rollMode = rollModeMatch[3].toLowerCase();
     const suffix = rollModeMatch[4] || "";
@@ -70,6 +114,7 @@ function parseExpression(expression) {
       modifier,
       modifierType,
       rollMode: rollMode === "adv" ? "advantage" : "disadvantage",
+      test,
     };
   }
 
@@ -81,6 +126,7 @@ function parseExpression(expression) {
       dieType,
       modifier,
       modifierType: "add",
+      test,
     };
   }
 
@@ -90,6 +136,7 @@ function parseExpression(expression) {
     dieType,
     modifier: Number(multiplicativeMatch[3]),
     modifierType: "multiply",
+    test,
   };
 }
 
@@ -120,6 +167,7 @@ function bindExpression(ast) {
     modifier: ast.modifier,
     modifierType: ast.modifierType || "add",
     rollMode: ast.rollMode,
+    test: ast.test,
   };
 }
 
@@ -143,6 +191,18 @@ function executeExpression(bound) {
       ? effectiveBase * bound.modifier
       : effectiveBase + bound.modifier;
 
+  const test = bound.test
+    ? {
+        testType: bound.test.testType,
+        target: bound.test.target,
+        outcome: utils.determineOutcome(modified, {
+          testType: bound.test.testType,
+          target: bound.test.target,
+          dieType: bound.dieType,
+        }),
+      }
+    : undefined;
+
   return {
     expression: bound.expression,
     count: bound.count,
@@ -153,6 +213,7 @@ function executeExpression(bound) {
     modifierType: bound.modifierType,
     modified,
     rollMode: bound.rollMode,
+    ...(test ? { test } : {}),
   };
 }
 

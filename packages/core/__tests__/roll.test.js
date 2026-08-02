@@ -169,6 +169,101 @@ describe("@platonic-dice/core/roll", () => {
         modified: 3,
       });
     });
+
+    it("should execute an expression string with negative modifier and advantage", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(2)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("1D20ADV-3");
+
+      expect(result).toEqual({
+        expression: "1D20ADV-3",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [2, 6],
+        base: 6,
+        modifier: -3,
+        modifierType: "add",
+        modified: 3,
+        rollMode: "advantage",
+      });
+    });
+
+    it("should evaluate an expression against a test condition", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(6)
+        .mockReturnValueOnce(4);
+
+      const result = rollModule.roll("1D20ADV>=15");
+
+      expect(result).toEqual({
+        expression: "1D20ADV>=15",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [6, 4],
+        base: 6,
+        modifier: 0,
+        modifierType: "add",
+        modified: 6,
+        rollMode: "advantage",
+        test: {
+          testType: "at_least",
+          target: 15,
+          outcome: "failure",
+        },
+      });
+    });
+
+    it("should evaluate an expression with a GET-style test clause", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(16)
+        .mockReturnValueOnce(14);
+
+      const result = rollModule.roll("1D20ADV GET >= 15");
+
+      expect(result).toEqual({
+        expression: "1D20ADV GET >= 15",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [16, 14],
+        base: 16,
+        modifier: 0,
+        modifierType: "add",
+        modified: 16,
+        rollMode: "advantage",
+        test: {
+          testType: "at_least",
+          target: 15,
+          outcome: "success",
+        },
+      });
+    });
+
+    it("should evaluate an expression with a keyword-style test clause", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(3)
+        .mockReturnValueOnce(5);
+
+      const result = rollModule.roll("1D20ADV AT MOST 4");
+
+      expect(result).toEqual({
+        expression: "1D20ADV AT MOST 4",
+        count: 1,
+        dieType: DieType.D20,
+        rolls: [3, 5],
+        base: 5,
+        modifier: 0,
+        modifierType: "add",
+        modified: 5,
+        rollMode: "advantage",
+        test: {
+          testType: "at_most",
+          target: 4,
+          outcome: "failure",
+        },
+      });
+    });
   });
 
   describe("aliases", () => {
