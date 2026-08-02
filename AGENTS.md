@@ -35,32 +35,32 @@ Before generating code, you MUST:
 - **Objective:** Replace the current API-first orchestration model with a parser -> binder -> executor architecture centered on one primary roll(expression) entry point for @platonic-dice/core.
 - **Scope Restriction:** index.js, roll.js, src, **tests**, README.md, examples
 - **Features Included:** Freeze DSL v1 grammar and output contract; implement parser with diagnostics; implement binder for semantic validation; implement executor with strict each -> sum -> net ordering; support aggregate test clauses including total-threshold checks; preserve implicit natural crit defaults by test semantics; return a rich structured object from roll(expression).
-  - **Verification Criteria:** Deterministic tests confirm correct behavior for 2D6+5, 3D6x2, 4D6+1toEach+10, 1D20 ADV GET >= 15, and 5D6 GET atLeast 1x 5+ AND total >= 15; invalid expressions return actionable diagnostics; end-to-end tests confirm stable output schema and aggregate clause results.
+- **Verification Criteria:** Deterministic tests confirm correct behavior for 2D6+5, 3D6x2, 4D6+1toEach+10, 1D20 ADV GET >= 15, and 5D6 GET atLeast 1x 5+ AND total >= 15; invalid expressions return actionable diagnostics; end-to-end tests confirm stable output schema and aggregate clause results.
 
 ## Phase 1.5: API Boundary Cleanup and Core Package Review
 
 - **Objective:** Remove the remaining API smell from the rollout by making the expression-first path explicit and ensuring the core package is internally coherent before Phase 2. A final code-tidy pass will ensure all remaining modules within core package must contribute towards demonstrable and easily articulated, benefit for the end user, or overall health of the API. (eg. By: Reducing overall compute time; Improving validation; Ensuring adherence to the Core Architectural Guardrails as outlined above; Improving error handling and reporting etc.)
 - **Scope Restriction:** roll.js, src/index.js, src, **tests**, README.md, docs, examples
 - **Features Included:** Make `rollExpression()` the canonical entry point for DSL strings; avoid hidden polymorphism where the legacy `roll()` helper silently switches between imperative and expression modes; preserve backward compatibility for existing helper aliases while clearly separating compatibility helpers from the expression-first contract; review and trim the core package surface where helper exports are now redundant or over-documented; document the distinction between legacy-compatible helpers and the preferred DSL entrypoint.
-  - **Verification Criteria:** The public API clearly exposes `rollExpression` as the expression-first path; legacy helper behavior remains intact; tests cover the explicit expression entrypoint; the core package review confirms no unnecessary refactor is required beyond removing the API ambiguity and aligning docs/examples.
+- **Verification Criteria:** The public API clearly exposes `rollExpression` as the expression-first path; legacy helper behavior remains intact; tests cover the explicit expression entrypoint; the core package review confirms no unnecessary refactor is required beyond removing the API ambiguity and aligning docs/examples.
 
 ## Phase 2: Type Surface Refactor (types-core Alignment)
 
 - **Objective:** Redesign declarations so roll(expression) and its rich result model are the authoritative type surface.
 - **Scope Restriction:** types-core, core.d.ts, index.d.ts, test-d
 - **Features Included:** Add types for expression input, AST nodes, parser diagnostics, aggregate rule results, and final output contract; deprecate or remove legacy type surfaces according to major-release policy.
-  - **Verification Criteria:** Declaration tests validate representative expression contracts and return typing; declaration export paths remain coherent with runtime exports in index.js.
+- **Verification Criteria:** Declaration tests validate representative expression contracts and return typing; declaration export paths remain coherent with runtime exports in index.js.
 
 ## Phase 3: Packaging, Migration, and Downstream Stabilization
 
 - **Objective:** Finalize the major-release package surface and ensure downstream workspace packages adopt the new expression-first core safely.
 - **Scope Restriction:** package.json, README.md, docs, dice, ui
 - **Features Included:** Final export surface reduction; script and packaging alignment; migration mapping from imperative calls to DSL expressions; compatibility notes for consumers.
-  - **Verification Criteria:** Smoke checks pass in dependent packages; migration docs cover common legacy-to-DSL translations; release candidate has no unresolved runtime/type export path mismatches.
+- **Verification Criteria:** Smoke checks pass in dependent packages; migration docs cover common legacy-to-DSL translations; release candidate has no unresolved runtime/type export path mismatches.
 
 ## Phase 4: Post-Release Hardening and Controlled DSL Evolution
 
 - **Objective:** Harden parser/evaluator behavior in real-world usage while preserving strict architecture boundaries and avoiding uncontrolled syntax creep.
 - **Scope Restriction:** src, **tests**, README.md
 - **Features Included:** Feedback-driven diagnostic improvements; regression tests for field-reported edge cases; explicit proposal-driven process for future DSL syntax additions.
-  - **Verification Criteria:** Every production-discovered parser/evaluator issue is captured by regression tests; documentation stays synchronized with implemented grammar and behavior.
+- **Verification Criteria:** Every production-discovered parser/evaluator issue is captured by regression tests; documentation stays synchronized with implemented grammar and behavior.
