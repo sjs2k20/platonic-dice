@@ -260,17 +260,68 @@ function executeExpression(bound) {
         target: bound.test.target,
         outcome: bound.test.aggregate
           ? (() => {
-              const passesAggregate =
-                rolls.filter((value) => value >= bound.test.aggregate.threshold)
-                  .length >= bound.test.aggregate.count &&
-                modified >= bound.test.aggregate.total;
-              return passesAggregate ? "success" : "failure";
+              const thresholdCount = bound.test.aggregate.count;
+              const thresholdValue = bound.test.aggregate.threshold;
+              const totalValue = bound.test.aggregate.total;
+              const passesThreshold =
+                rolls.filter((value) => value >= thresholdValue).length >=
+                thresholdCount;
+              const passesTotal = modified >= totalValue;
+              if (thresholdCount > bound.count) {
+                throw createExpressionError(
+                  bound.expression,
+                  "Invalid aggregate clause: count exceeds available dice",
+                );
+              }
+              if (thresholdValue > Number(bound.dieType.slice(1))) {
+                throw createExpressionError(
+                  bound.expression,
+                  "Invalid aggregate clause: threshold exceeds die faces",
+                );
+              }
+              return passesThreshold && passesTotal ? "success" : "failure";
             })()
-          : utils.determineOutcome(modified, {
-              testType: bound.test.testType,
-              target: bound.test.target,
-              dieType: bound.dieType,
-            }),
+          : (() => {
+              const baseValue = bound.rollMode
+                ? effectiveBase
+                : bound.perDieModifier != null
+                  ? perDieSum
+                  : modified;
+              const outcome = utils.determineOutcome(baseValue, {
+                testType: bound.test.testType,
+                target: bound.test.target,
+                dieType: bound.dieType,
+                ...(bound.test.criticalSuccess != null
+                  ? { critical_success: bound.test.criticalSuccess }
+                  : {}),
+                ...(bound.test.criticalFailure != null
+                  ? { critical_failure: bound.test.criticalFailure }
+                  : {}),
+              });
+              const shouldUseNaturalCrits =
+                bound.test.criticalSuccess == null &&
+                bound.test.criticalFailure == null &&
+                [TestType.Skill, TestType.AtLeast, TestType.AtMost].includes(
+                  bound.test.testType,
+                );
+              if (!shouldUseNaturalCrits) return outcome;
+              const sides = Number(bound.dieType.slice(1));
+              const isNaturalMax = effectiveBase === sides;
+              const isNaturalMin = effectiveBase === 1;
+              if (bound.test.testType === TestType.Skill) {
+                if (isNaturalMax) return "critical_success";
+                if (isNaturalMin) return "critical_failure";
+              }
+              if (bound.test.testType === TestType.AtMost) {
+                if (isNaturalMax) return "failure";
+                if (isNaturalMin) return "success";
+              }
+              if (bound.test.testType === TestType.AtLeast) {
+                if (isNaturalMax) return "success";
+                if (isNaturalMin) return "failure";
+              }
+              return outcome;
+            })(),
         ...(bound.test.aggregate ? { aggregate: bound.test.aggregate } : {}),
       }
     : undefined;

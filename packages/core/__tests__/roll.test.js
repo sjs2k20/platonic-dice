@@ -1,8 +1,9 @@
 "use strict";
 
-const { DieType, RollType } = require("../src/entities");
+const { DieType, RollType, TestType } = require("../src/entities");
 const utils = require("../src/utils");
 const rollModule = require("../src/roll");
+const { executeExpression } = require("../src/expressionRuntime");
 import { vi } from "vitest";
 
 describe("@platonic-dice/core/roll", () => {
@@ -30,6 +31,15 @@ describe("@platonic-dice/core/roll", () => {
     it("should surface a targeted diagnostic for malformed aggregate clauses", () => {
       expect(() =>
         rollModule.roll("3D6 GET atLeast 2x 5+ AND total > 15"),
+      ).toThrow(/aggregate/i);
+    });
+
+    it("should reject aggregate clauses that exceed the available dice or threshold", () => {
+      expect(() =>
+        rollModule.roll("3D6 GET atLeast 4x 5+ AND total >= 15"),
+      ).toThrow(/aggregate/i);
+      expect(() =>
+        rollModule.roll("3D6 GET atLeast 1x 7+ AND total >= 15"),
       ).toThrow(/aggregate/i);
     });
   });
@@ -326,6 +336,24 @@ describe("@platonic-dice/core/roll", () => {
           outcome: "success",
         },
       });
+    });
+
+    it("should preserve natural crit defaults for skill-style tests", () => {
+      vi.spyOn(utils, "generateResult").mockReturnValueOnce(20);
+
+      const result = executeExpression({
+        expression: "1D20",
+        count: 1,
+        dieType: DieType.D20,
+        modifier: 0,
+        modifierType: "add",
+        test: {
+          testType: TestType.Skill,
+          target: 10,
+        },
+      });
+
+      expect(result.test.outcome).toBe("critical_success");
     });
 
     it("should evaluate an expression with chained each and net modifiers", () => {
