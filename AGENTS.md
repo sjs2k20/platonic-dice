@@ -39,10 +39,10 @@ Before generating code, you MUST:
 
 ## Phase 1.5: API Boundary Cleanup and Core Package Review
 
-- **Objective:** Remove the remaining API smell from the rollout by making the expression-first path explicit and ensuring the core package is internally coherent before Phase 2. A final code-tidy pass will ensure all remaining modules within core package must contribute towards demonstrable and easily articulated, benefit for the end user, or overall health of the API. (eg. By: Reducing overall compute time; Improving validation; Ensuring adherence to the Core Architectural Guardrails as outlined above; Improving error handling and reporting etc.)
-- **Scope Restriction:** roll.js, src/index.js, src, **tests**, README.md, docs, examples
-- **Features Included:** Make `rollExpression()` the canonical entry point for DSL strings; avoid hidden polymorphism where the legacy `roll()` helper silently switches between imperative and expression modes; preserve backward compatibility for existing helper aliases while clearly separating compatibility helpers from the expression-first contract; review and trim the core package surface where helper exports are now redundant or over-documented; document the distinction between legacy-compatible helpers and the preferred DSL entrypoint.
-- **Verification Criteria:** The public API clearly exposes `rollExpression` as the expression-first path; legacy helper behavior remains intact where it adds demonstrable value and no 'code smell', tests cover the explicit expression entrypoint; the core package review confirms no further refactor is required beyond removing the API ambiguity and aligning docs/examples.
+- **Objective:** Finalize the expression-first core API as two coherent public operations: `roll(expression)` to execute a roll and `analyse(expression)` to review its probabilities. Remove legacy imperative API surface without retaining it solely for downstream compatibility.
+- **Scope Restriction:** roll.js, expressionRuntime.js, src/index.js, src, **tests**, README.md, docs, examples
+- **Features Included:** Rename `rollExpression(expression)` to `roll(expression)`; remove the imperative `roll(dieType, rollType?)` root entry point rather than introducing hidden polymorphism; add `analyse(expression)` using the same parser and binder contract as `roll`; restrict root exports to `roll`, `analyse`, and explicitly public expression/result types; make parser, binder, executor, entities, modifiers, and legacy helpers internal-only; accept temporary breakage in `@platonic-dice/dice`, to be resolved exclusively in Phase 2.5.
+- **Verification Criteria:** `roll('10D6+3 GET >= 15')` returns the established rich execution result; `analyse('10D6+3 GET >= 15')` returns an expression-based probability/result analysis; no removed imperative helper is exported from the core root; core tests, docs, and examples use only the two-method UX; `packages/dice` breakage is documented and deferred to Phase 2.5.
 
 ## Phase 2: Type Surface Refactor (types-core Alignment)
 
@@ -50,6 +50,13 @@ Before generating code, you MUST:
 - **Scope Restriction:** types-core, core.d.ts, index.d.ts, test-d
 - **Features Included:** Add types for expression input, AST nodes, parser diagnostics, aggregate rule results, and final output contract; deprecate or remove legacy type surfaces according to major-release policy.
 - **Verification Criteria:** Declaration tests validate representative expression contracts and return typing; declaration export paths remain coherent with runtime exports in index.js.
+
+## Phase 2.5: Dice Package Migration to Expression-First Core
+
+- **Objective:** Restore @platonic-dice/dice against the final minimal @platonic-dice/core public API without reintroducing imperative core API leakage.
+- **Scope Restriction:** packages/dice/src, packages/dice/**tests**, packages/dice/README.md, packages/dice/package.json, packages/dice/tsconfig.json
+- **Features Included:** Replace legacy core imports such as rollMod, rollModTest, TestConditions, RollModifier types, and entity coupling with expression construction and calls to core roll(expression); redesign Die object methods only where their stateful history contract requires a translation layer; update mocks and record factories to consume the rich expression result.
+- **Verification Criteria:** packages/dice builds and its focused tests pass against a core root API limited to roll(expression) and analyse(expression), plus explicitly public result types; no production dice source imports legacy core helpers or internal core subpaths; documented dice workflows produce equivalent history records from expression results.
 
 ## Phase 3: Packaging, Migration, and Downstream Stabilization
 
