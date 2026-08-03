@@ -5,7 +5,7 @@
   "engines": {
     "node": ">=24"
   },
-  "description": "Core JavaScript logic for simulating TTRPG dice rolls.",
+  "description": "Expression-first core runtime for tabletop dice rolls.",
   "main": "dist/index.js",
   "exports": {
     ".": {
@@ -15,7 +15,8 @@
     "./entities": {
       "import": "./dist/entities/index.js",
       "require": "./dist/entities/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"

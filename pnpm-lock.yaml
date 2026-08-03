@@ -57,11 +57,11 @@ importers:
   packages/ui:
     dependencies:
       '@platonic-dice/core':
-        specifier: ^3.0.7
-        version: 3.0.7
+        specifier: workspace:^
+        version: link:../core
       '@platonic-dice/dice':
-        specifier: ^2.3.8
-        version: 2.3.8
+        specifier: workspace:^
+        version: link:../dice
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -385,14 +385,6 @@ packages:
 
   '@oxc-project/types@0.139.0':
     resolution: {integrity: sha512-r9gHphtCs+1M7J0pw6Sn/hh/Wpa/iQrOOkrNAlVLF/gHq+/CJmHIWKKUUhdWjcD6CIa8idarspCsASiXCXvFUw==}
-
-  '@platonic-dice/core@3.0.7':
-    resolution: {integrity: sha512-+S2Sct4x15H/e5R0xC8m1o1J47laknrXs21MNDCGhRnTqcc85k6MGpoSVE4/Iem0INt/AsZKDPLHtZv6QU5UzQ==}
-    engines: {node: '>=24'}
-
-  '@platonic-dice/dice@2.3.8':
-    resolution: {integrity: sha512-7Ot4jVc3qZ+xDLxGAzSAbqSe22cErlVhiO/9Kv5dk9RDvHUSM2TvoJBmS2mHThfPuf+WUhHF3Pfg4sZGrtQyZQ==}
-    engines: {node: '>=24'}
 
   '@rolldown/binding-android-arm64@1.1.5':
     resolution: {integrity: sha512-lZg8fqIv2v7FF237bwMgzGZEJvGL79/s5knJ/i6FmsGF4XXlzccZ4jb+TrFIxtSSxFtIpdsgrPZeMk1I9AFcyQ==}
@@ -2319,12 +2311,6 @@ snapshots:
       fastq: 1.20.1
 
   '@oxc-project/types@0.139.0': {}
-
-  '@platonic-dice/core@3.0.7': {}
-
-  '@platonic-dice/dice@2.3.8':
-    dependencies:
-      '@platonic-dice/core': 3.0.7
 
   '@rolldown/binding-android-arm64@1.1.5':
     optional: true

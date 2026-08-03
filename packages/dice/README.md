@@ -46,6 +46,8 @@ const result = d20.rollModTest((n) => n + 5, {
 
 The core package is a pure JavaScript module that exposes the expression-first roll runtime and compatibility helpers. It is published separately at `@platonic-dice/core` and is pulled in as a direct dependency of this package.
 
+Common legacy helper calls such as `rollModTest(DieType.D20, ...)` can be expressed as DSL strings such as `roll("1D20+5 GET atLeast 15")` when consuming the core runtime directly.
+
 ### Type Definitions
 
 Type definitions are maintained in the separate

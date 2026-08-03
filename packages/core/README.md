@@ -14,14 +14,15 @@ npm install @platonic-dice/core @platonic-dice/types-core
 
 ## Quick usage
 
-The expression-first API is available through `roll` and is the canonical path for DSL strings. The same `roll` helper also supports imperative single-die use when passed a die enum and optional roll mode:
+The expression-first API is available through `roll` and `analyse` and is the canonical path for DSL strings. The legacy helper surface remains available as compatibility helpers for existing imperative call sites:
 
 ```js
-const { roll, DieType } = require("@platonic-dice/core");
+const { roll, analyse, DieType, RollType } = require("@platonic-dice/core");
 
-const result = roll("1D20ADV GET atLeast 15");
-console.log(result.test.outcome);
-console.log(roll(DieType.D20));
+const expressionResult = roll("1D20ADV GET atLeast 15");
+console.log(expressionResult.test?.outcome);
+console.log(roll("2D6+5"));
+console.log(analyse("3D6 GET atLeast 2x 5+ AND total >= 15"));
 ```
 
 Supported expression forms include:
@@ -31,41 +32,45 @@ Supported expression forms include:
 - explicit tests via `GET`, such as `1D20ADV GET >= 15` or `1D20ADV GET atMost 4`
 - aggregate clauses such as `3D6 GET atLeast 2x 5+ AND total >= 15` or `3D6 GET atLeast 2x 5+ OR total >= 15`
 
+### Common migration patterns
+
+- `roll(DieType.D20)` → `roll("1D20")`
+- `roll(DieType.D20, RollType.Advantage)` → `roll("1D20ADV")`
+- `rollTest(DieType.D20, { testType: "at_least", target: 15 })` → `roll("1D20 GET atLeast 15")`
+- `rollMod(DieType.D20, (n) => n + 5)` → `roll("1D20+5")`
+- `rollModTest(DieType.D20, (n) => n + 5, { testType: "at_least", target: 15 })` → `roll("1D20+5 GET atLeast 15")`
+
 CommonJS:
 
 ```js
 const {
   roll,
-  rollDice,
+  analyse,
+  rollMod,
+  rollTest,
   rollModTest,
   DieType,
   RollType,
 } = require("@platonic-dice/core");
 
 console.log(roll(DieType.D20));
-console.log(rollDice(DieType.D6, { count: 3 }));
-
-// rollModTest combines modifiers with test evaluation
-const result = rollModTest(DieType.D20, (n) => n + 5, {
-  testType: "skill",
-  target: 15,
-});
+console.log(roll("1D20ADV GET atLeast 15"));
+console.log(rollMod(DieType.D20, (n) => n + 2));
+console.log(rollTest(DieType.D20, { testType: "at_least", target: 15 }));
 console.log(
-  `Roll: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`,
+  rollModTest(DieType.D20, (n) => n + 5, { testType: "at_least", target: 15 }),
 );
+console.log(analyse("3D6 GET atLeast 2x 5+ AND total >= 15"));
 ```
 
 ESM / TypeScript:
 
 ```ts
-import { roll, rollModTest, DieType } from "@platonic-dice/core";
-console.log(roll(DieType.D20));
+import { roll, analyse, DieType, RollType } from "@platonic-dice/core";
 
-// Combine modifiers with test evaluation
-const result = rollModTest(DieType.D20, (n) => n + 5, {
-  testType: "at_least",
-  target: 15,
-});
+console.log(roll("1D20ADV GET atLeast 15"));
+console.log(roll("1D20"));
+console.log(analyse("1D20 GET atLeast 15"));
 ```
 
 ## Build & Test
