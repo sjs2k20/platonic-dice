@@ -4,7 +4,7 @@ analyses modified test conditions without performing an actual roll. Provides pr
 
 ## Overview
 
-`analyseModTest` is like [`analyseTest`](./analyseTest.md) but accounts for modifiers. It calculates all possible outcomes after applying a modifier, their probabilities, and shows the modified value range. This is essential for understanding how bonuses/penalties affect your chances of success.
+`analyseModTest` is like [`analyse`](./analyse.md) but accounts for modifiers. It calculates all possible outcomes after applying a modifier, their probabilities, and shows the modified value range. This is essential for understanding how bonuses/penalties affect your chances of success.
 
 ## Usage
 
@@ -18,12 +18,12 @@ const analysis = analyseModTest(DieType.D20, (n) => n + 5, {
 });
 
 console.log(
-  `Modified range: ${analysis.modifiedRange.min}-${analysis.modifiedRange.max}`
+  `Modified range: ${analysis.modifiedRange.min}-${analysis.modifiedRange.max}`,
 );
 // "Modified range: 6-25"
 
 console.log(
-  `Success rate: ${(analysis.outcomeProbabilities.success * 100).toFixed(1)}%`
+  `Success rate: ${(analysis.outcomeProbabilities.success * 100).toFixed(1)}%`,
 );
 // "Success rate: 30.0%" (rolls 15-20 become 20-25)
 ```
@@ -74,12 +74,12 @@ const analysis = analyseModTest(DieType.D20, (n) => n + 5, {
 });
 
 console.log(
-  `Need to roll (base): ${analysis.rollsByOutcome.success.join(", ")}`
+  `Need to roll (base): ${analysis.rollsByOutcome.success.join(", ")}`,
 );
 // "Need to roll (base): 10, 11, 12, ..., 20"
 
 console.log(
-  `Success rate: ${(analysis.outcomeProbabilities.success * 100).toFixed(1)}%`
+  `Success rate: ${(analysis.outcomeProbabilities.success * 100).toFixed(1)}%`,
 );
 // "Success rate: 55.0%" (11 successful rolls out of 20)
 ```
@@ -113,13 +113,13 @@ const extended = analyseModTest(DieType.D6, (n) => n + 10, {
 });
 
 console.log(
-  `Achievable range: ${extended.modifiedRange.min}-${extended.modifiedRange.max}`
+  `Achievable range: ${extended.modifiedRange.min}-${extended.modifiedRange.max}`,
 );
 // "Achievable range: 11-16"
 
 console.log(`Target 15 is achievable!`);
 console.log(
-  `Need to roll (base): ${extended.rollsByOutcome.success.join(", ")}`
+  `Need to roll (base): ${extended.rollsByOutcome.success.join(", ")}`,
 );
 // "Need to roll (base): 5, 6"
 ```
@@ -134,7 +134,7 @@ const penalty = analyseModTest(DieType.D20, (n) => n - 3, {
 });
 
 console.log(
-  `Modified range: ${penalty.modifiedRange.min}-${penalty.modifiedRange.max}`
+  `Modified range: ${penalty.modifiedRange.min}-${penalty.modifiedRange.max}`,
 );
 // "Modified range: -2-17"
 
@@ -171,13 +171,13 @@ function analyseProficiencyImpact(dc) {
   const withoutProf = analyseModTest(
     DieType.D20,
     (n) => n + 2, // Just ability modifier
-    { testType: TestType.AtLeast, target: dc }
+    { testType: TestType.AtLeast, target: dc },
   );
 
   const withProf = analyseModTest(
     DieType.D20,
     (n) => n + 5, // Ability + proficiency
-    { testType: TestType.AtLeast, target: dc }
+    { testType: TestType.AtLeast, target: dc },
   );
 
   const improvement =
@@ -189,12 +189,12 @@ function analyseProficiencyImpact(dc) {
   console.log(
     `  Without proficiency: ${(
       withoutProf.outcomeProbabilities.success * 100
-    ).toFixed(0)}%`
+    ).toFixed(0)}%`,
   );
   console.log(
     `  With proficiency: ${(
       withProf.outcomeProbabilities.success * 100
-    ).toFixed(0)}%`
+    ).toFixed(0)}%`,
   );
   console.log(`  Improvement: +${improvement.toFixed(0)} percentage points`);
 }

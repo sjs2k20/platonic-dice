@@ -257,4 +257,4 @@ const attack = rollTest(DieType.D20, ConditionBuilder.attackVs(16));
 - [`ModifiedTestConditions`](./ModifiedTestConditions.md) - For tests with modifiers
 - [`TestType`](./TestType.md) - Types of tests
 - [`rollTest`](../rollTest.md) - Roll with conditions
-- [`analyseTest`](../analyseTest.md) - analyse probabilities
+- [`analyse`](../analyse.md) - analyse probabilities

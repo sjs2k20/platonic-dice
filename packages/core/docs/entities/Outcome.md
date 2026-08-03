@@ -213,4 +213,4 @@ console.log(`Critical Failures: ${stats[Outcome.CriticalFailure]}`);
 
 - [`rollTest`](../rollTest.md) - Roll with test conditions
 - [`TestType`](./TestType.md) - Types of tests
-- [`analyseTest`](../analyseTest.md) - Probability analysis
+- [`analyse`](../analyse.md) - Probability analysis

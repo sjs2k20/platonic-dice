@@ -29,6 +29,12 @@ describe("@platonic-dice/core/roll", () => {
       expect(() => rollModule.roll("1D20ADV GET atMost 4")).not.toThrow();
     });
 
+    it("should require GET for analysis expressions", () => {
+      expect(() => rollModule.analyse("2D6+5")).toThrow(/GET/i);
+      expect(() => rollModule.analyse("1D20ADV>=15")).toThrow(/GET/i);
+      expect(() => rollModule.analyse("1D20ADV GET >= 15")).not.toThrow();
+    });
+
     it("should surface a targeted diagnostic for malformed aggregate clauses", () => {
       expect(() =>
         rollModule.roll("3D6 GET atLeast 2x 5+ AND total > 15"),

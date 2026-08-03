@@ -422,6 +422,21 @@ function roll(expression) {
 }
 
 function analyse(expression) {
+  if (typeof expression !== "string") {
+    throw createExpressionError(
+      expression,
+      "Invalid expression: expected a string",
+    );
+  }
+
+  const trimmed = expression.trim();
+  if (!/\bGET\b/i.test(trimmed)) {
+    throw createExpressionError(
+      expression,
+      "Analysis expressions must include a GET test clause",
+    );
+  }
+
   const parsed = parseExpression(expression);
   const bound = bindExpression(parsed);
   const result = executeExpression(bound);
