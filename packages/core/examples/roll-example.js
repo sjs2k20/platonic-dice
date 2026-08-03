@@ -14,7 +14,6 @@ const {
   rollD10,
   rollD12,
   rollD20,
-  rollExpression,
   DieType,
   RollType,
 } = require("../src");
@@ -82,7 +81,7 @@ console.log();
 
 // Example 8: Expression-first DSL example
 console.log("=== Expression-First DSL ===");
-const expressionResult = rollExpression("1D20ADV GET atLeast 15");
+const expressionResult = roll("1D20ADV GET atLeast 15");
 console.log(
   `Expression result: ${JSON.stringify(expressionResult.test, null, 2)}`,
 );

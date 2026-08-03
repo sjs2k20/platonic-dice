@@ -18,39 +18,29 @@ describe("@platonic-dice/core/roll", () => {
     });
 
     it("should surface actionable diagnostics for invalid expressions", () => {
-      expect(() => rollModule.rollExpression("2D7")).toThrow(
-        /Supported forms/i,
-      );
-      expect(() => rollModule.rollExpression("2D7")).toThrow(/2D6\+5/i);
+      expect(() => rollModule.roll("2D7")).toThrow(/Supported forms/i);
+      expect(() => rollModule.roll("2D7")).toThrow(/2D6\+5/i);
     });
 
     it("should require GET for explicit test clauses", () => {
-      expect(() => rollModule.rollExpression("1D20ADV atMost 4")).toThrow(
-        /GET/i,
-      );
-      expect(() => rollModule.rollExpression("1D20ADV exactly 6")).toThrow(
-        /GET/i,
-      );
-      expect(() => rollModule.rollExpression("1D20ADV atLeast 15")).toThrow(
-        /GET/i,
-      );
-      expect(() =>
-        rollModule.rollExpression("1D20ADV GET atMost 4"),
-      ).not.toThrow();
+      expect(() => rollModule.roll("1D20ADV atMost 4")).toThrow(/GET/i);
+      expect(() => rollModule.roll("1D20ADV exactly 6")).toThrow(/GET/i);
+      expect(() => rollModule.roll("1D20ADV atLeast 15")).toThrow(/GET/i);
+      expect(() => rollModule.roll("1D20ADV GET atMost 4")).not.toThrow();
     });
 
     it("should surface a targeted diagnostic for malformed aggregate clauses", () => {
       expect(() =>
-        rollModule.rollExpression("3D6 GET atLeast 2x 5+ AND total > 15"),
+        rollModule.roll("3D6 GET atLeast 2x 5+ AND total > 15"),
       ).toThrow(/aggregate/i);
     });
 
     it("should reject aggregate clauses that exceed the available dice or threshold", () => {
       expect(() =>
-        rollModule.rollExpression("3D6 GET atLeast 4x 5+ AND total >= 15"),
+        rollModule.roll("3D6 GET atLeast 4x 5+ AND total >= 15"),
       ).toThrow(/aggregate/i);
       expect(() =>
-        rollModule.rollExpression("3D6 GET atLeast 1x 7+ AND total >= 15"),
+        rollModule.roll("3D6 GET atLeast 1x 7+ AND total >= 15"),
       ).toThrow(/aggregate/i);
     });
   });
@@ -91,7 +81,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.rollExpression("2D6+5");
+      const result = rollModule.roll("2D6+5");
 
       expect(result).toEqual({
         expression: "2D6+5",
@@ -111,7 +101,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(4)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.rollExpression("3D6x2");
+      const result = rollModule.roll("3D6x2");
 
       expect(result).toEqual({
         expression: "3D6x2",
@@ -130,7 +120,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(5);
 
-      const result = rollModule.rollExpression("1D20ADV");
+      const result = rollModule.roll("1D20ADV");
 
       expect(result).toEqual({
         expression: "1D20ADV",
@@ -150,7 +140,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.rollExpression("1D20ADV+3");
+      const result = rollModule.roll("1D20ADV+3");
 
       expect(result).toEqual({
         expression: "1D20ADV+3",
@@ -170,7 +160,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.rollExpression("1D20ADVx2");
+      const result = rollModule.roll("1D20ADVx2");
 
       expect(result).toEqual({
         expression: "1D20ADVx2",
@@ -190,7 +180,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.rollExpression("2D6-3");
+      const result = rollModule.roll("2D6-3");
 
       expect(result).toEqual({
         expression: "2D6-3",
@@ -209,7 +199,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.rollExpression("1D20ADV-3");
+      const result = rollModule.roll("1D20ADV-3");
 
       expect(result).toEqual({
         expression: "1D20ADV-3",
@@ -229,7 +219,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.rollExpression("1D20ADV GET >= 15");
+      const result = rollModule.roll("1D20ADV GET >= 15");
 
       expect(result).toEqual({
         expression: "1D20ADV GET >= 15",
@@ -254,7 +244,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.rollExpression("1D20ADV>=15");
+      const result = rollModule.roll("1D20ADV>=15");
 
       expect(result).toEqual({
         expression: "1D20ADV>=15",
@@ -279,7 +269,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(16)
         .mockReturnValueOnce(14);
 
-      const result = rollModule.rollExpression("1D20ADV GET >= 15");
+      const result = rollModule.roll("1D20ADV GET >= 15");
 
       expect(result).toEqual({
         expression: "1D20ADV GET >= 15",
@@ -304,7 +294,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(3)
         .mockReturnValueOnce(5);
 
-      const result = rollModule.rollExpression("1D20ADV GET atMost 4");
+      const result = rollModule.roll("1D20ADV GET atMost 4");
 
       expect(result).toEqual({
         expression: "1D20ADV GET atMost 4",
@@ -329,7 +319,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(6)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.rollExpression("1D20ADV GET exactly 6");
+      const result = rollModule.roll("1D20ADV GET exactly 6");
 
       expect(result).toEqual({
         expression: "1D20ADV GET exactly 6",
@@ -367,9 +357,12 @@ describe("@platonic-dice/core/roll", () => {
       expect(result.test.outcome).toBe("critical_success");
     });
 
-    it("should expose rollExpression from the package root", () => {
-      expect(coreIndex.rollExpression).toBeDefined();
-      expect(typeof coreIndex.rollExpression).toBe("function");
+    it("should expose roll and analyse from the package root", () => {
+      expect(coreIndex.roll).toBeDefined();
+      expect(typeof coreIndex.roll).toBe("function");
+      expect(coreIndex.analyse).toBeDefined();
+      expect(typeof coreIndex.analyse).toBe("function");
+      expect(coreIndex.rollExpression).toBeUndefined();
     });
 
     it("should evaluate an expression with chained each and net modifiers", () => {
@@ -379,7 +372,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(2)
         .mockReturnValueOnce(3);
 
-      const result = rollModule.rollExpression("4D6+1toEach+10");
+      const result = rollModule.roll("4D6+1toEach+10");
 
       expect(result).toEqual({
         expression: "4D6+1toEach+10",
@@ -404,9 +397,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(5)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.rollExpression(
-        "3D6 GET atLeast 2x 5+ AND total >= 15",
-      );
+      const result = rollModule.roll("3D6 GET atLeast 2x 5+ AND total >= 15");
 
       expect(result).toEqual({
         expression: "3D6 GET atLeast 2x 5+ AND total >= 15",
@@ -436,9 +427,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(5)
         .mockReturnValueOnce(4);
 
-      const result = rollModule.rollExpression(
-        "3D6 GET atLeast 1x 5+ AND total >= 15",
-      );
+      const result = rollModule.roll("3D6 GET atLeast 1x 5+ AND total >= 15");
 
       expect(result).toEqual({
         expression: "3D6 GET atLeast 1x 5+ AND total >= 15",
@@ -468,9 +457,7 @@ describe("@platonic-dice/core/roll", () => {
         .mockReturnValueOnce(5)
         .mockReturnValueOnce(6);
 
-      const result = rollModule.rollExpression(
-        "3D6 GET atLeast 2x 5+ OR total >= 15",
-      );
+      const result = rollModule.roll("3D6 GET atLeast 2x 5+ OR total >= 15");
 
       expect(result.test.outcome).toBe("success");
       expect(result.test.aggregate).toEqual({

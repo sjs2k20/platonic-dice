@@ -2,7 +2,7 @@
 
 Core JavaScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs. Type declarations are supplied separately by `@platonic-dice/types-core`.
 
-This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exports rolling helpers including `roll`, `rollMod`, `rollTest`, `rollModTest`, and `rollDiceModTest` (combining a modified dice pool with aggregate test evaluation), entities (die types, roll types, outcomes), and utility functions. For DSL expressions, prefer `rollExpression`; the older helper surface remains available as backward-compatible convenience APIs.
+This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exports rolling helpers including `roll`, `rollMod`, `rollTest`, `rollModTest`, and `rollDiceModTest` (combining a modified dice pool with aggregate test evaluation), entities (die types, roll types, outcomes), and utility functions. For DSL expressions, use `roll`; the older helper surface remains available as backward-compatible convenience APIs.
 
 ## Installation
 
@@ -14,13 +14,14 @@ npm install @platonic-dice/core @platonic-dice/types-core
 
 ## Quick usage
 
-The expression-first API is available through `rollExpression` and is the canonical path for DSL strings. The older `roll` helper remains available for imperative single-die use, but expression strings should be routed through `rollExpression`:
+The expression-first API is available through `roll` and is the canonical path for DSL strings. The same `roll` helper also supports imperative single-die use when passed a die enum and optional roll mode:
 
 ```js
-const { rollExpression, DieType } = require("@platonic-dice/core");
+const { roll, DieType } = require("@platonic-dice/core");
 
-const result = rollExpression("1D20ADV GET atLeast 15");
+const result = roll("1D20ADV GET atLeast 15");
 console.log(result.test.outcome);
+console.log(roll(DieType.D20));
 ```
 
 Supported expression forms include:

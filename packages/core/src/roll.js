@@ -26,7 +26,7 @@ const {
   isValidRollType,
 } = require("./entities");
 const utils = require("./utils");
-const { rollExpression } = require("./expressionRuntime");
+const expressionRuntime = require("./expressionRuntime");
 
 /**
  * @typedef {import("./entities/DieType").DieTypeValue} DieTypeValue
@@ -45,7 +45,7 @@ const { rollExpression } = require("./expressionRuntime");
  * @example
  * const result = roll(DieType.D20, RollType.Advantage);
  */
-function roll(dieType, rollType = undefined) {
+function rollDie(dieType, rollType = undefined) {
   // --- Validation ---
   if (!isValidDieType(dieType)) {
     throw new TypeError(`Invalid die type: ${dieType}`);
@@ -65,6 +65,14 @@ function roll(dieType, rollType = undefined) {
     : Math.min(roll1, roll2);
 }
 
+function roll(input, rollType = undefined) {
+  if (typeof input === "string" && /^[0-9]+d[0-9]+/i.test(input)) {
+    return expressionRuntime.roll(input);
+  }
+
+  return rollDie(input, rollType);
+}
+
 //
 // --- Convenience Aliases ---
 //
@@ -76,7 +84,7 @@ function roll(dieType, rollType = undefined) {
  * @example
  * const result = rollAdv(DieType.D10);
  */
-const rollAdv = (dieType) => roll(dieType, RollType.Advantage);
+const rollAdv = (dieType) => rollDie(dieType, RollType.Advantage);
 
 /**
  * Rolls a die with disadvantage.
@@ -85,43 +93,43 @@ const rollAdv = (dieType) => roll(dieType, RollType.Advantage);
  * @example
  * const result = rollDis(DieType.D10);
  */
-const rollDis = (dieType) => roll(dieType, RollType.Disadvantage);
+const rollDis = (dieType) => rollDie(dieType, RollType.Disadvantage);
 
 /**
  * Rolls a D4 die.
  * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD4 = (rollType = undefined) => roll(DieType.D4, rollType);
+const rollD4 = (rollType = undefined) => rollDie(DieType.D4, rollType);
 
 /**
  * Rolls a D6 die.
  * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD6 = (rollType = undefined) => roll(DieType.D6, rollType);
+const rollD6 = (rollType = undefined) => rollDie(DieType.D6, rollType);
 
 /**
  * Rolls a D8 die.
  * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD8 = (rollType = undefined) => roll(DieType.D8, rollType);
+const rollD8 = (rollType = undefined) => rollDie(DieType.D8, rollType);
 
 /**
  * Rolls a D10 die.
  * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD10 = (rollType = undefined) => roll(DieType.D10, rollType);
+const rollD10 = (rollType = undefined) => rollDie(DieType.D10, rollType);
 
 /**
  * Rolls a D12 die.
  * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD12 = (rollType = undefined) => roll(DieType.D12, rollType);
+const rollD12 = (rollType = undefined) => rollDie(DieType.D12, rollType);
 
 /**
  * Rolls a D20 die.
  * @type {(rollType?: RollTypeValue | undefined) => number}
  */
-const rollD20 = (rollType = undefined) => roll(DieType.D20, rollType);
+const rollD20 = (rollType = undefined) => rollDie(DieType.D20, rollType);
 
 module.exports = {
   roll,
@@ -133,5 +141,5 @@ module.exports = {
   rollD10,
   rollD12,
   rollD20,
-  rollExpression,
+  analyse: expressionRuntime.analyse,
 };

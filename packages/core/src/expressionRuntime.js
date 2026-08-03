@@ -415,15 +415,35 @@ function executeExpression(bound) {
   };
 }
 
-function rollExpression(expression) {
+function roll(expression) {
   const parsed = parseExpression(expression);
   const bound = bindExpression(parsed);
   return executeExpression(bound);
+}
+
+function analyse(expression) {
+  const parsed = parseExpression(expression);
+  const bound = bindExpression(parsed);
+  const result = executeExpression(bound);
+
+  return {
+    expression: result.expression,
+    count: result.count,
+    dieType: result.dieType,
+    rolls: result.rolls,
+    base: result.base,
+    modifier: result.modifier,
+    modifierType: result.modifierType,
+    modified: result.modified,
+    ...(result.rollMode != null ? { rollMode: result.rollMode } : {}),
+    ...(result.test ? { test: result.test } : {}),
+  };
 }
 
 module.exports = {
   parseExpression,
   bindExpression,
   executeExpression,
-  rollExpression,
+  roll,
+  analyse,
 };
