@@ -7,6 +7,12 @@ import {
   rollDiceModTest,
   rollTest,
   rollModTest,
+  rollExpression,
+  type RollExpressionResult,
+  type ExpressionAggregateClause,
+  type RollExpressionAst,
+  type RollExpressionDiagnostic,
+  type RollExpressionTestDefinition,
   DieType,
   RollType,
   TestType,
@@ -64,6 +70,41 @@ expectType<{ base: number; modified: number; outcome: OutcomeValue }>(
     target: 15,
   }),
 );
+
+// Expression-first DSL helpers
+const expressionResult = rollExpression("2D6+5");
+expectType<RollExpressionResult>(expressionResult);
+expectType<string>(expressionResult.expression);
+expectType<number>(expressionResult.count);
+expectType<string>(expressionResult.dieType);
+expectType<number[]>(expressionResult.rolls);
+expectType<number>(expressionResult.base);
+expectType<number>(expressionResult.modified);
+expectType<ExpressionAggregateClause | undefined>(
+  expressionResult.test?.aggregate,
+);
+
+const ast: RollExpressionAst = {
+  expression: "2D6+5",
+  count: 2,
+  dieType: "d6",
+  modifier: 5,
+  modifierType: "add",
+};
+expectType<RollExpressionAst>(ast);
+
+const diagnostic: RollExpressionDiagnostic = {
+  message: "Unsupported expression",
+  code: "unsupported-expression",
+  severity: "error",
+};
+expectType<RollExpressionDiagnostic>(diagnostic);
+
+const testDefinition: RollExpressionTestDefinition = {
+  testType: TestType.AtLeast,
+  target: 15,
+};
+expectType<RollExpressionTestDefinition>(testDefinition);
 
 // Entity class exports
 const modifier = new RollModifier((n) => n + 1);

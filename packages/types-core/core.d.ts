@@ -13,6 +13,9 @@ export * from "./rollDice";
 // Re-export all rollMod functions
 export * from "./rollMod";
 
+// Re-export expression-first DSL helpers
+export * from "./rollExpression";
+
 // Re-export all rollDiceMod functions
 export * from "./rollDiceMod";
 
