@@ -47,7 +47,7 @@
     "@platonic-dice/core": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.1.2",
     "@platonic-dice/types-core": "workspace:*",
     "tsc-alias": "^1.9.1",
     "vitest": "^4.1.10"
