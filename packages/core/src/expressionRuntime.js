@@ -1,9 +1,171 @@
 const { isValidDieType, TestType } = require("./entities");
 const utils = require("./utils");
 
+const SUPPORTED_FORMS = "2D6+5, 3D6x2, 1D20ADV+3, 1D20ADV>=15.";
+
 function createExpressionError(expression, reason) {
-  const message = `${reason} for expression "${expression}". Supported forms: 2D6+5, 3D6x2, 1D20ADV+3, 1D20ADV>=15.`;
+  const message = `${reason} for expression "${expression}". Supported forms: ${SUPPORTED_FORMS}`;
   return new TypeError(message);
+}
+
+function buildAggregateTestMatch(match) {
+  const aggregate = {
+    count: Number(match[3]),
+    threshold: Number(match[4] || match[3]),
+    total: Number(match[7]),
+  };
+  Object.defineProperty(aggregate, "conjunction", {
+    value: match[5].toLowerCase(),
+    enumerable: false,
+  });
+
+  return {
+    expression: match[1],
+    operator:
+      match[2] === "atMost" ? "<=" : match[2] === "exactly" ? "=" : ">=",
+    target: Number(match[7]),
+    aggregate,
+  };
+}
+
+function buildExplicitKeywordTestMatch(match) {
+  return {
+    expression: match[1],
+    operator: (() => {
+      const clause = match[2] || "";
+      const operator = match[3] || "";
+      if (clause === "atLeast") return ">=";
+      if (clause === "atMost") return "<=";
+      if (operator === ">=" || operator === "<=") return operator;
+      return "=";
+    })(),
+    target: Number(match[4]),
+  };
+}
+
+function buildCompactTestMatch(match) {
+  return {
+    expression: match[1],
+    operator: match[2],
+    target: Number(match[3]),
+  };
+}
+
+function resolveTestMatch(
+  aggregateClauseMatch,
+  explicitKeywordClauseMatch,
+  compactClauseMatch,
+) {
+  if (aggregateClauseMatch) {
+    return buildAggregateTestMatch(aggregateClauseMatch);
+  }
+
+  if (explicitKeywordClauseMatch) {
+    return buildExplicitKeywordTestMatch(explicitKeywordClauseMatch);
+  }
+
+  if (compactClauseMatch) {
+    return buildCompactTestMatch(compactClauseMatch);
+  }
+
+  return undefined;
+}
+
+function buildTestDefinition(testMatch, testOperator, testTarget) {
+  if (!testOperator) {
+    return undefined;
+  }
+
+  return {
+    testType:
+      testOperator === ">="
+        ? TestType.AtLeast
+        : testOperator === "<="
+          ? TestType.AtMost
+          : TestType.Exact,
+    target: testTarget,
+    ...(testMatch && testMatch.aggregate
+      ? { aggregate: testMatch.aggregate }
+      : {}),
+  };
+}
+
+function evaluateAggregateOutcome(bound, rolls, modified) {
+  const thresholdCount = bound.test.aggregate.count;
+  const thresholdValue = bound.test.aggregate.threshold;
+  const totalValue = bound.test.aggregate.total;
+  const passesThreshold =
+    rolls.filter((value) => value >= thresholdValue).length >= thresholdCount;
+  const passesTotal = modified >= totalValue;
+  const conjunction = bound.test.aggregate.conjunction || "and";
+
+  if (thresholdCount > bound.count) {
+    throw createExpressionError(
+      bound.expression,
+      "Invalid aggregate clause: count exceeds available dice",
+    );
+  }
+
+  if (thresholdValue > Number(bound.dieType.slice(1))) {
+    throw createExpressionError(
+      bound.expression,
+      "Invalid aggregate clause: threshold exceeds die faces",
+    );
+  }
+
+  return conjunction === "or"
+    ? passesThreshold || passesTotal
+      ? "success"
+      : "failure"
+    : passesThreshold && passesTotal
+      ? "success"
+      : "failure";
+}
+
+function evaluateStandardOutcome(bound, effectiveBase, baseValue) {
+  const outcome = utils.determineOutcome(baseValue, {
+    testType: bound.test.testType,
+    target: bound.test.target,
+    dieType: bound.dieType,
+    ...(bound.test.criticalSuccess != null
+      ? { critical_success: bound.test.criticalSuccess }
+      : {}),
+    ...(bound.test.criticalFailure != null
+      ? { critical_failure: bound.test.criticalFailure }
+      : {}),
+  });
+
+  const shouldUseNaturalCrits =
+    bound.test.criticalSuccess == null &&
+    bound.test.criticalFailure == null &&
+    [TestType.Skill, TestType.AtLeast, TestType.AtMost].includes(
+      bound.test.testType,
+    );
+
+  if (!shouldUseNaturalCrits) {
+    return outcome;
+  }
+
+  const sides = Number(bound.dieType.slice(1));
+  const isNaturalMax = effectiveBase === sides;
+  const isNaturalMin = effectiveBase === 1;
+
+  if (bound.test.testType === TestType.Skill) {
+    if (isNaturalMax) return "critical_success";
+    if (isNaturalMin) return "critical_failure";
+  }
+
+  if (bound.test.testType === TestType.AtMost) {
+    if (isNaturalMax) return "failure";
+    if (isNaturalMin) return "success";
+  }
+
+  if (bound.test.testType === TestType.AtLeast) {
+    if (isNaturalMax) return "success";
+    if (isNaturalMin) return "failure";
+  }
+
+  return outcome;
 }
 
 /**
@@ -50,51 +212,11 @@ function parseExpression(expression) {
       "Invalid aggregate clause: expected >=, <=, or = after AND/OR TOTAL",
     );
   }
-  const testMatch = aggregateClauseMatch
-    ? {
-        expression: aggregateClauseMatch[1],
-        operator:
-          aggregateClauseMatch[2] === "atMost"
-            ? "<="
-            : aggregateClauseMatch[2] === "exactly"
-              ? "="
-              : ">=",
-        target: Number(aggregateClauseMatch[7]),
-        aggregate: (() => {
-          const aggregate = {
-            count: Number(aggregateClauseMatch[3]),
-            threshold: Number(
-              aggregateClauseMatch[4] || aggregateClauseMatch[3],
-            ),
-            total: Number(aggregateClauseMatch[7]),
-          };
-          Object.defineProperty(aggregate, "conjunction", {
-            value: aggregateClauseMatch[5].toLowerCase(),
-            enumerable: false,
-          });
-          return aggregate;
-        })(),
-      }
-    : explicitKeywordClauseMatch
-      ? {
-          expression: explicitKeywordClauseMatch[1],
-          operator: (() => {
-            const clause = explicitKeywordClauseMatch[2] || "";
-            const operator = explicitKeywordClauseMatch[3] || "";
-            if (clause === "atLeast") return ">=";
-            if (clause === "atMost") return "<=";
-            if (operator === ">=" || operator === "<=") return operator;
-            return "=";
-          })(),
-          target: Number(explicitKeywordClauseMatch[4]),
-        }
-      : compactClauseMatch
-        ? {
-            expression: compactClauseMatch[1],
-            operator: compactClauseMatch[2],
-            target: Number(compactClauseMatch[3]),
-          }
-        : undefined;
+  const testMatch = resolveTestMatch(
+    aggregateClauseMatch,
+    explicitKeywordClauseMatch,
+    compactClauseMatch,
+  );
   if (!testMatch && bareKeywordClauseMatch) {
     throw createExpressionError(
       expression,
@@ -130,20 +252,7 @@ function parseExpression(expression) {
     throw createExpressionError(expression, `Unsupported die type: ${dieType}`);
   }
 
-  const test = testOperator
-    ? {
-        testType:
-          testOperator === ">="
-            ? TestType.AtLeast
-            : testOperator === "<="
-              ? TestType.AtMost
-              : TestType.Exact,
-        target: testTarget,
-        ...(testMatch && testMatch.aggregate
-          ? { aggregate: testMatch.aggregate }
-          : {}),
-      }
-    : undefined;
+  const test = buildTestDefinition(testMatch, testOperator, testTarget);
 
   if (rollModeMatch) {
     const rollMode = rollModeMatch[3].toLowerCase();
@@ -236,7 +345,7 @@ function bindExpression(ast) {
           modifierPlan: ast.modifierPlan,
         }
       : {}),
-    rollMode: ast.rollMode,
+    ...(ast.rollMode != null ? { rollMode: ast.rollMode } : {}),
     test: ast.test,
   };
 }
@@ -273,75 +382,14 @@ function executeExpression(bound) {
         testType: bound.test.testType,
         target: bound.test.target,
         outcome: bound.test.aggregate
-          ? (() => {
-              const thresholdCount = bound.test.aggregate.count;
-              const thresholdValue = bound.test.aggregate.threshold;
-              const totalValue = bound.test.aggregate.total;
-              const passesThreshold =
-                rolls.filter((value) => value >= thresholdValue).length >=
-                thresholdCount;
-              const passesTotal = modified >= totalValue;
-              const conjunction = bound.test.aggregate.conjunction || "and";
-              if (thresholdCount > bound.count) {
-                throw createExpressionError(
-                  bound.expression,
-                  "Invalid aggregate clause: count exceeds available dice",
-                );
-              }
-              if (thresholdValue > Number(bound.dieType.slice(1))) {
-                throw createExpressionError(
-                  bound.expression,
-                  "Invalid aggregate clause: threshold exceeds die faces",
-                );
-              }
-              return conjunction === "or"
-                ? passesThreshold || passesTotal
-                  ? "success"
-                  : "failure"
-                : passesThreshold && passesTotal
-                  ? "success"
-                  : "failure";
-            })()
+          ? evaluateAggregateOutcome(bound, rolls, modified)
           : (() => {
               const baseValue = bound.rollMode
                 ? effectiveBase
                 : bound.perDieModifier != null
                   ? perDieSum
                   : modified;
-              const outcome = utils.determineOutcome(baseValue, {
-                testType: bound.test.testType,
-                target: bound.test.target,
-                dieType: bound.dieType,
-                ...(bound.test.criticalSuccess != null
-                  ? { critical_success: bound.test.criticalSuccess }
-                  : {}),
-                ...(bound.test.criticalFailure != null
-                  ? { critical_failure: bound.test.criticalFailure }
-                  : {}),
-              });
-              const shouldUseNaturalCrits =
-                bound.test.criticalSuccess == null &&
-                bound.test.criticalFailure == null &&
-                [TestType.Skill, TestType.AtLeast, TestType.AtMost].includes(
-                  bound.test.testType,
-                );
-              if (!shouldUseNaturalCrits) return outcome;
-              const sides = Number(bound.dieType.slice(1));
-              const isNaturalMax = effectiveBase === sides;
-              const isNaturalMin = effectiveBase === 1;
-              if (bound.test.testType === TestType.Skill) {
-                if (isNaturalMax) return "critical_success";
-                if (isNaturalMin) return "critical_failure";
-              }
-              if (bound.test.testType === TestType.AtMost) {
-                if (isNaturalMax) return "failure";
-                if (isNaturalMin) return "success";
-              }
-              if (bound.test.testType === TestType.AtLeast) {
-                if (isNaturalMax) return "success";
-                if (isNaturalMin) return "failure";
-              }
-              return outcome;
+              return evaluateStandardOutcome(bound, effectiveBase, baseValue);
             })(),
         ...(bound.test.aggregate ? { aggregate: bound.test.aggregate } : {}),
       }
@@ -362,7 +410,7 @@ function executeExpression(bound) {
         }
       : {}),
     modified,
-    rollMode: bound.rollMode,
+    ...(bound.rollMode != null ? { rollMode: bound.rollMode } : {}),
     ...(test ? { test } : {}),
   };
 }
