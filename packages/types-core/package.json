@@ -34,7 +34,7 @@
     "entities"
   ],
   "peerDependencies": {
-    "@platonic-dice/core": "^3.0.2"
+    "@platonic-dice/core": "workspace:^"
   },
   "scripts": {
     "test:types": "tsd"

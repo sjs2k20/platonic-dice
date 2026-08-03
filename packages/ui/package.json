@@ -36,11 +36,11 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@platonic-dice/core": "^3.0.7",
-    "@platonic-dice/dice": "^2.3.8",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "react-router-dom": "^7.18.1"
+    "@platonic-dice/core": "workspace:^",
+    "@platonic-dice/dice": "workspace:^",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -49,19 +49,19 @@
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.65.0",
-    "@vitejs/plugin-react": "^6.0.3",
-    "eslint": "^10.7.0",
+    "@vitejs/plugin-react": "^6.0.5",
+    "eslint": "^10.8.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
-    "globals": "^17.7.0",
-    "jsdom": "^29.1.1",
-    "typescript": "^6.0.3",
+    "globals": "^17.9.0",
+    "jsdom": "^30.0.1",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.65.0",
-    "vite": "^8.1.4",
+    "vite": "^8.2.0",
     "vitest": "^4.1.10"
   }
 }
