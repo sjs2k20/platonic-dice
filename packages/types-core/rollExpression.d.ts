@@ -73,6 +73,22 @@ export interface RollExpressionResult {
   test?: RollExpressionTestResult;
 }
 
+export interface RollExpressionAnalysisResult {
+  expression: string;
+  count: number;
+  dieType: string;
+  totalPossibilities: number;
+  outcomeCounts: Record<string, number>;
+  outcomeProbabilities: Record<string, number>;
+  outcomesByRoll: Record<number, string>;
+  rolls: number[];
+  rollsByOutcome: Record<string, number[]>;
+  modifier: number;
+  modifierType: RollExpressionModifierType;
+  rollMode?: RollExpressionRollMode;
+  test?: RollExpressionTestResult;
+}
+
 export declare function rollExpression(
   expression: string,
 ): RollExpressionResult;

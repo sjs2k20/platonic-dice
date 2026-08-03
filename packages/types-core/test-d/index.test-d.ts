@@ -9,6 +9,7 @@ import {
   rollTest,
   rollModTest,
   type RollExpressionResult,
+  type RollExpressionAnalysisResult,
   type ExpressionAggregateClause,
   type RollExpressionAst,
   type RollExpressionDiagnostic,
@@ -85,7 +86,7 @@ expectType<ExpressionAggregateClause | undefined>(
 );
 
 const analysisResult = analyse("2D6+5 GET atLeast 15");
-expectType<RollExpressionResult>(analysisResult);
+expectType<RollExpressionAnalysisResult>(analysisResult);
 
 const ast: RollExpressionAst = {
   expression: "2D6+5",

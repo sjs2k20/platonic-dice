@@ -1,5 +1,8 @@
 import { DieTypeValue, RollTypeValue } from "./entities";
-import type { RollExpressionResult } from "./rollExpression";
+import type {
+  RollExpressionAnalysisResult,
+  RollExpressionResult,
+} from "./rollExpression";
 
 /**
  * Rolls using the expression-first core runtime.
@@ -85,4 +88,4 @@ export function rollD12(rollType?: RollTypeValue): number;
  */
 export function rollD20(rollType?: RollTypeValue): number;
 
-export function analyse(expression: string): RollExpressionResult;
+export function analyse(expression: string): RollExpressionAnalysisResult;
