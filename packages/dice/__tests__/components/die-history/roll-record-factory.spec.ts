@@ -1,9 +1,26 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { RollRecordFactory } from "@dice/components/die-history";
 import { DieType, TestType } from "@platonic-dice/core";
 
+const { mockCoreRoll } = vi.hoisted(() => ({
+  mockCoreRoll: vi.fn(),
+}));
+
+vi.mock("@platonic-dice/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@platonic-dice/core")>();
+  return {
+    ...actual,
+    roll: mockCoreRoll,
+  };
+});
+
 describe("RollRecordFactory", () => {
   const factory = new RollRecordFactory();
+
+  beforeEach(() => {
+    mockCoreRoll.mockReset();
+    mockCoreRoll.mockImplementation(() => ({ base: 4 }));
+  });
 
   it("should create a valid DieRollRecord for normal rolls", () => {
     const record = factory.createNormalRoll(DieType.D6);
@@ -71,6 +88,18 @@ describe("RollRecordFactory", () => {
       "critical_success",
       "critical_failure",
     ]).toContain(record.outcome.toLowerCase());
+  });
+
+  it("should evaluate within-test outcomes using the core-compatible semantics", () => {
+    mockCoreRoll.mockReturnValueOnce({ base: 12 });
+
+    const record = factory.createTestRoll(DieType.D20, {
+      testType: TestType.Within,
+      min: 5,
+      max: 10,
+    });
+
+    expect(record.outcome).toBe("failure");
   });
 
   it("should throw an error for invalid RollType in createNormalRoll", () => {

@@ -1,5 +1,8 @@
 import { defineConfig } from "vitest/config";
-import { resolve } from "path";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
@@ -16,8 +19,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@platonic-dice/core": resolve(__dirname, "../core/src"),
-      "@dice": resolve(__dirname, "./src"),
+      "@platonic-dice/core": path.resolve(rootDir, "../core/src"),
+      "@dice": path.resolve(rootDir, "./src"),
     },
   },
 });

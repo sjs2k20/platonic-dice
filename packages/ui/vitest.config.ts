@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { fileURLToPath } from "url";
 
 export default defineConfig({
   plugins: [react()],
@@ -12,17 +13,47 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@platonic-dice/core": path.resolve(__dirname, "../core/src"),
-      "@platonic-dice/dice": path.resolve(__dirname, "../dice/src"),
-      "@dice": path.resolve(__dirname, "../dice/src"),
-      "@": path.resolve(__dirname, "./src"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@config": path.resolve(__dirname, "./src/config"),
-      "@hooks": path.resolve(__dirname, "./src/hooks"),
-      "@pages": path.resolve(__dirname, "./src/pages"),
-      "@router": path.resolve(__dirname, "./src/router"),
-      "@styles": path.resolve(__dirname, "./src/styles"),
-      "@utils": path.resolve(__dirname, "./src/utils"),
+      "@platonic-dice/core": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../core/src",
+      ),
+      "@platonic-dice/dice": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dice/src",
+      ),
+      "@dice": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../dice/src",
+      ),
+      "@": path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./src"),
+      "@components": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/components",
+      ),
+      "@config": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/config",
+      ),
+      "@hooks": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/hooks",
+      ),
+      "@pages": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/pages",
+      ),
+      "@router": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/router",
+      ),
+      "@styles": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/styles",
+      ),
+      "@utils": path.resolve(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "./src/utils",
+      ),
     },
   },
 });

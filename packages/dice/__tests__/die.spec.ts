@@ -7,8 +7,6 @@ import {
   RollType,
   TestType,
   roll as coreRoll,
-  rollMod as coreRollMod,
-  rollTest as coreRollTest,
 } from "@platonic-dice/core";
 
 // ------------------------
@@ -19,8 +17,6 @@ vi.mock("@platonic-dice/core", async (importOriginal: () => Promise<any>) => {
   return {
     ...(actual as Record<string, any>),
     roll: vi.fn(),
-    rollMod: vi.fn(),
-    rollTest: vi.fn(),
   };
 });
 
@@ -60,7 +56,7 @@ describe("Die class", () => {
   // ---------------------
   it("rolls and records a basic DieRollRecord", () => {
     const die = new Die(DieType.D6);
-    (coreRoll as Mock).mockReturnValue(4);
+    (coreRoll as Mock).mockReturnValue({ base: 4 });
 
     const result = die.roll();
     expect(result).toBe(4);
@@ -69,14 +65,15 @@ describe("Die class", () => {
     const history = die.history("normal", true);
     expect(history.length).toBe(1);
     expect(history[0]).toMatchObject({ roll: 4 });
+    expect(coreRoll).toHaveBeenCalledWith("1D6");
   });
 
   it("passes through rollType to coreRoll()", () => {
     const die = new Die(DieType.D20);
-    (coreRoll as Mock).mockReturnValue(17);
+    (coreRoll as Mock).mockReturnValue({ base: 17 });
 
     die.roll(RollType.Advantage);
-    expect(coreRoll).toHaveBeenCalledWith(DieType.D20, RollType.Advantage);
+    expect(coreRoll).toHaveBeenCalledWith("1D20ADV");
   });
 
   it("throws for invalid rollType", () => {
@@ -89,7 +86,7 @@ describe("Die class", () => {
   // ---------------------
   it("rollMod records ModifiedDieRollRecord", () => {
     const die = new Die(DieType.D6);
-    (coreRollMod as Mock).mockReturnValue({ base: 3, modified: 5 });
+    (coreRoll as Mock).mockReturnValue({ base: 3, modified: 5 });
 
     const result = die.rollMod((n: number) => n + 2);
     expect(result).toBe(5);
@@ -98,6 +95,7 @@ describe("Die class", () => {
     const history = die.history("modifier", true);
     expect(history.length).toBe(1);
     expect(history[0]).toMatchObject({ roll: 3, modified: 5 });
+    expect(coreRoll).toHaveBeenCalledWith("1D6");
   });
 
   // ---------------------
@@ -105,7 +103,10 @@ describe("Die class", () => {
   // ---------------------
   it("rollTest records TargetDieRollRecord", () => {
     const die = new Die(DieType.D6);
-    (coreRollTest as Mock).mockReturnValue({ base: 4, outcome: "success" });
+    (coreRoll as Mock).mockReturnValue({
+      base: 4,
+      test: { outcome: "success" },
+    });
 
     const result = die.rollTest({ testType: TestType.AtLeast, target: 3 });
     expect(result).toBe(4);
@@ -114,6 +115,7 @@ describe("Die class", () => {
     const history = die.history("test", true);
     expect(history.length).toBe(1);
     expect(history[0]).toMatchObject({ roll: 4, outcome: "success" });
+    expect(coreRoll).toHaveBeenCalledWith("1D6 GET atLeast 3");
   });
 
   // ---------------------
@@ -121,7 +123,7 @@ describe("Die class", () => {
   // ---------------------
   it("history returns timestamp-stripped records when verbose=false", () => {
     const die = new Die(DieType.D6);
-    (coreRoll as Mock).mockReturnValue(2);
+    (coreRoll as Mock).mockReturnValue({ base: 2 });
     die.roll();
 
     const hist = die.history("normal", false);
@@ -136,7 +138,7 @@ describe("Die class", () => {
   // ---------------------
   it("reset clears latest result and optionally all histories", () => {
     const die = new Die(DieType.D6);
-    (coreRoll as Mock).mockReturnValue(5);
+    (coreRoll as Mock).mockReturnValue({ base: 5 });
     die.roll();
     die.reset();
     expect(die.result).toBeUndefined();
@@ -156,14 +158,14 @@ describe("Die class", () => {
     const die = new Die(DieType.D6);
     expect(die.toString()).toMatch(/not rolled yet/);
 
-    (coreRoll as Mock).mockReturnValue(3);
+    (coreRoll as Mock).mockReturnValue({ base: 3 });
     die.roll();
     expect(die.toString()).toMatch(/latest=3/);
   });
 
   it("toJSON returns all histories keyed by type", () => {
     const die = new Die(DieType.D6);
-    (coreRoll as Mock).mockReturnValue(4);
+    (coreRoll as Mock).mockReturnValue({ base: 4 });
     die.roll();
 
     const json = die.toJSON();

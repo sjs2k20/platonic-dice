@@ -1,6 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -11,14 +14,14 @@ export default defineConfig(({ mode }) => ({
 
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@config": path.resolve(__dirname, "./src/config"),
-      "@hooks": path.resolve(__dirname, "./src/hooks"),
-      "@pages": path.resolve(__dirname, "./src/pages"),
-      "@router": path.resolve(__dirname, "./src/router"),
-      "@styles": path.resolve(__dirname, "./src/styles"),
-      "@utils": path.resolve(__dirname, "./src/utils"),
+      "@": path.resolve(rootDir, "./src"),
+      "@components": path.resolve(rootDir, "./src/components"),
+      "@config": path.resolve(rootDir, "./src/config"),
+      "@hooks": path.resolve(rootDir, "./src/hooks"),
+      "@pages": path.resolve(rootDir, "./src/pages"),
+      "@router": path.resolve(rootDir, "./src/router"),
+      "@styles": path.resolve(rootDir, "./src/styles"),
+      "@utils": path.resolve(rootDir, "./src/utils"),
     },
   },
 

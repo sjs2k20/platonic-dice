@@ -80,73 +80,43 @@ pnpm -r test
 CommonJS (Node):
 
 ```js
-const { roll, rollModTest, rollDiceModTest } = require("@platonic-dice/core");
+const { roll, analyse } = require("@platonic-dice/core");
 const { Die } = require("@platonic-dice/dice");
 
-console.log(roll("d20"));
-
-// Combine modifier with test evaluation
-const result = rollModTest("d20", (n) => n + 5, {
-  testType: "skill",
-  target: 15,
-});
-console.log(
-  `Base: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`,
-);
+console.log(roll("1D20ADV GET atLeast 15"));
+console.log(analyse("3D6 GET atLeast 2x 5+ AND total >= 15"));
 
 const d = new Die("d12");
 console.log(d.roll());
 
-// Die class also supports rollModTest
+// Die class also supports modifier and test workflows through its wrapper API
 const testResult = d.rollModTest((n) => n + 3, {
   testType: "at_least",
   target: 10,
 });
 console.log(`Result: ${testResult}`);
-
-const poolResult = rollDiceModTest(
-  "d6",
-  { each: (n) => n + 1, net: (sum) => sum + 2 },
-  [{ testType: "at_least", target: 5 }],
-  {
-    count: 4,
-    rules: [{ type: "condition_count", conditionIndex: 0, atLeast: 2 }],
-  },
-);
-console.log(
-  `Pool passed: ${poolResult.result.passed}, total: ${poolResult.modified.net.value}`,
-);
 ```
 
 TypeScript / ESM:
 
 ```ts
-import {
-  roll,
-  rollModTest,
-  rollDiceModTest,
-  DieType,
-} from "@platonic-dice/core";
+import { roll, analyse, DieType } from "@platonic-dice/core";
 import { Die } from "@platonic-dice/dice";
 
-console.log(roll(DieType.D20));
+console.log(roll("1D20ADV GET atLeast 15"));
+console.log(analyse("2D6+5 GET atLeast 15"));
 
-// Apply modifier and evaluate test in one call
-const result = rollModTest(DieType.D20, (n) => n + 5, {
-  testType: "skill",
-  target: 15,
-});
-
-const pool = rollDiceModTest(
-  DieType.D6,
-  { each: (n) => n + 1, net: (sum) => sum + 2 },
-  [{ testType: "at_least", target: 5 }],
-  {
-    count: 4,
-    rules: [{ type: "condition_count", conditionIndex: 0, atLeast: 2 }],
-  },
-);
+const d20 = new Die(DieType.D20);
+console.log(d20.roll());
 ```
+
+### Migration from imperative helpers
+
+- `roll(DieType.D20)` → `roll("1D20")`
+- `roll(DieType.D20, RollType.Advantage)` → `roll("1D20ADV")`
+- `rollTest(DieType.D20, { testType: "at_least", target: 15 })` → `roll("1D20 GET atLeast 15")`
+- `rollMod(DieType.D20, (n) => n + 5)` → `roll("1D20+5")`
+- `rollModTest(DieType.D20, (n) => n + 5, { testType: "at_least", target: 15 })` → `roll("1D20+5 GET atLeast 15")`
 
 ## Publishing
 

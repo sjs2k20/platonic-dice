@@ -1,12 +1,10 @@
 # @platonic-dice/core
 
-Core JavaScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs. Type declarations are supplied separately by `@platonic-dice/types-core`.
+Core JavaScript library for dice expressions, modifiers, and test evaluation in tabletop RPGs. Type declarations are supplied separately by `@platonic-dice/types-core`.
 
-This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exports rolling helpers including `roll`, `rollMod`, `rollTest`, `rollModTest`, and `rollDiceModTest` (combining a modified dice pool with aggregate test evaluation), entities (die types, roll types, outcomes), and utility functions.
+The canonical public API is the expression-first runtime exposed through `roll(expression)` and `analyse(expression)`. Compatibility helpers such as `rollMod`, `rollTest`, `rollModTest`, and `rollDiceModTest` remain available for existing imperative call sites.
 
 ## Installation
-
-Install from npm:
 
 ```bash
 npm install @platonic-dice/core @platonic-dice/types-core
@@ -14,46 +12,24 @@ npm install @platonic-dice/core @platonic-dice/types-core
 
 ## Quick usage
 
-CommonJS:
-
 ```js
-const {
-  roll,
-  rollDice,
-  rollModTest,
-  DieType,
-  RollType,
-} = require("@platonic-dice/core");
+const { roll, analyse } = require("@platonic-dice/core");
 
-console.log(roll(DieType.D20));
-console.log(rollDice(DieType.D6, { count: 3 }));
-
-// rollModTest combines modifiers with test evaluation
-const result = rollModTest(DieType.D20, (n) => n + 5, {
-  testType: "skill",
-  target: 15,
-});
-console.log(
-  `Roll: ${result.base}, Modified: ${result.modified}, Outcome: ${result.outcome}`,
-);
+console.log(roll("2D6+5"));
+console.log(roll("1D20ADV GET >= 15"));
+console.log(analyse("3D6 GET atLeast 2x 5+ AND total >= 15"));
 ```
 
-ESM / TypeScript:
+Supported expression forms include:
 
-```ts
-import { roll, rollModTest, DieType } from "@platonic-dice/core";
-console.log(roll(DieType.D20));
+- arithmetic rolls such as `2D6+5` and `3D6x2`
+- advantage/disadvantage such as `1D20ADV` and `1D20DIS`
+- explicit tests such as `1D20ADV GET >= 15`
+- aggregate clauses such as `3D6 GET atLeast 2x 5+ AND total >= 15`
 
-// Combine modifiers with test evaluation
-const result = rollModTest(DieType.D20, (n) => n + 5, {
-  testType: "at_least",
-  target: 15,
-});
-```
+For analysis, `analyse(expression)` requires a `GET` clause so the input is a test-style expression rather than a plain arithmetic roll.
 
 ## Build & Test
-
-This package's JavaScript sources live under `src/`. Its build copies the runtime JavaScript into `dist/`; the npm tarball contains that `dist/` directory, plus package metadata, the README, and the license. To run tests or build from the monorepo root:
 
 ```bash
 # from repo root
@@ -61,60 +37,24 @@ pnpm build
 pnpm test
 ```
 
-Or run package-local scripts:
+Or run package-local tests:
 
 ```bash
-# run unit tests
 pnpm --filter @platonic-dice/core test
 ```
 
-### Type Definitions
+## Documentation scope
 
-Type definitions are maintained in the separate
-`@platonic-dice/types-core` package.
+The package documentation is intentionally focused on the two canonical entry points:
 
-Install it alongside `@platonic-dice/core` if you need the exported type surface:
+- [docs/roll.md](docs/roll.md) for executing expressions
+- [docs/analyse.md](docs/analyse.md) for analysing their probabilities
 
-```bash
-pnpm add @platonic-dice/core @platonic-dice/types-core
-```
-
-## Examples
-
-The `examples/` directory contains comprehensive examples for all the major functions. Run them to see the library in action:
-
-```bash
-# Run all core examples (roll, rollDice, rollMod, rollDiceMod, rollTest, rollModTest)
-pnpm --filter @platonic-dice/core examples
-
-# Run all examples including advanced features and analysis functions
-pnpm --filter @platonic-dice/core examples:all
-
-# Run individual example files
-pnpm --filter @platonic-dice/core examples:roll
-pnpm --filter @platonic-dice/core examples:rollDice
-pnpm --filter @platonic-dice/core examples:rollMod
-pnpm --filter @platonic-dice/core examples:rollDiceMod
-pnpm --filter @platonic-dice/core examples:rollTest
-pnpm --filter @platonic-dice/core examples:rollModTest
-pnpm --filter @platonic-dice/core examples:rollDiceModTest
-pnpm --filter @platonic-dice/core examples:rollModTest:advanced
-pnpm --filter @platonic-dice/core examples:analyseTest
-pnpm --filter @platonic-dice/core examples:analyseModTest
-pnpm --filter @platonic-dice/core examples:entities
-```
-
-Each example demonstrates practical usage patterns and outputs results to help you understand the API.
+The older helper-oriented APIs remain available for compatibility, but they are not described separately here so the public docs stay concise.
 
 ## Release process
 
 This package is published independently from the other packages in the monorepo. The publish workflow releases only this package when its own version changes.
-
-Versions are bumped after a pull request is merged to `main`. A `develop` to `main` release pull request requires one semver label (`semver/patch`, `semver/minor`, or `semver/major`); hotfix and maintenance pull requests default to a patch release. You do not need to edit the package version manually.
-
-## Contributing
-
-See the repository root `README.md` for contribution guidelines. Keep changes backwards-compatible where possible and include tests.
 
 ## License
 
