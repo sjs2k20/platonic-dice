@@ -104,7 +104,7 @@ import { roll, analyse, DieType } from "@platonic-dice/core";
 import { Die } from "@platonic-dice/dice";
 
 console.log(roll("1D20ADV GET atLeast 15"));
-console.log(analyse("2D6+5"));
+console.log(analyse("2D6+5 GET atLeast 15"));
 
 const d20 = new Die(DieType.D20);
 console.log(d20.roll());

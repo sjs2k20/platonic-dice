@@ -1,4 +1,9 @@
-import { Outcome, RollType, roll as coreRoll } from "@platonic-dice/core";
+import {
+  Outcome,
+  RollType,
+  TestType,
+  roll as coreRoll,
+} from "@platonic-dice/core";
 
 import type {
   RollModifierFunction,
@@ -48,19 +53,36 @@ function formatTestExpression(
   const normalizedTest = testConditions as {
     testType?: TestTypeValue;
     target?: number;
+    min?: number;
+    max?: number;
+    values?: number[];
+    conditions?: {
+      target?: number;
+      min?: number;
+      max?: number;
+      values?: number[];
+    };
   };
   const testType = normalizedTest.testType ?? "at_least";
-  const target = normalizedTest.target ?? 0;
-  const grammarTestType =
-    testType === "at_least"
-      ? "atLeast"
-      : testType === "at_most"
-        ? "atMost"
-        : testType === "exact"
-          ? "exactly"
-          : testType;
 
-  return `${formatDieExpression(dieType, rollType)} GET ${grammarTestType} ${target}`;
+  if (
+    testType === TestType.AtLeast ||
+    testType === TestType.AtMost ||
+    testType === TestType.Exact
+  ) {
+    const target =
+      normalizedTest.target ?? normalizedTest.conditions?.target ?? 0;
+    const grammarTestType =
+      testType === TestType.AtLeast
+        ? "atLeast"
+        : testType === TestType.AtMost
+          ? "atMost"
+          : "exactly";
+
+    return `${formatDieExpression(dieType, rollType)} GET ${grammarTestType} ${target}`;
+  }
+
+  return formatDieExpression(dieType, rollType);
 }
 
 function evaluateOutcome(
@@ -68,22 +90,90 @@ function evaluateOutcome(
   testConditions:
     | TestConditionsInstance
     | { testType: TestTypeValue; [k: string]: any },
+  dieType?: DieTypeValue,
 ): OutcomeValue {
   const normalizedTest = testConditions as {
     testType?: TestTypeValue;
     target?: number;
+    min?: number;
+    max?: number;
+    values?: number[];
+    critical_success?: number;
+    critical_failure?: number;
+    conditions?: {
+      target?: number;
+      min?: number;
+      max?: number;
+      values?: number[];
+      critical_success?: number;
+      critical_failure?: number;
+    };
   };
-  const testType = normalizedTest.testType ?? "at_least";
-  const target = normalizedTest.target ?? 0;
+  const testType = normalizedTest.testType ?? TestType.AtLeast;
+  const target = normalizedTest.target ?? normalizedTest.conditions?.target;
+  const min = normalizedTest.min ?? normalizedTest.conditions?.min;
+  const max = normalizedTest.max ?? normalizedTest.conditions?.max;
+  const values = normalizedTest.values ?? normalizedTest.conditions?.values;
+  const criticalSuccess =
+    normalizedTest.critical_success ??
+    normalizedTest.conditions?.critical_success;
+  const criticalFailure =
+    normalizedTest.critical_failure ??
+    normalizedTest.conditions?.critical_failure;
+
+  if (
+    dieType &&
+    [TestType.AtLeast, TestType.AtMost, TestType.Skill].includes(testType)
+  ) {
+    const sides = Number(dieType.replace(/^d/i, ""));
+    const isNaturalMax = value === sides;
+    const isNaturalMin = value === 1;
+
+    if (testType === TestType.Skill) {
+      if (criticalFailure != null && isNaturalMin)
+        return Outcome.CriticalFailure;
+      if (criticalSuccess != null && isNaturalMax)
+        return Outcome.CriticalSuccess;
+    }
+
+    if (testType === TestType.AtMost) {
+      if (isNaturalMax) return Outcome.Failure;
+      if (isNaturalMin) return Outcome.Success;
+    }
+
+    if (testType === TestType.AtLeast) {
+      if (isNaturalMax) return Outcome.Success;
+      if (isNaturalMin) return Outcome.Failure;
+    }
+  }
 
   switch (testType) {
-    case "at_most":
-      return value <= target ? Outcome.Success : Outcome.Failure;
-    case "exact":
+    case TestType.AtMost:
+      return value <= (target ?? Number.POSITIVE_INFINITY)
+        ? Outcome.Success
+        : Outcome.Failure;
+    case TestType.Exact:
       return value === target ? Outcome.Success : Outcome.Failure;
-    case "at_least":
+    case TestType.Within:
+      return value >= (min ?? 0) && value <= (max ?? Number.POSITIVE_INFINITY)
+        ? Outcome.Success
+        : Outcome.Failure;
+    case TestType.InList:
+      return Array.isArray(values) && values.includes(value)
+        ? Outcome.Success
+        : Outcome.Failure;
+    case TestType.Skill: {
+      if (criticalFailure != null && value <= criticalFailure) {
+        return Outcome.CriticalFailure;
+      }
+      if (criticalSuccess != null && value >= criticalSuccess) {
+        return Outcome.CriticalSuccess;
+      }
+      return value >= (target ?? 0) ? Outcome.Success : Outcome.Failure;
+    }
+    case TestType.AtLeast:
     default:
-      return value >= target ? Outcome.Success : Outcome.Failure;
+      return value >= (target ?? 0) ? Outcome.Success : Outcome.Failure;
   }
 }
 
@@ -264,7 +354,13 @@ export class RollRecordFactory implements IRollRecordFactory {
       typeof result === "number"
         ? result
         : (result?.base ?? result?.modified ?? 0);
-    const outcome = evaluateOutcome(base, testConditions);
+    const outcome =
+      typeof result === "object" &&
+      result &&
+      "test" in result &&
+      result.test?.outcome
+        ? result.test.outcome
+        : evaluateOutcome(base, testConditions, dieType);
     const ts = new Date();
     const record: TestDieRollRecord = { roll: base, outcome, timestamp: ts };
 
@@ -291,7 +387,13 @@ export class RollRecordFactory implements IRollRecordFactory {
         ? result
         : (result?.base ?? result?.modified ?? 0);
     const modified = resolveModifierValue(modifier, base);
-    const outcome = evaluateOutcome(modified, testConditions);
+    const outcome =
+      typeof result === "object" &&
+      result &&
+      "test" in result &&
+      result.test?.outcome
+        ? result.test.outcome
+        : evaluateOutcome(modified, testConditions, dieType);
     const ts = new Date();
     const record: ModifiedTestDieRollRecord = {
       roll: base,

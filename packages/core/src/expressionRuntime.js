@@ -439,19 +439,69 @@ function analyse(expression) {
 
   const parsed = parseExpression(expression);
   const bound = bindExpression(parsed);
-  const result = executeExpression(bound);
+
+  const sides = Number(bound.dieType.slice(1));
+  const outcomeCounts = {};
+  const outcomesByRoll = {};
+  const rolls = [];
+
+  for (let rollValue = 1; rollValue <= sides; rollValue++) {
+    const syntheticRoll = {
+      expression: bound.expression,
+      count: bound.count,
+      dieType: bound.dieType,
+      rolls: [rollValue],
+      base: rollValue,
+      modifier: bound.modifier,
+      modifierType: bound.modifierType,
+      modified: rollValue + bound.modifier,
+      ...(bound.rollMode != null ? { rollMode: bound.rollMode } : {}),
+    };
+
+    const outcome = evaluateStandardOutcome(
+      {
+        ...bound,
+        test: bound.test,
+        rollMode: undefined,
+      },
+      rollValue,
+      rollValue,
+    );
+
+    outcomesByRoll[rollValue] = outcome;
+    outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
+    rolls.push(rollValue);
+  }
+
+  const totalPossibilities = sides;
+  const outcomeProbabilities = Object.fromEntries(
+    Object.entries(outcomeCounts).map(([outcome, count]) => [
+      outcome,
+      count / totalPossibilities,
+    ]),
+  );
 
   return {
-    expression: result.expression,
-    count: result.count,
-    dieType: result.dieType,
-    rolls: result.rolls,
-    base: result.base,
-    modifier: result.modifier,
-    modifierType: result.modifierType,
-    modified: result.modified,
-    ...(result.rollMode != null ? { rollMode: result.rollMode } : {}),
-    ...(result.test ? { test: result.test } : {}),
+    expression: bound.expression,
+    count: bound.count,
+    dieType: bound.dieType,
+    totalPossibilities,
+    outcomeCounts,
+    outcomeProbabilities,
+    outcomesByRoll,
+    rolls,
+    rollsByOutcome: Object.entries(outcomesByRoll).reduce(
+      (acc, [rollValue, outcome]) => {
+        acc[outcome] ??= [];
+        acc[outcome].push(Number(rollValue));
+        return acc;
+      },
+      {},
+    ),
+    modifier: bound.modifier,
+    modifierType: bound.modifierType,
+    ...(bound.rollMode != null ? { rollMode: bound.rollMode } : {}),
+    ...(bound.test ? { test: bound.test } : {}),
   };
 }
 

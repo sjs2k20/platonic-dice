@@ -67,6 +67,12 @@ function rollDie(dieType, rollType = undefined) {
 
 function roll(input, rollType = undefined) {
   if (typeof input === "string" && /^[0-9]+d[0-9]+/i.test(input)) {
+    // Fail fast if the input is an expression string and rollType is provided
+    if (rollType !== undefined) {
+      throw new TypeError(
+        "rollType is not supported when rolling an expression string",
+      );
+    }
     return expressionRuntime.roll(input);
   }
 

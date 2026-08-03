@@ -35,6 +35,18 @@ describe("@platonic-dice/core/roll", () => {
       expect(() => rollModule.analyse("1D20ADV GET >= 15")).not.toThrow();
     });
 
+    it("should return deterministic probability analysis for GET expressions", () => {
+      const result = rollModule.analyse("1D20 GET >= 15");
+
+      expect(result.expression).toBe("1D20 GET >= 15");
+      expect(result.totalPossibilities).toBe(20);
+      expect(result.outcomeCounts).toEqual({ failure: 14, success: 6 });
+      expect(result.outcomeProbabilities).toEqual({
+        failure: 14 / 20,
+        success: 6 / 20,
+      });
+    });
+
     it("should surface a targeted diagnostic for malformed aggregate clauses", () => {
       expect(() =>
         rollModule.roll("3D6 GET atLeast 2x 5+ AND total > 15"),

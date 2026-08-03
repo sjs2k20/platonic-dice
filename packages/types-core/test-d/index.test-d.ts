@@ -84,7 +84,7 @@ expectType<ExpressionAggregateClause | undefined>(
   expressionResult.test?.aggregate,
 );
 
-const analysisResult = analyse("2D6+5");
+const analysisResult = analyse("2D6+5 GET atLeast 15");
 expectType<RollExpressionResult>(analysisResult);
 
 const ast: RollExpressionAst = {
