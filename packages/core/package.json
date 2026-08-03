@@ -43,9 +43,9 @@
   "scripts": {
     "build": "rm -rf dist && mkdir -p dist && cp -R src/* dist/ && find dist -name \"*.d.ts\" -delete",
     "prepublishOnly": "pnpm run build",
-    "test": "vitest run --config ./vitest.config.js",
-    "test:watch": "vitest --config ./vitest.config.js",
-    "test:coverage": "vitest run --coverage --config ./vitest.config.js"
+    "test": "vitest run --config ./vitest.config.mjs",
+    "test:watch": "vitest --config ./vitest.config.mjs",
+    "test:coverage": "vitest run --coverage --config ./vitest.config.mjs"
   },
   "devDependencies": {}
 }
