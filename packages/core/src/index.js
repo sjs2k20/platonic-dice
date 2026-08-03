@@ -77,3 +77,5 @@ exports.rollDiceTest = rollDiceTest.rollDiceTest;
 exports.rollDiceModTest = rollDiceModTest.rollDiceModTest;
 exports.analyseTest = analyseTest.analyseTest;
 exports.analyseModTest = analyseModTest.analyseModTest;
+exports.roll = roll.roll;
+exports.analyse = roll.analyse;

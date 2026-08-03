@@ -16,19 +16,17 @@ import type { RollRecord } from "@dice/types";
 /**
  * Represents a single die with flexible history tracking.
  *
- * The Die class provides:
- * - Normal rolls (numeric)
- * - Modified rolls (numeric or functional modifiers)
- * - Test rolls (success/failure evaluation)
- *
- * Each roll type is stored independently in a `RollHistoryCache`.
+ * The Die class provides a familiar wrapper API for normal, modified, and
+ * test-based rolls while delegating execution to the core expression-first
+ * runtime via its record factory. Each roll type is stored independently in a
+ * `RollHistoryCache` so callers can inspect the history by category.
  *
  * Example:
  * ```ts
  * const d20 = new Die(DieType.D20);
  * const result = d20.roll(); // normal roll
  * const modResult = d20.rollMod(n => n + 2); // modified roll
- * const testResult = d20.rollTest({ testType: "AtLeast", target: 15 });
+ * const testResult = d20.rollTest({ testType: "at_least", target: 15 });
  * ```
  */
 export class Die {
@@ -112,6 +110,10 @@ export class Die {
 
   /**
    * Perform a normal die roll.
+   *
+   * This delegates to the core expression runtime through the record factory,
+   * but preserves the simple numeric return value expected by the Die API.
+   *
    * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
    * @returns The numeric result
    */
@@ -133,7 +135,7 @@ export class Die {
     // Delegate record creation to the RollRecordFactory to centralise shape
     const record = this.recordFactory.createNormalRoll(
       this.typeValue,
-      rollType
+      rollType,
     );
     this.resultValue = record.roll;
 
@@ -145,6 +147,9 @@ export class Die {
 
   /**
    * Perform a roll with a modifier.
+   *
+   * The modifier is applied to the base roll result returned by the core
+   * expression runtime, while the Die instance keeps the resulting history.
    *
    * @param modifier - Numeric or functional modifier (function `(n: number) => number` or `RollModifierInstance`)
    * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
@@ -166,12 +171,12 @@ export class Die {
    */
   rollMod(
     modifier: RollModifierFunction | RollModifierInstance,
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): number {
     const record = this.recordFactory.createModifiedRoll(
       this.typeValue,
       modifier,
-      rollType
+      rollType,
     );
     this.resultValue = record.modified;
 
@@ -184,13 +189,16 @@ export class Die {
   /**
    * Perform a roll against test conditions (success/failure evaluation).
    *
+   * The test outcome is derived from the structured result emitted by the core
+   * expression runtime and stored alongside the base roll in history.
+   *
    * @param testConditions - Test conditions (plain object or `TestConditionsInstance`)
    * @param rollType - Optional roll mode (`RollType.Advantage` / `RollType.Disadvantage`)
    * @returns The base numeric roll
    *
    * Example:
    * ```ts
-   * d20.rollTest({ testType: "AtLeast", target: 15 });
+   * d20.rollTest({ testType: "at_least", target: 15 });
    * ```
    */
   /**
@@ -207,12 +215,12 @@ export class Die {
     testConditions:
       | TestConditionsInstance
       | { testType: TestTypeValue; [k: string]: any },
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): number {
     const record = this.recordFactory.createTestRoll(
       this.typeValue,
       testConditions,
-      rollType
+      rollType,
     );
     this.resultValue = record.roll;
 
@@ -241,14 +249,14 @@ export class Die {
       | TestConditionsInstance
       | { testType: TestTypeValue; [k: string]: any },
     rollType?: RollTypeValue,
-    options?: { useNaturalCrits?: boolean }
+    options?: { useNaturalCrits?: boolean },
   ): number {
     const record = this.recordFactory.createModifiedTestRoll(
       this.typeValue,
       modifier,
       testConditions,
       rollType,
-      options
+      options,
     );
     this.resultValue = record.modified;
 
@@ -293,7 +301,7 @@ export class Die {
    */
   report(
     key: string = Die.NORMAL_KEY,
-    options?: { limit?: number; verbose?: boolean }
+    options?: { limit?: number; verbose?: boolean },
   ) {
     this.rolls.setActiveKey(key);
     return this.rolls.activeManager?.report(options) ?? [];

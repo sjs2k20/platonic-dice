@@ -1,6 +1,6 @@
 # @platonic-dice/dice
 
-Persistent dice objects with roll history and TypeScript support. This package is published independently to npm as `@platonic-dice/dice`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It builds on top of `@platonic-dice/core` and provides classes such as `Die` which maintain roll history, validators, and utilities for consuming applications, including `rollModTest()` for combined modifier/test evaluation.
+Persistent dice objects with roll history and TypeScript support. This package is published independently to npm as `@platonic-dice/dice`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It builds on top of `@platonic-dice/core` and provides classes such as `Die` that preserve history while delegating execution to the core expression-first runtime, including `rollModTest()` for combined modifier/test evaluation.
 
 ## Installation
 
@@ -44,8 +44,9 @@ const result = d20.rollModTest((n) => n + 5, {
 
 ### @platonic-dice/core
 
-The core package is a pure js module that handles the dice rolling logic. It is published separately at `@platonic-dice/core`. It is pulled in as a direct
-dependency of this package.
+The core package is a pure JavaScript module that exposes the expression-first roll runtime and compatibility helpers. It is published separately at `@platonic-dice/core` and is pulled in as a direct dependency of this package.
+
+Common legacy helper calls such as `rollModTest(DieType.D20, ...)` can be expressed as DSL strings such as `roll("1D20+5 GET atLeast 15")` when consuming the core runtime directly.
 
 ### Type Definitions
 

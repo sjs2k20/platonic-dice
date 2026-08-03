@@ -1,9 +1,8 @@
 import {
+  Outcome,
   RollType,
+  TestType,
   roll as coreRoll,
-  rollMod as coreRollMod,
-  rollTest as coreRollTest,
-  rollModTest as coreRollModTest,
 } from "@platonic-dice/core";
 
 import type {
@@ -15,6 +14,7 @@ import type {
   DieTypeValue,
   TestTypeValue,
   RollTypeValue,
+  OutcomeValue,
 } from "@platonic-dice/core";
 
 import type {
@@ -31,19 +31,183 @@ import {
   isModifiedTestDieRollRecord,
 } from "./internal";
 
+function formatDieExpression(
+  dieType: DieTypeValue,
+  rollType?: RollTypeValue,
+): string {
+  const suffix = rollType
+    ? rollType === RollType.Advantage
+      ? "ADV"
+      : "DIS"
+    : "";
+  return `1${dieType.toUpperCase()}${suffix}`;
+}
+
+function formatTestExpression(
+  dieType: DieTypeValue,
+  testConditions:
+    | TestConditionsInstance
+    | { testType: TestTypeValue; [k: string]: any },
+  rollType?: RollTypeValue,
+): string {
+  const normalizedTest = testConditions as {
+    testType?: TestTypeValue;
+    target?: number;
+    min?: number;
+    max?: number;
+    values?: number[];
+    conditions?: {
+      target?: number;
+      min?: number;
+      max?: number;
+      values?: number[];
+    };
+  };
+  const testType = normalizedTest.testType ?? "at_least";
+
+  if (
+    testType === TestType.AtLeast ||
+    testType === TestType.AtMost ||
+    testType === TestType.Exact
+  ) {
+    const target =
+      normalizedTest.target ?? normalizedTest.conditions?.target ?? 0;
+    const grammarTestType =
+      testType === TestType.AtLeast
+        ? "atLeast"
+        : testType === TestType.AtMost
+          ? "atMost"
+          : "exactly";
+
+    return `${formatDieExpression(dieType, rollType)} GET ${grammarTestType} ${target}`;
+  }
+
+  return formatDieExpression(dieType, rollType);
+}
+
+function evaluateOutcome(
+  value: number,
+  testConditions:
+    | TestConditionsInstance
+    | { testType: TestTypeValue; [k: string]: any },
+  dieType?: DieTypeValue,
+): OutcomeValue {
+  const normalizedTest = testConditions as {
+    testType?: TestTypeValue;
+    target?: number;
+    min?: number;
+    max?: number;
+    values?: number[];
+    critical_success?: number;
+    critical_failure?: number;
+    conditions?: {
+      target?: number;
+      min?: number;
+      max?: number;
+      values?: number[];
+      critical_success?: number;
+      critical_failure?: number;
+    };
+  };
+  const testType = normalizedTest.testType ?? TestType.AtLeast;
+  const target = normalizedTest.target ?? normalizedTest.conditions?.target;
+  const min = normalizedTest.min ?? normalizedTest.conditions?.min;
+  const max = normalizedTest.max ?? normalizedTest.conditions?.max;
+  const values = normalizedTest.values ?? normalizedTest.conditions?.values;
+  const criticalSuccess =
+    normalizedTest.critical_success ??
+    normalizedTest.conditions?.critical_success;
+  const criticalFailure =
+    normalizedTest.critical_failure ??
+    normalizedTest.conditions?.critical_failure;
+
+  if (
+    dieType &&
+    [TestType.AtLeast, TestType.AtMost, TestType.Skill].includes(testType)
+  ) {
+    const sides = Number(dieType.replace(/^d/i, ""));
+    const isNaturalMax = value === sides;
+    const isNaturalMin = value === 1;
+
+    if (testType === TestType.Skill) {
+      if (criticalFailure != null && isNaturalMin)
+        return Outcome.CriticalFailure;
+      if (criticalSuccess != null && isNaturalMax)
+        return Outcome.CriticalSuccess;
+    }
+
+    if (testType === TestType.AtMost) {
+      if (isNaturalMax) return Outcome.Failure;
+      if (isNaturalMin) return Outcome.Success;
+    }
+
+    if (testType === TestType.AtLeast) {
+      if (isNaturalMax) return Outcome.Success;
+      if (isNaturalMin) return Outcome.Failure;
+    }
+  }
+
+  switch (testType) {
+    case TestType.AtMost:
+      return value <= (target ?? Number.POSITIVE_INFINITY)
+        ? Outcome.Success
+        : Outcome.Failure;
+    case TestType.Exact:
+      return value === target ? Outcome.Success : Outcome.Failure;
+    case TestType.Within:
+      return value >= (min ?? 0) && value <= (max ?? Number.POSITIVE_INFINITY)
+        ? Outcome.Success
+        : Outcome.Failure;
+    case TestType.InList:
+      return Array.isArray(values) && values.includes(value)
+        ? Outcome.Success
+        : Outcome.Failure;
+    case TestType.Skill: {
+      if (criticalFailure != null && value <= criticalFailure) {
+        return Outcome.CriticalFailure;
+      }
+      if (criticalSuccess != null && value >= criticalSuccess) {
+        return Outcome.CriticalSuccess;
+      }
+      return value >= (target ?? 0) ? Outcome.Success : Outcome.Failure;
+    }
+    case TestType.AtLeast:
+    default:
+      return value >= (target ?? 0) ? Outcome.Success : Outcome.Failure;
+  }
+}
+
+function resolveModifierValue(
+  modifier: RollModifierFunction | RollModifierInstance,
+  baseValue: number,
+): number {
+  if (typeof modifier === "function") {
+    return modifier(baseValue);
+  }
+
+  if (
+    modifier &&
+    typeof (
+      modifier as RollModifierInstance & { apply?: (value: number) => number }
+    ).apply === "function"
+  ) {
+    return (
+      modifier as RollModifierInstance & { apply?: (value: number) => number }
+    ).apply!(baseValue);
+  }
+
+  return baseValue;
+}
+
 // Runtime validation for rollType values uses the runtime `RollType` object.
 
 /**
- * Factory interface for producing RollRecord values.
+ * Factory interface for producing roll-record values.
  *
- * This module centralises the creation of roll records (normal, modified
- * and test rolls). The implementation intentionally keeps a small public
- * surface: callers request a record and receive a validated object ready
- * to be persisted in history. The default implementation delegates to the
- * `@platonic-dice/core` roll functions and stamps records with the system
- * clock. No constructor-based dependency injection is used here to keep
- * the API simple; tests can still override behaviour by calling the
- * factory methods directly.
+ * This module translates the Die wrapper API into expressions for the core
+ * expression-first runtime, then normalises the returned structured result into
+ * the persisted history record shape. The public surface stays small so callers
+ * can request a record and receive a validated object ready for history storage.
  */
 export interface IRollRecordFactory {
   /**
@@ -56,7 +220,7 @@ export interface IRollRecordFactory {
    */
   createNormalRoll(
     dieType: DieTypeValue,
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): DieRollRecord;
 
   /**
@@ -71,7 +235,7 @@ export interface IRollRecordFactory {
   createModifiedRoll(
     dieType: DieTypeValue,
     modifier: RollModifierFunction | RollModifierInstance,
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): ModifiedDieRollRecord;
 
   /**
@@ -89,7 +253,7 @@ export interface IRollRecordFactory {
     testConditions:
       | TestConditionsInstance
       | { testType: TestTypeValue; [k: string]: any },
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): TestDieRollRecord;
 
   /**
@@ -109,7 +273,7 @@ export interface IRollRecordFactory {
       | TestConditionsInstance
       | { testType: TestTypeValue; [k: string]: any },
     rollType?: RollTypeValue,
-    options?: { useNaturalCrits?: boolean }
+    options?: { useNaturalCrits?: boolean },
   ): ModifiedTestDieRollRecord;
 }
 
@@ -125,10 +289,8 @@ export interface IRollRecordFactory {
 export class RollRecordFactory implements IRollRecordFactory {
   createNormalRoll(
     dieType: DieTypeValue,
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): DieRollRecord {
-    // Runtime validation without `any` casts: compare against the known
-    // RollType members (explicit checks keep types narrow and avoid casts).
     if (
       rollType !== undefined &&
       rollType !== RollType.Advantage &&
@@ -136,8 +298,13 @@ export class RollRecordFactory implements IRollRecordFactory {
     ) {
       throw new TypeError(`Invalid rollType: ${String(rollType)}`);
     }
-    // Delegate to core roll implementation and attach a timestamp.
-    const value = coreRoll(dieType, rollType);
+
+    const expression = formatDieExpression(dieType, rollType);
+    const result = coreRoll(expression);
+    const value =
+      typeof result === "number"
+        ? result
+        : (result?.base ?? result?.modified ?? 0);
     const ts = new Date();
     const record: DieRollRecord = { roll: value, timestamp: ts };
 
@@ -151,10 +318,15 @@ export class RollRecordFactory implements IRollRecordFactory {
   createModifiedRoll(
     dieType: DieTypeValue,
     modifier: RollModifierFunction | RollModifierInstance,
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): ModifiedDieRollRecord {
-    // Resolve base and modified values using the core helper, then stamp.
-    const { base, modified } = coreRollMod(dieType, modifier, rollType);
+    const expression = formatDieExpression(dieType, rollType);
+    const result = coreRoll(expression);
+    const base =
+      typeof result === "number"
+        ? result
+        : (result?.base ?? result?.modified ?? 0);
+    const modified = resolveModifierValue(modifier, base);
     const ts = new Date();
     const record: ModifiedDieRollRecord = {
       roll: base,
@@ -174,11 +346,21 @@ export class RollRecordFactory implements IRollRecordFactory {
     testConditions:
       | TestConditionsInstance
       | { testType: TestTypeValue; [k: string]: any },
-    rollType?: RollTypeValue
+    rollType?: RollTypeValue,
   ): TestDieRollRecord {
-    // Core normalises and evaluates test conditions; we retain the outcome
-    // and attach a timestamp to produce a TestDieRollRecord.
-    const { base, outcome } = coreRollTest(dieType, testConditions, rollType);
+    const expression = formatTestExpression(dieType, testConditions, rollType);
+    const result = coreRoll(expression);
+    const base =
+      typeof result === "number"
+        ? result
+        : (result?.base ?? result?.modified ?? 0);
+    const outcome =
+      typeof result === "object" &&
+      result &&
+      "test" in result &&
+      result.test?.outcome
+        ? result.test.outcome
+        : evaluateOutcome(base, testConditions, dieType);
     const ts = new Date();
     const record: TestDieRollRecord = { roll: base, outcome, timestamp: ts };
 
@@ -196,16 +378,22 @@ export class RollRecordFactory implements IRollRecordFactory {
       | TestConditionsInstance
       | { testType: TestTypeValue; [k: string]: any },
     rollType?: RollTypeValue,
-    options?: { useNaturalCrits?: boolean }
+    options?: { useNaturalCrits?: boolean },
   ): ModifiedTestDieRollRecord {
-    // Delegate to core rollModTest which combines modifier and test logic
-    const { base, modified, outcome } = coreRollModTest(
-      dieType,
-      modifier,
-      testConditions,
-      rollType,
-      options
-    );
+    const expression = formatTestExpression(dieType, testConditions, rollType);
+    const result = coreRoll(expression);
+    const base =
+      typeof result === "number"
+        ? result
+        : (result?.base ?? result?.modified ?? 0);
+    const modified = resolveModifierValue(modifier, base);
+    const outcome =
+      typeof result === "object" &&
+      result &&
+      "test" in result &&
+      result.test?.outcome
+        ? result.test.outcome
+        : evaluateOutcome(modified, testConditions, dieType);
     const ts = new Date();
     const record: ModifiedTestDieRollRecord = {
       roll: base,

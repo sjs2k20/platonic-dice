@@ -1,6 +1,7 @@
 /**
  * Types for roll records used across the dice package.
- * These represent the persisted shape for normal, modified and test rolls.
+ * These represent the persisted shape for normal, modified, and test rolls
+ * produced by Die methods using the core expression-first runtime.
  */
 import type { OutcomeValue } from "@platonic-dice/core";
 

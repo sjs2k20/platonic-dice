@@ -13,7 +13,11 @@ import type {
 import type { TestConditionsInstance } from "./entities/TestConditions";
 
 /**
- * Rolls a die with a modifier and evaluates the modified result against test conditions.
+ * Compatibility helper for the legacy imperative die-based API.
+ *
+ * Prefer expression-first usage via `roll(expression)` / `analyse(expression)`
+ * when working with DSL expressions. This helper still applies a modifier to a
+ * die roll and evaluates the modified result against the supplied test conditions.
  *
  * @param dieType - The type of die to roll (e.g., `DieType.D20`).
  * @param modifier - The modifier to apply to the roll.
