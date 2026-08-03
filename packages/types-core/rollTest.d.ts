@@ -20,7 +20,11 @@ export interface RollTestOptions {
 }
 
 /**
- * Rolls a die and evaluates it against specified test conditions.
+ * Compatibility helper for the legacy imperative die-based API.
+ *
+ * Prefer expression-first usage via `roll(expression)` / `analyse(expression)`
+ * when working with DSL expressions. This helper still evaluates a die roll
+ * against the supplied test conditions and returns the raw roll plus outcome.
  *
  * @param dieType - The type of die to roll.
  * @param testConditions - Conditions to evaluate against. Either:

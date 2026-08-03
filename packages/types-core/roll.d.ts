@@ -1,23 +1,27 @@
 import { DieTypeValue, RollTypeValue } from "./entities";
+import type { RollExpressionResult } from "./rollExpression";
 
 /**
- * Rolls a single die of the specified type, optionally with advantage or disadvantage.
+ * Rolls using the expression-first core runtime.
  *
- * @param dieType - The type of die to roll (e.g., `DieType.D20`).
- * @param rollType - Optional roll mode (`RollType.Advantage` or `RollType.Disadvantage`).
- * @returns The rolled value (an integer between 1 and the die's maximum face).
- * @throws {TypeError} If the provided `dieType` or `rollType` is invalid.
+ * The preferred entry point is `roll(expression)` / `analyse(expression)`, which
+ * returns a structured result for DSL expressions such as `2D6+5` or
+ * `1D20ADV GET atLeast 15`. Compatibility overloads for die-type and roll-type
+ * pairs remain available for existing callers.
  *
  * @example
  * ```ts
- * import { roll, DieType, RollType } from "@platonic-dice/core";
+ * import { roll, analyse, DieType, RollType } from "@platonic-dice/core";
  *
+ * const expression = roll("2D6+5");
+ * const analysis = analyse("1D20ADV GET atLeast 15");
  * const normal = roll(DieType.D20);
  * const adv = roll(DieType.D20, RollType.Advantage);
- * const dis = roll(DieType.D20, RollType.Disadvantage);
  * ```
  */
-export function roll(dieType: DieTypeValue, rollType?: RollTypeValue): number;
+export function roll(dieType: DieTypeValue): number;
+export function roll(dieType: DieTypeValue, rollType: RollTypeValue): number;
+export function roll(expression: string): RollExpressionResult;
 
 /**
  * Rolls a die with advantage.
@@ -80,3 +84,5 @@ export function rollD12(rollType?: RollTypeValue): number;
  * @param rollType - Optional roll mode (`advantage` or `disadvantage`).
  */
 export function rollD20(rollType?: RollTypeValue): number;
+
+export function analyse(expression: string): RollExpressionResult;

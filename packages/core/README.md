@@ -2,7 +2,7 @@
 
 Core JavaScript library providing dice-roll logic, modifiers, and test evaluation for tabletop RPGs. Type declarations are supplied separately by `@platonic-dice/types-core`.
 
-This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exports rolling helpers including `roll`, `rollMod`, `rollTest`, `rollModTest`, and `rollDiceModTest` (combining a modified dice pool with aggregate test evaluation), entities (die types, roll types, outcomes), and utility functions. For DSL expressions, use `roll`; the older helper surface remains available as backward-compatible convenience APIs.
+This package is published independently to npm as `@platonic-dice/core`. Its npm tarball contains this package's distributable files and metadata, not the whole monorepo. It exposes the expression-first DSL runtime through `roll` and `analyse`, while retaining compatibility helpers such as `rollMod`, `rollTest`, `rollModTest`, and `rollDiceModTest` for existing imperative call sites. It also exports entities (die types, roll types, outcomes) and utility functions.
 
 ## Installation
 

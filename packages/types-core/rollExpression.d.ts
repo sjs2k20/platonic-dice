@@ -1,5 +1,9 @@
 import type { OutcomeValue, TestTypeValue } from "./entities";
 
+/**
+ * Shape of the structured result produced by the expression-first runtime used
+ * by `roll(expression)` and `analyse(expression)` for DSL expressions.
+ */
 export type RollExpressionModifierType = "add" | "multiply";
 export type RollExpressionRollMode = "advantage" | "disadvantage";
 export type RollExpressionDiagnosticSeverity = "error" | "warning";

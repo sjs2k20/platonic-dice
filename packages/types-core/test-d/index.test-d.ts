@@ -1,13 +1,13 @@
-import { expectError, expectType } from "tsd";
+import { expectType } from "tsd";
 import {
   roll,
+  analyse,
   rollDice,
   rollMod,
   rollDiceMod,
   rollDiceModTest,
   rollTest,
   rollModTest,
-  rollExpression,
   type RollExpressionResult,
   type ExpressionAggregateClause,
   type RollExpressionAst,
@@ -72,7 +72,7 @@ expectType<{ base: number; modified: number; outcome: OutcomeValue }>(
 );
 
 // Expression-first DSL helpers
-const expressionResult = rollExpression("2D6+5");
+const expressionResult = roll("2D6+5");
 expectType<RollExpressionResult>(expressionResult);
 expectType<string>(expressionResult.expression);
 expectType<number>(expressionResult.count);
@@ -83,6 +83,9 @@ expectType<number>(expressionResult.modified);
 expectType<ExpressionAggregateClause | undefined>(
   expressionResult.test?.aggregate,
 );
+
+const analysisResult = analyse("2D6+5");
+expectType<RollExpressionResult>(analysisResult);
 
 const ast: RollExpressionAst = {
   expression: "2D6+5",
@@ -126,7 +129,11 @@ expectType<typeof RollType.Advantage>(rollTypeFromEnum);
 expectType<typeof TestType.AtLeast>(testTypeFromEnum);
 
 // Negative tests
-expectError(roll("d100"));
-expectError(rollDice(DieType.D6, { count: "2" }));
-expectError(rollMod(DieType.D6, (a: number, b: number) => a + b)); // Should accept only single-param functions
-expectError(rollTest(DieType.D6, { testType: "not_real" }));
+// @ts-expect-error roll only supports valid roll-type values
+roll(DieType.D6, "not_real");
+// @ts-expect-error rollDice expects a numeric count option
+rollDice(DieType.D6, { count: "2" });
+// @ts-expect-error rollMod should only accept single-parameter modifier functions
+rollMod(DieType.D6, (a: number, b: number) => a + b);
+// @ts-expect-error rollTest requires a known test type
+rollTest(DieType.D6, { testType: "not_real" });

@@ -1,7 +1,8 @@
 /**
  * @module @platonic-dice/core
  * @description
- * Primary entry point for the core dice logic.
+ * Primary entry point for the expression-first core runtime and its
+ * compatibility helpers.
  */
 
 // Re-export all roll functions
@@ -13,7 +14,7 @@ export * from "./rollDice";
 // Re-export all rollMod functions
 export * from "./rollMod";
 
-// Re-export expression-first DSL helpers
+// Re-export expression-first DSL result types and runtime helpers
 export * from "./rollExpression";
 
 // Re-export all rollDiceMod functions

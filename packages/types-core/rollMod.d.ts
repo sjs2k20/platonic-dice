@@ -16,7 +16,11 @@ export interface RollModResult {
 }
 
 /**
- * Rolls a single die and applies a modifier function or RollModifier instance.
+ * Compatibility helper for the legacy imperative die-based API.
+ *
+ * Prefer expression-first usage via `roll(expression)` / `analyse(expression)`
+ * when working with DSL expressions. This helper still applies a modifier
+ * function or RollModifier instance to a single die roll.
  *
  * @param dieType - The type of die to roll (e.g., `DieType.D20`).
  * @param modifier - Either a function `(n: number) => number` or a RollModifier instance.
@@ -26,7 +30,7 @@ export interface RollModResult {
 export declare function rollMod(
   dieType: DieTypeValue,
   modifier: RollModifierFunction | RollModifierInstance,
-  rollType?: RollTypeValue
+  rollType?: RollTypeValue,
 ): RollModResult;
 
 /**
