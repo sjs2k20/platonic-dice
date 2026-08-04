@@ -11,6 +11,7 @@ import {
   type RollExpressionResult,
   type RollExpressionAnalysisResult,
   type ExpressionAggregateClause,
+  type ExpressionAggregateClauseResult,
   type RollExpressionAst,
   type RollExpressionDiagnostic,
   type RollExpressionTestDefinition,
@@ -87,6 +88,18 @@ expectType<ExpressionAggregateClause | undefined>(
 
 const analysisResult = analyse("2D6+5 GET atLeast 15");
 expectType<RollExpressionAnalysisResult>(analysisResult);
+expectType<ExpressionAggregateClauseResult[] | undefined>(
+  analysisResult.test?.aggregate?.clauses,
+);
+
+const aggregateClause: ExpressionAggregateClauseResult = {
+  type: "threshold",
+  passed: true,
+  actualCount: 2,
+  thresholdCount: 2,
+  thresholdValue: 5,
+};
+expectType<ExpressionAggregateClauseResult>(aggregateClause);
 
 const ast: RollExpressionAst = {
   expression: "2D6+5",

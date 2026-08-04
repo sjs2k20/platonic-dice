@@ -12,7 +12,20 @@ export interface ExpressionAggregateClause {
   count: number;
   threshold: number;
   total: number;
-  conjunction: "and" | "or";
+  totalOperator?: ">=" | "<=" | "=";
+  conjunction?: "and" | "or";
+  clauses?: ExpressionAggregateClauseResult[];
+}
+
+export interface ExpressionAggregateClauseResult {
+  type: "threshold" | "total";
+  passed: boolean;
+  actualCount?: number;
+  thresholdCount?: number;
+  thresholdValue?: number;
+  target?: number;
+  actualValue?: number;
+  operator?: ">=" | "<=" | "=";
 }
 
 export interface RollExpressionTestDefinition {
@@ -80,9 +93,13 @@ export interface RollExpressionAnalysisResult {
   totalPossibilities: number;
   outcomeCounts: Record<string, number>;
   outcomeProbabilities: Record<string, number>;
-  outcomesByRoll: Record<number, string>;
-  rolls: number[];
-  rollsByOutcome: Record<string, number[]>;
+  outcomesByRoll: Record<string, string>;
+  aggregateResultsByRoll?: Record<
+    string,
+    { outcome: OutcomeValue; clauses?: ExpressionAggregateClauseResult[] }
+  >;
+  rolls: number[][];
+  rollsByOutcome: Record<string, string[]>;
   modifier: number;
   modifierType: RollExpressionModifierType;
   rollMode?: RollExpressionRollMode;
