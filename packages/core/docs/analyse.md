@@ -1,10 +1,10 @@
 # analyse
 
-Use `analyse(expression)` when you want a deterministic probability overview for a DSL expression instead of executing a random roll.
+Use `analyse(expression)` when you want an exact, deterministic probability overview for a DSL expression instead of executing a single random roll.
 
 ## Overview
 
-`analyse(expression)` is the expression-first analysis entry point. It evaluates the same DSL grammar as `roll(expression)`, but returns analysis data rather than a single execution result.
+`analyse(expression)` is the expression-first analysis entry point. It evaluates the same DSL grammar as `roll(expression)`, but instead of returning one execution result it exhaustively evaluates the full outcome space for the expression and returns probability data.
 
 ```javascript
 const { analyse } = require("@platonic-dice/core");
@@ -27,7 +27,7 @@ analyse(expression: string): unknown
 
 ### Returns
 
-A structured analysis object describing the executed expression and its test outcome. The common shape is:
+A structured analysis object describing the expression and its probability distribution. The common shape is:
 
 - `expression`: the original DSL string
 - `count`: the number of dice rolled
@@ -64,8 +64,10 @@ console.log(analysis);
 
 - `analyse(expression)` is the preferred analysis API for new code.
 - It must include a `GET` clause; plain arithmetic expressions are not valid analysis inputs.
+- The analysis is exact and deterministic: it enumerates the possible combinations of die values for the expression rather than sampling or simulating random rolls.
+- Because it evaluates the full outcome space, larger expressions can require significant computation and memory. On low-resource machines, especially with many dice or large die sizes, `analyse` may take noticeable time to complete.
 - The older `analyseTest` helper remains available as a compatibility entry point for imperative-style usage.
-- Use `roll(expression)` when you want a concrete execution result, and `analyse(expression)` when you want structured analysis information.
+- Use `roll(expression)` when you want a concrete execution result, and `analyse(expression)` when you want structured probability information.
 
 ## See Also
 

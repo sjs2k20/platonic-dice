@@ -1,6 +1,8 @@
 # @platonic-dice/core Documentation Index
 
-This package's documentation is intentionally focused on the two primary entry points: `roll(expression)` for execution and `analyse(expression)` for analysis.
+This package's documentation is intentionally focused on the two primary entry points: `roll(expression)` for execution and `analyse(expression)` for exact, deterministic probability analysis.
+
+> Note: `analyse(expression)` evaluates the complete outcome space for the expression, so it can be expensive for larger dice pools. On low-resource machines, it may take noticeable time and memory to compute.
 
 ## Primary entry points
 

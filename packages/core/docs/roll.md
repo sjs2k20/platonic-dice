@@ -4,7 +4,9 @@ The canonical entry point for the expression-first runtime is `roll(expression)`
 
 ## Overview
 
-Use `roll` when you want to execute a dice expression. If you want a deterministic probability analysis instead, use `analyse(expression)`.
+Use `roll` when you want to execute a dice expression. If you want an exact, deterministic probability analysis instead, use `analyse(expression)`.
+
+> Note: `analyse(expression)` evaluates the full outcome space for the expression, so it can be much more expensive than a single `roll(expression)` call. Larger dice pools can mean a very large number of combinations, which may be slow or memory-intensive on lower-powered machines.
 
 ```javascript
 const { roll } = require("@platonic-dice/core");
