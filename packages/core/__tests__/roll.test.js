@@ -430,11 +430,25 @@ describe("@platonic-dice/core/roll", () => {
           testType: "at_least",
           target: 15,
           outcome: "success",
-          aggregate: {
+          aggregate: expect.objectContaining({
             count: 2,
             threshold: 5,
             total: 15,
-          },
+            totalOperator: ">=",
+            clauses: expect.arrayContaining([
+              expect.objectContaining({
+                type: "threshold",
+                passed: true,
+                thresholdCount: 2,
+                thresholdValue: 5,
+              }),
+              expect.objectContaining({
+                type: "total",
+                passed: true,
+                target: 15,
+              }),
+            ]),
+          }),
         },
       });
     });
@@ -460,13 +474,69 @@ describe("@platonic-dice/core/roll", () => {
           testType: "at_least",
           target: 15,
           outcome: "failure",
-          aggregate: {
+          aggregate: expect.objectContaining({
             count: 1,
             threshold: 5,
             total: 15,
-          },
+            totalOperator: ">=",
+            clauses: expect.arrayContaining([
+              expect.objectContaining({
+                type: "threshold",
+                passed: true,
+                thresholdCount: 1,
+                thresholdValue: 5,
+              }),
+              expect.objectContaining({
+                type: "total",
+                passed: false,
+                target: 15,
+              }),
+            ]),
+          }),
         },
       });
+    });
+
+    it("should expose aggregate subtests for compound GET clauses", () => {
+      vi.spyOn(utils, "generateResult")
+        .mockReturnValueOnce(4)
+        .mockReturnValueOnce(5)
+        .mockReturnValueOnce(6);
+
+      const result = rollModule.roll("3D6 GET atLeast 2x 5+ AND total >= 15");
+
+      expect(result.test.aggregate.clauses).toHaveLength(2);
+      expect(result.test.aggregate.clauses[0]).toEqual(
+        expect.objectContaining({
+          type: "threshold",
+          passed: true,
+          actualCount: 2,
+          thresholdCount: 2,
+          thresholdValue: 5,
+        }),
+      );
+      expect(result.test.aggregate.clauses[1]).toEqual(
+        expect.objectContaining({
+          type: "total",
+          passed: true,
+          target: 15,
+          actualValue: 15,
+        }),
+      );
+    });
+
+    it("should analyse aggregate GET clauses without throwing", () => {
+      const result = rollModule.analyse(
+        "3D6 GET atLeast 2x 5+ AND total >= 15",
+      );
+
+      expect(result.test.aggregate.clauses).toHaveLength(2);
+      expect(result.outcomeCounts).toEqual(
+        expect.objectContaining({
+          success: expect.any(Number),
+          failure: expect.any(Number),
+        }),
+      );
     });
 
     it("should support OR aggregate clauses for total-threshold checks", () => {
@@ -478,11 +548,14 @@ describe("@platonic-dice/core/roll", () => {
       const result = rollModule.roll("3D6 GET atLeast 2x 5+ OR total >= 15");
 
       expect(result.test.outcome).toBe("success");
-      expect(result.test.aggregate).toEqual({
-        count: 2,
-        threshold: 5,
-        total: 15,
-      });
+      expect(result.test.aggregate).toEqual(
+        expect.objectContaining({
+          count: 2,
+          threshold: 5,
+          total: 15,
+          totalOperator: ">=",
+        }),
+      );
     });
   });
 

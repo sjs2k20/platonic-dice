@@ -67,7 +67,7 @@ Before generating code, you MUST:
 
 ## Phase 4: Post-Release Hardening and Controlled DSL Evolution
 
-- **Objective:** Harden parser/evaluator behavior in real-world usage while preserving strict architecture boundaries and avoiding uncontrolled syntax creep.
-- **Scope Restriction:** src, **tests**, README.md
-- **Features Included:** Feedback-driven diagnostic improvements; regression tests for field-reported edge cases; explicit proposal-driven process for future DSL syntax additions.
-- **Verification Criteria:** Every production-discovered parser/evaluator issue is captured by regression tests; documentation stays synchronized with implemented grammar and behavior.
+- **Objective:** Harden parser/evaluator behavior in real-world usage while preserving strict architecture boundaries, deterministic analysis semantics, and a stable DSL contract.
+- **Scope Restriction:** packages/core/src, packages/core/**tests**, README.md, docs, examples
+- **Features Included:** Feedback-driven diagnostic improvements; regression tests for field-reported edge cases; explicit support for compound aggregate GET clauses such as threshold+total checks with AND/OR conjunctions; deterministic `analyse(expression)` behavior that mirrors `roll(expression)` for the same test semantics; structured aggregate results that preserve clause-level detail without overloading the public contract; explicit proposal-driven process for future DSL syntax additions.
+- **Verification Criteria:** Every production-discovered parser/evaluator issue is captured by regression tests; malformed or unsupported aggregate clauses raise actionable diagnostics; expressions such as `3D6 GET atLeast 2x 5+ AND total >= 15` and `3D6 GET atLeast 2x 5+ OR total >= 15` behave consistently in both `roll(expression)` and `analyse(expression)`; documentation stays synchronized with implemented grammar and behavior.

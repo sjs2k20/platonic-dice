@@ -13,6 +13,7 @@ function buildAggregateTestMatch(match) {
     count: Number(match[3]),
     threshold: Number(match[4] || match[3]),
     total: Number(match[7]),
+    totalOperator: match[6],
   };
   Object.defineProperty(aggregate, "conjunction", {
     value: match[5].toLowerCase(),
@@ -90,14 +91,26 @@ function buildTestDefinition(testMatch, testOperator, testTarget) {
   };
 }
 
-function evaluateAggregateOutcome(bound, rolls, modified) {
-  const thresholdCount = bound.test.aggregate.count;
-  const thresholdValue = bound.test.aggregate.threshold;
-  const totalValue = bound.test.aggregate.total;
-  const passesThreshold =
-    rolls.filter((value) => value >= thresholdValue).length >= thresholdCount;
-  const passesTotal = modified >= totalValue;
-  const conjunction = bound.test.aggregate.conjunction || "and";
+function compareValues(actualValue, operator, target) {
+  if (operator === "<=") return actualValue <= target;
+  if (operator === "=") return actualValue === target;
+  return actualValue >= target;
+}
+
+function buildAggregateClauseResults(bound, rolls, modified) {
+  const aggregate = bound.test.aggregate;
+  const thresholdCount = aggregate.count;
+  const thresholdValue = aggregate.threshold;
+  const totalValue = aggregate.total;
+  const actualThresholdCount = rolls.filter(
+    (value) => value >= thresholdValue,
+  ).length;
+  const passesThreshold = actualThresholdCount >= thresholdCount;
+  const passesTotal = compareValues(
+    modified,
+    aggregate.totalOperator || ">=",
+    totalValue,
+  );
 
   if (thresholdCount > bound.count) {
     throw createExpressionError(
@@ -113,13 +126,33 @@ function evaluateAggregateOutcome(bound, rolls, modified) {
     );
   }
 
-  return conjunction === "or"
-    ? passesThreshold || passesTotal
-      ? "success"
-      : "failure"
-    : passesThreshold && passesTotal
-      ? "success"
-      : "failure";
+  return [
+    {
+      type: "threshold",
+      passed: passesThreshold,
+      actualCount: actualThresholdCount,
+      thresholdCount,
+      thresholdValue,
+    },
+    {
+      type: "total",
+      passed: passesTotal,
+      target: totalValue,
+      actualValue: modified,
+      operator: aggregate.totalOperator || ">=",
+    },
+  ];
+}
+
+function evaluateAggregateOutcome(bound, rolls, modified) {
+  const clauses = buildAggregateClauseResults(bound, rolls, modified);
+  const conjunction = bound.test.aggregate.conjunction || "and";
+  const passed =
+    conjunction === "or"
+      ? clauses.some((clause) => clause.passed)
+      : clauses.every((clause) => clause.passed);
+
+  return passed ? "success" : "failure";
 }
 
 function evaluateStandardOutcome(bound, effectiveBase, baseValue) {
@@ -166,6 +199,49 @@ function evaluateStandardOutcome(bound, effectiveBase, baseValue) {
   }
 
   return outcome;
+}
+
+function getRollMetrics(bound, rolls) {
+  const base = rolls.reduce((total, value) => total + value, 0);
+  const effectiveBase =
+    bound.rollMode === "advantage"
+      ? Math.max(...rolls)
+      : bound.rollMode === "disadvantage"
+        ? Math.min(...rolls)
+        : base;
+  const perDieRolls =
+    bound.perDieModifier != null
+      ? rolls.map((value) => value + bound.perDieModifier)
+      : rolls;
+  const perDieSum = perDieRolls.reduce((total, value) => total + value, 0);
+  const modified =
+    bound.perDieModifier != null
+      ? perDieSum + bound.modifier
+      : bound.modifierType === "multiply"
+        ? effectiveBase * bound.modifier
+        : effectiveBase + bound.modifier;
+
+  return {
+    base,
+    effectiveBase,
+    perDieRolls,
+    perDieSum,
+    modified,
+  };
+}
+
+function evaluateOutcomeForBound(bound, rolls, metrics) {
+  if (bound.test?.aggregate) {
+    return evaluateAggregateOutcome(bound, rolls, metrics.modified);
+  }
+
+  const baseValue = bound.rollMode
+    ? metrics.effectiveBase
+    : bound.perDieModifier != null
+      ? metrics.perDieSum
+      : metrics.modified;
+
+  return evaluateStandardOutcome(bound, metrics.effectiveBase, baseValue);
 }
 
 /**
@@ -358,40 +434,25 @@ function executeExpression(bound) {
   const rolls = Array.from({ length: rollCount }, () =>
     utils.generateResult(bound.dieType),
   );
-  const base = rolls.reduce((total, value) => total + value, 0);
-  const effectiveBase =
-    bound.rollMode === "advantage"
-      ? Math.max(...rolls)
-      : bound.rollMode === "disadvantage"
-        ? Math.min(...rolls)
-        : base;
-  const perDieRolls =
-    bound.perDieModifier != null
-      ? rolls.map((value) => value + bound.perDieModifier)
-      : rolls;
-  const perDieSum = perDieRolls.reduce((total, value) => total + value, 0);
-  const modified =
-    bound.perDieModifier != null
-      ? perDieSum + bound.modifier
-      : bound.modifierType === "multiply"
-        ? effectiveBase * bound.modifier
-        : effectiveBase + bound.modifier;
+  const metrics = getRollMetrics(bound, rolls);
 
   const test = bound.test
     ? {
         testType: bound.test.testType,
         target: bound.test.target,
-        outcome: bound.test.aggregate
-          ? evaluateAggregateOutcome(bound, rolls, modified)
-          : (() => {
-              const baseValue = bound.rollMode
-                ? effectiveBase
-                : bound.perDieModifier != null
-                  ? perDieSum
-                  : modified;
-              return evaluateStandardOutcome(bound, effectiveBase, baseValue);
-            })(),
-        ...(bound.test.aggregate ? { aggregate: bound.test.aggregate } : {}),
+        outcome: evaluateOutcomeForBound(bound, rolls, metrics),
+        ...(bound.test.aggregate
+          ? {
+              aggregate: {
+                ...bound.test.aggregate,
+                clauses: buildAggregateClauseResults(
+                  bound,
+                  rolls,
+                  metrics.modified,
+                ),
+              },
+            }
+          : {}),
       }
     : undefined;
 
@@ -400,7 +461,7 @@ function executeExpression(bound) {
     count: bound.count,
     dieType: bound.dieType,
     rolls,
-    base: effectiveBase,
+    base: metrics.effectiveBase,
     modifier: bound.modifier,
     modifierType: bound.modifierType,
     ...(bound.perDieModifier != null
@@ -409,7 +470,7 @@ function executeExpression(bound) {
           modifierPlan: bound.modifierPlan,
         }
       : {}),
-    modified,
+    modified: metrics.modified,
     ...(bound.rollMode != null ? { rollMode: bound.rollMode } : {}),
     ...(test ? { test } : {}),
   };
@@ -443,37 +504,59 @@ function analyse(expression) {
   const sides = Number(bound.dieType.slice(1));
   const outcomeCounts = {};
   const outcomesByRoll = {};
+  const aggregateResultsByRoll = {};
   const rolls = [];
 
-  for (let rollValue = 1; rollValue <= sides; rollValue++) {
-    const syntheticRoll = {
-      expression: bound.expression,
-      count: bound.count,
-      dieType: bound.dieType,
-      rolls: [rollValue],
-      base: rollValue,
-      modifier: bound.modifier,
-      modifierType: bound.modifierType,
-      modified: rollValue + bound.modifier,
-      ...(bound.rollMode != null ? { rollMode: bound.rollMode } : {}),
-    };
+  const generateCombinations = (current = []) => {
+    if (current.length === bound.count) {
+      const comboRolls = [...current];
+      const metrics = getRollMetrics(
+        {
+          ...bound,
+          rollMode: undefined,
+        },
+        comboRolls,
+      );
+      const outcome = evaluateOutcomeForBound(
+        {
+          ...bound,
+          rollMode: undefined,
+        },
+        comboRolls,
+        metrics,
+      );
 
-    const outcome = evaluateStandardOutcome(
-      {
-        ...bound,
-        test: bound.test,
-        rollMode: undefined,
-      },
-      rollValue,
-      rollValue,
-    );
+      const aggregateClauses = bound.test?.aggregate
+        ? buildAggregateClauseResults(
+            {
+              ...bound,
+              rollMode: undefined,
+            },
+            comboRolls,
+            metrics.modified,
+          )
+        : undefined;
 
-    outcomesByRoll[rollValue] = outcome;
-    outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
-    rolls.push(rollValue);
-  }
+      outcomesByRoll[comboRolls.join(",")] = outcome;
+      aggregateResultsByRoll[comboRolls.join(",")] = {
+        outcome,
+        ...(aggregateClauses ? { clauses: aggregateClauses } : {}),
+      };
+      outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1;
+      rolls.push(comboRolls);
+      return;
+    }
 
-  const totalPossibilities = sides;
+    for (let rollValue = 1; rollValue <= sides; rollValue++) {
+      current.push(rollValue);
+      generateCombinations(current);
+      current.pop();
+    }
+  };
+
+  generateCombinations();
+
+  const totalPossibilities = sides ** bound.count;
   const outcomeProbabilities = Object.fromEntries(
     Object.entries(outcomeCounts).map(([outcome, count]) => [
       outcome,
@@ -489,11 +572,12 @@ function analyse(expression) {
     outcomeCounts,
     outcomeProbabilities,
     outcomesByRoll,
+    aggregateResultsByRoll,
     rolls,
     rollsByOutcome: Object.entries(outcomesByRoll).reduce(
       (acc, [rollValue, outcome]) => {
         acc[outcome] ??= [];
-        acc[outcome].push(Number(rollValue));
+        acc[outcome].push(rollValue);
         return acc;
       },
       {},
@@ -501,7 +585,22 @@ function analyse(expression) {
     modifier: bound.modifier,
     modifierType: bound.modifierType,
     ...(bound.rollMode != null ? { rollMode: bound.rollMode } : {}),
-    ...(bound.test ? { test: bound.test } : {}),
+    ...(bound.test
+      ? {
+          test: {
+            ...bound.test,
+            ...(bound.test.aggregate
+              ? {
+                  aggregate: {
+                    ...bound.test.aggregate,
+                    clauses:
+                      Object.values(aggregateResultsByRoll)[0]?.clauses || [],
+                  },
+                }
+              : {}),
+          },
+        }
+      : {}),
   };
 }
 
