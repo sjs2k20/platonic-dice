@@ -27,7 +27,9 @@ Supported expression forms include:
 - explicit tests such as `1D20ADV GET >= 15`
 - aggregate clauses such as `3D6 GET atLeast 2x 5+ AND total >= 15`
 
-For analysis, `analyse(expression)` requires a `GET` clause so the input is a test-style expression rather than a plain arithmetic roll.
+For analysis, `analyse(expression)` requires a `GET` clause so the input is a test-style expression rather than a plain arithmetic roll. It computes exact probabilities by exhaustively evaluating the full outcome space for the expression, rather than by simulating random rolls.
+
+> Note: the analysis is exact, but it can still be computationally expensive for larger dice pools because it evaluates every possible combination of results. For very large expressions, especially on low-memory or lower-powered machines, `analyse` may take noticeable time or memory.
 
 ## Build & Test
 
